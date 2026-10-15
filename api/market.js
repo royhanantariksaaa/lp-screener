@@ -4,6 +4,7 @@ const LUNARCRUSH_API = "https://lunarcrush.com/api4";
 const DEFILLAMA_API = "https://api.llama.fi";
 const BIRDEYE_API = "https://public-api.birdeye.so";
 const OCULA_FEED = "https://vwpzmuprmqwqwshqiyhl.supabase.co/functions/v1/codex-brewing";
+const NANSEN_API = "https://api.nansen.ai/api/v1";
 
 const withTimeout = async (url, init = {}, timeoutMs = 12000) => {
   const controller = new AbortController();
@@ -121,6 +122,50 @@ const birdeyeHolderProfile = async (mint) => {
   }
 };
 
+const nansenJson = async (path, body, apiKey) => {
+  const response = await withTimeout(`${NANSEN_API}${path}`, {
+    method: "POST",
+    headers: { accept: "application/json", "content-type": "application/json", apiKey },
+    body: JSON.stringify(body),
+  }, 15000);
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const detail = payload?.message || payload?.error || `nansen (${response.status})`;
+    throw new Error(String(detail));
+  }
+  return payload;
+};
+
+const nansenSignal = async (mint) => {
+  const apiKey = String(process.env.NANSEN_API_KEY ?? "").trim();
+  if (!apiKey) return { status: "UNAVAILABLE", source: "Nansen key required", smartWallets: 0, walletFlow: "MIXED", walletEvents: 0 };
+  try {
+    const payload = await nansenJson("/tgm/holders", {
+      chain: "solana",
+      token_address: mint,
+      aggregate_by_entity: false,
+      label_type: "smart_money",
+      pagination: { page: 1, per_page: 100 },
+      filters: { include_smart_money_labels: ["Smart Trader", "Fund", "30D Smart Trader", "90D Smart Trader", "180D Smart Trader"] },
+      order_by: [{ field: "value_usd", direction: "DESC" }],
+    }, apiKey);
+    const rows = Array.isArray(payload?.data) ? payload.data : [];
+    const netChange = rows.reduce((sum, row) => sum + Number(row?.balance_change_24h ?? row?.total_inflow ?? 0) - Number(row?.total_outflow ?? 0), 0);
+    const walletFlow = netChange > 0 ? "INFLOW" : netChange < 0 ? "OUTFLOW" : "MIXED";
+    return {
+      status: "LIVE",
+      source: "Nansen API · smart-money holders",
+      smartWallets: rows.filter((row) => row?.address).length,
+      walletFlow,
+      walletEvents: rows.length,
+      walletAddresses: rows.filter((row) => row?.address).slice(0, 5).map((row) => row.address),
+      smartMoneyLabels: [...new Set(rows.map((row) => row?.address_label).filter(Boolean))].slice(0, 5),
+    };
+  } catch {
+    return { status: "UNAVAILABLE", source: "Nansen unavailable", smartWallets: 0, walletFlow: "MIXED", walletEvents: 0 };
+  }
+};
+
 const ageLabel = (timestamp) => {
   const seconds = Number(timestamp ?? 0);
   if (!seconds) return "—";
@@ -196,7 +241,7 @@ const providerHealth = () => {
       { key: "defillama", label: "DeFiLlama", status: "LIVE", mode: "PUBLIC", source: "Chain TVL context" },
       { key: "lunarcrush", label: "LunarCrush", status: configured("LUNARCRUSH_API_KEY") ? "LIVE" : "KEY_REQUIRED", mode: "KOL", source: "Topic mentions + creators" },
       { key: "birdeye", label: "Birdeye", status: configured("BIRDEYE_API_KEY") ? "LIVE" : "KEY_REQUIRED", mode: "HOLDER_PROFILE", source: "Holder behavior enrichment" },
-      { key: "nansen", label: "Nansen", status: configured("NANSEN_API_KEY") ? "CONFIGURED" : "KEY_REQUIRED", mode: "LINK_ONLY", source: "Smart-money context link" },
+      { key: "nansen", label: "Nansen", status: configured("NANSEN_API_KEY") ? "LIVE" : "KEY_REQUIRED", mode: "SMART_MONEY", source: "Smart-money holders + 24h flow" },
       { key: "gmgn", label: "GMGN", status: configured("GMGN_API_KEY") ? "CONFIGURED" : "KEY_REQUIRED", mode: "LINK_ONLY", source: "On-chain trader context link" },
       { key: "ocula", label: "Ocula", status: "LIVE", mode: "PUBLIC", source: "Live Solana discovery + holder/social context" },
       { key: "bubblemaps", label: "Bubblemaps", status: configured("BUBBLEMAPS_API_KEY") ? "CONFIGURED" : "KEY_REQUIRED", mode: "LINK_ONLY", source: "Holder-cluster context link" },
@@ -257,6 +302,11 @@ export default async function handler(req, res) {
       const limit = Math.max(3, Math.min(8, Number(req.query?.limit ?? 6)));
       if (!/^[1-9A-HJ-NP-Za-km-z]{32,50}$/.test(pool) || !/^[1-9A-HJ-NP-Za-km-z]{32,50}$/.test(baseMint)) return res.status(400).json({ error: "invalid_pool_or_mint" });
       return res.status(200).json(await walletSignal(pool, baseMint, limit));
+    }
+    if (kind === "nansen") {
+      const mint = String(req.query?.mint ?? "");
+      if (!/^[1-9A-HJ-NP-Za-km-z]{32,50}$/.test(mint)) return res.status(400).json({ error: "invalid_mint" });
+      return res.status(200).json(await nansenSignal(mint));
     }
     if (kind === "token") {
       const mint = String(req.query?.mint ?? "");

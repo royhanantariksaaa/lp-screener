@@ -110,7 +110,7 @@ function bind() { document.querySelectorAll<HTMLButtonElement>("[data-academy]")
 async function loadPublicProfiles() { try { const response = await fetch("https://api.dexscreener.com/token-profiles/latest/v1"); if (!response.ok) return; const profiles = await response.json() as Array<{ chainId?: string; tokenAddress?: string; url?: string; links?: Array<unknown> }>; const byAddress = new Map(profiles.filter((item) => item.chainId === "solana" && item.tokenAddress).map((item) => [item.tokenAddress!.toLowerCase(), item])); state.pools = state.pools.map((pool) => { const profile = pool.tokenAddress ? byAddress.get(pool.tokenAddress.toLowerCase()) : undefined; return profile ? { ...pool, publicLinks: profile.links?.length ?? 0, profileUrl: profile.url } : pool; }); } catch { /* Public profile enrichment is optional. */ } }
 async function loadTokenSafety() {
   const targets = [...state.pools].sort((a, b) => b.volume24h - a.volume24h || b.liquidity - a.liquidity).filter((pool) => pool.tokenStatus !== "LIVE" && pool.tokenAddress).slice(0, 12);
-  const results = await mapConcurrent(targets, 4), async (pool) => {
+  const results = await mapConcurrent(targets, 4, async (pool) => {
     try {
       const payload = await fetchJson<{ status?: "LIVE" | "UNAVAILABLE"; source?: string; mintAuthority?: boolean; freezeAuthority?: boolean; holderTop10Pct?: number; safety?: "PASS" | "WARN" }>(liveApi("token", { mint: pool.tokenAddress! }), 20000);
       return payload.status === "LIVE" ? { key: poolKey(pool), payload } : undefined;
@@ -143,7 +143,7 @@ function refreshEligibility() {
 
 async function loadWalletIntelligence() {
   const targets = [...state.pools].sort((a, b) => b.volume24h - a.volume24h || b.liquidity - a.liquidity).filter((pool) => pool.walletIntelligence === "UNAVAILABLE" && pool.pairAddress && pool.tokenAddress).slice(0, 8);
-  const results = await mapConcurrent(targets, 3), async (pool) => {
+  const results = await mapConcurrent(targets, 3, async (pool) => {
     try {
       const payload = await fetchJson<{ status?: string; source?: string; smartWallets?: number; walletFlow?: Pool["walletFlow"]; walletEvents?: number }>(liveApi("wallets", { pool: pool.pairAddress!, base: pool.tokenAddress!, limit: "6" }), 20000);
       return payload.status === "LIVE" ? { key: poolKey(pool), payload } : undefined;

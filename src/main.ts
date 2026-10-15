@@ -308,12 +308,12 @@ async function fetchCandles(pool: Pool) {
   if (cached && cached.candles && Date.now() - cached.fetchedAt < 5 * 60_000) return cached.candles;
   if (cached?.failedAt && Date.now() - cached.failedAt < 60_000) return undefined;
   try {
-    const payload = await fetchJson<unknown>(liveApi("ohlcv", { pool: pool.pairAddress }), 12000);
+    const payload = await fetchJson<unknown>(liveApi("ohlcv", { pool: pool.pairAddress }), 30000);
     const candles = parseOhlcv(payload);
     if (candles.length) { candleCache.set(pool.pairAddress, { candles, fetchedAt: Date.now() }); return candles; }
   } catch {
     try {
-      const payload = await fetchJson<unknown>(`https://api.geckoterminal.com/api/v2/networks/solana/pools/${encodeURIComponent(pool.pairAddress)}/ohlcv/minute?aggregate=15&limit=100`, 12000);
+      const payload = await fetchJson<unknown>(`https://api.geckoterminal.com/api/v2/networks/solana/pools/${encodeURIComponent(pool.pairAddress)}/ohlcv/minute?aggregate=15&limit=100`, 30000);
       const candles = parseOhlcv(payload);
       if (candles.length) { candleCache.set(pool.pairAddress, { candles, fetchedAt: Date.now() }); return candles; }
     } catch (fallbackError) {

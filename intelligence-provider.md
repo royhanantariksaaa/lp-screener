@@ -38,3 +38,10 @@ The client refreshes the market feed on load and every 60 seconds. It derives po
 
 The client calls token-safety checks for the highest-volume candidates, then enriches technical, wallet, and KOL evidence. The default workspace is `Eligible setups`: a pool must clear the microcap liquidity floor ($5K), activity floor ($2K 24h volume), age window (365 days), fresh bullish 15m state, live smart-wallet and KOL/attention evidence, and token-safety checks. `Open now` is reserved for an eligible pool with a fresh flip or reclaim trigger. Without `LUNARCRUSH_API_KEY`, KOL fields remain explicitly unavailable and the UI shows that provider requirement instead of fabricating mentions. These gates are screening evidence, not a profitability guarantee.
 
+## Provider health and optional holder enrichment
+
+`GET /api/market?kind=providers` returns readiness for the public sources and credential-gated adapters without exposing any secret values. The UI displays these states in the source panel.
+
+When `BIRDEYE_API_KEY` is configured, token checks also request Birdeye's Solana holder-profile endpoint as enrichment. The Solana RPC safety gate remains authoritative; Birdeye holder behavior is evidence, not a bypass.
+
+Credential-gated context links (Ocula, GMGN, Bubblemaps, Kaito, Cielo, Moby, Nansen, and Artemis) remain visibly marked as configured or key-required until their authenticated APIs are connected. They are never treated as live eligibility evidence by default.

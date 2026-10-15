@@ -1,5 +1,5 @@
 const GECKO_OHLCV = "https://api.geckoterminal.com/api/v2/networks/solana/pools";
-const SOLANA_RPC = "https://api.mainnet-beta.solana.com";
+const SOLANA_RPCS = [process.env.SOLANA_RPC_URL, "https://api.mainnet-beta.solana.com", "https://solana-rpc.publicnode.com"].filter(Boolean);
 const LUNARCRUSH_API = "https://lunarcrush.com/api4";
 
 const withTimeout = async (url, init = {}, timeoutMs = 12000) => {
@@ -13,36 +13,32 @@ const withTimeout = async (url, init = {}, timeoutMs = 12000) => {
 };
 
 const rpc = async (method, params, id = 1) => {
-  const response = await withTimeout(SOLANA_RPC, {
-    method: "POST",
-    headers: { "content-type": "application/json", accept: "application/json" },
-    body: JSON.stringify({ jsonrpc: "2.0", id, method, params }),
-  }, 15000);
-  if (!response.ok) throw new Error(`solana rpc (${response.status})`);
-  const payload = await response.json();
-  if (payload.error) throw new Error(payload.error.message || "solana rpc error");
-  return payload.result;
-};
-
-const rpcBatch = async (requests) => {
-  const response = await withTimeout(SOLANA_RPC, {
-    method: "POST",
-    headers: { "content-type": "application/json", accept: "application/json" },
-    body: JSON.stringify(requests),
-  }, 20000);
-  if (!response.ok) throw new Error(`solana rpc batch (${response.status})`);
-  return response.json();
+  let lastError;
+  for (const endpoint of SOLANA_RPCS) {
+    try {
+      const response = await withTimeout(endpoint, {
+        method: "POST",
+        headers: { "content-type": "application/json", accept: "application/json" },
+        body: JSON.stringify({ jsonrpc: "2.0", id, method, params }),
+      }, 15000);
+      if (!response.ok) throw new Error(`solana rpc (${response.status})`);
+      const payload = await response.json();
+      if (payload.error) throw new Error(payload.error.message || "solana rpc error");
+      return payload.result;
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  throw lastError ?? new Error("solana rpc unavailable");
 };
 
 const walletSignal = async (pool, baseMint, limit) => {
   const signatures = await rpc("getSignaturesForAddress", [pool, { limit }]);
   const usable = (signatures ?? []).filter((item) => !item.err && item.signature);
   if (!usable.length) return { status: "LIVE", source: "Solana RPC · no recent swaps", smartWallets: 0, walletFlow: "MIXED", walletEvents: 0 };
-  const requests = usable.map((item, index) => ({ jsonrpc: "2.0", id: index + 1, method: "getTransaction", params: [item.signature, { encoding: "jsonParsed", maxSupportedTransactionVersion: 0 }] }));
-  const transactions = await rpcBatch(requests);
+  const transactions = await Promise.all(usable.map((item, index) => rpc("getTransaction", [item.signature, { encoding: "jsonParsed", maxSupportedTransactionVersion: 0 }], index + 1)));
   const wallets = new Map();
-  for (const response of transactions) {
-    const transaction = response?.result;
+  for (const transaction of transactions) {
     if (!transaction?.meta || transaction.meta.err) continue;
     const keys = transaction.transaction?.message?.accountKeys ?? [];
     const signer = keys.find((key) => key.signer)?.pubkey ?? keys.find((key) => typeof key === "string");

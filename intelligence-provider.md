@@ -27,7 +27,7 @@ The response shape is:
 
 The public Vercel deployment uses the `/api/market` serverless function to avoid browser CORS and rate-limit issues:
 
-- `GET /api/market?kind=feed&q=SOL` proxies the public Dexscreener search feed.
+- `GET /api/market?kind=feed&q=SOL` proxies the public Dexscreener search feed. The client also merges the latest Solana token profiles through Dexscreener's public token endpoints so newly launched and ultra-microcap pools can enter the same screening universe.
 - `GET /api/market?kind=ohlcv&pool=<solana-pool-address>` proxies GeckoTerminal 15-minute OHLCV data.
 - `GET /api/market?kind=wallets&pool=<solana-pool-address>&base=<token-mint>&limit=6` reads recent pool transactions from the public Solana RPC and returns the number and direction of recent signer activity. This is on-chain recent-trader activity, not a profitability claim.
 - `GET /api/market?kind=token&mint=<token-mint>` checks mint authority, freeze authority, and the top-ten holder concentration proxy through Solana RPC.

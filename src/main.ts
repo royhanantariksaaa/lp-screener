@@ -78,8 +78,8 @@ function poolEvidence() {
   if (!pool) return "";
   const live = pool.intelligence === "LIVE";
   const t = pool.technical;
-  const walletLabel = pool.walletIntelligence === "UNAVAILABLE" ? "Unavailable" : `${pool.smartWallets ?? 0} recent traders`;
-  const walletDetail = pool.walletIntelligence === "UNAVAILABLE" ? "Waiting for on-chain pool transaction analysis." : `${pool.walletFlow ?? "MIXED"} · ${pool.walletSource ?? "observed in the current snapshot"}${pool.smartMoneyLabels?.length ? " · " + pool.smartMoneyLabels.join(", ") : ""}`;
+  const walletLabel = pool.walletIntelligence === "UNAVAILABLE" ? "Unavailable" : pool.smartMoneyLabels?.length ? `${pool.smartWallets ?? 0} smart-money holders` : `${pool.smartWallets ?? 0} recent traders`;
+  const walletDetail = pool.walletIntelligence === "UNAVAILABLE" ? "Waiting for on-chain pool transaction analysis." : `${pool.walletFlow ?? "MIXED"} · ${pool.walletSource ?? "observed in the current snapshot"}${pool.smartMoneyLabels?.length ? " · " + pool.smartMoneyLabels.join(", ") : " · RPC signers are recent-trader evidence, not a smart-money label"}`;
   const publicLabel = (pool.publicLinks ?? 0) > 0 ? `${pool.publicLinks} public links` : "No profile links";
   const publicDetail = pool.oculaStatus === "LIVE" ? `Ocula discovery · ${pool.oculaHolders ? pool.oculaHolders.toLocaleString() : "—"} holders · ${pool.oculaVolume1h ? money(pool.oculaVolume1h) : "—"} 1h volume` : pool.profileUrl ? "Profile data from Dexscreener" : "Attention context only; not KOL confirmation";
   const kolLabel = pool.kolIntelligence === "UNAVAILABLE" ? "Provider required" : `${pool.kolMentions ?? 0} public mentions · ${pool.kolCreators ?? pool.kolMentions ?? 0} creators`;
@@ -114,7 +114,7 @@ function poolRow(p: Pool) {
   const t = p.technical;
   const signal = p.primaryPlaybook;
   const eligibility = p.eligibility?.status;
-  const wallets = p.walletIntelligence === "UNAVAILABLE" ? `<span class="stack-badge unavailable">WALLET ?</span>` : `<span class="stack-badge wallet-badge">♢ ${p.smartWallets ?? 0} wallets</span><span class="flow-badge ${String(p.walletFlow).toLowerCase()}">${p.walletFlow}</span>`;
+  const wallets = p.walletIntelligence === "UNAVAILABLE" ? `<span class="stack-badge unavailable">WALLET ?</span>` : `<span class="stack-badge wallet-badge">♢ ${p.smartMoneyLabels?.length ? `${p.smartWallets ?? 0} smart` : `${p.smartWallets ?? 0} traders`}</span><span class="flow-badge ${String(p.walletFlow).toLowerCase()}">${p.walletFlow}</span>`;
   const publicSignal = (p.publicLinks ?? 0) > 0 ? `<span class="stack-badge public-badge">◎ ${p.publicLinks} links</span>` : "";
   const kol = p.kolIntelligence === "UNAVAILABLE" ? `<span class="stack-badge unavailable">KOL KEY</span>` : `<span class="stack-badge kol-badge">✧ ${p.kolCreators ?? p.kolMentions ?? 0} KOL</span><small class="recency">${p.kolMentions ?? 0} mentions · ${p.kolRecency ?? "—"}</small>`;
   const technical = t?.available ? `<span class="stack-badge trend-badge ${t.trend.toLowerCase()}">15m ${t.trend}</span><small class="recency">RSI ${t.rsi2 === undefined ? "—" : t.rsi2.toFixed(1)}</small>` : `<span class="stack-badge unavailable">15m PENDING</span>`;

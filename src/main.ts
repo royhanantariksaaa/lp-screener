@@ -226,6 +226,17 @@ async function fetchFeed() {
     try { return await fetchJson<{ pairs?: Array<Record<string, unknown>> }>(liveApi("feed", { q: term })); }
     catch { return await fetchJson<{ pairs?: Array<Record<string, unknown>> }>(`https://api.dexscreener.com/latest/dex/search?q=${encodeURIComponent(term)}`); }
   }));
+  try {
+    const profiles = await fetchJson<Array<{ chainId?: string; tokenAddress?: string }>>("https://api.dexscreener.com/token-profiles/latest/v1");
+    const addresses = profiles.filter((profile) => profile.chainId === "solana" && profile.tokenAddress).slice(0, 12).map((profile) => profile.tokenAddress!);
+    if (addresses.length) {
+      const payload = await fetchJson<unknown>(`https://api.dexscreener.com/tokens/v1/solana/${addresses.join(",")}`);
+      const pairs = Array.isArray(payload) ? payload as Array<Record<string, unknown>> : [];
+      results.push({ pairs });
+    }
+  } catch {
+    // The public profile feed is an optional discovery expansion.
+  }
   const unique = new Map<string, Record<string, unknown>>();
   results.flatMap((result) => result.pairs ?? []).filter((pair) => pair.chainId === "solana").forEach((pair) => {
     const address = String(pair.pairAddress ?? "");
@@ -235,7 +246,7 @@ async function fetchFeed() {
     const liquidity = (pair: Record<string, unknown>) => Number((pair.liquidity as { usd?: number } | undefined)?.usd ?? 0);
     const volume = (pair: Record<string, unknown>) => Number((pair.volume as { h24?: number } | undefined)?.h24 ?? 0);
     return (liquidity(b) + volume(b)) - (liquidity(a) + volume(a));
-  }).slice(0, 24);
+  }).slice(0, 36);
 }
 
 function mapLivePair(pair: Record<string, unknown>): Pool {

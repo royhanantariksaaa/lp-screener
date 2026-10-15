@@ -169,7 +169,7 @@ export default async function handler(req, res) {
       const pool = String(req.query?.pool ?? "");
       if (!/^[1-9A-HJ-NP-Za-km-z]{32,50}$/.test(pool)) return res.status(400).json({ error: "invalid_pool" });
       const url = `${GECKO_OHLCV}/${encodeURIComponent(pool)}/ohlcv/minute?aggregate=15&limit=100`;
-      const upstream = await withTimeout(url, { headers: { accept: "application/json" } });
+      const upstream = await withTimeout(url, { headers: { accept: "application/json" } }, 20000);
       const body = await upstream.text();
       res.setHeader("Content-Type", "application/json; charset=utf-8");
       return res.status(upstream.status).send(body);

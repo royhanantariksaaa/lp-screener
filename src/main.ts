@@ -221,7 +221,7 @@ async function fetchJson<T>(url: string, timeoutMs = 15000): Promise<T> {
 }
 
 async function fetchFeed() {
-  const terms = ["SOL", "USDC", "USDT"];
+  const terms = ["SOL", "USDC"];
   const results = await Promise.all(terms.map(async (term) => {
     try { return await fetchJson<{ pairs?: Array<Record<string, unknown>> }>(liveApi("feed", { q: term })); }
     catch { return await fetchJson<{ pairs?: Array<Record<string, unknown>> }>(`https://api.dexscreener.com/latest/dex/search?q=${encodeURIComponent(term)}`); }

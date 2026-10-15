@@ -122,6 +122,29 @@ const kolSignal = async (symbol) => {
   };
 };
 
+
+const tokenSignal = async (mint) => {
+  const account = await rpc("getAccountInfo", [mint, { encoding: "jsonParsed" }]);
+  const supply = await rpc("getTokenSupply", [mint]);
+  const largest = await rpc("getTokenLargestAccounts", [mint]);
+  const info = account?.value?.data?.parsed?.info ?? {};
+  const totalAmount = Number(supply?.value?.amount ?? info.supply ?? 0);
+  const largestRows = Array.isArray(largest?.value) ? largest.value : [];
+  const top10Amount = largestRows.reduce((sum, row) => sum + Number(row?.amount ?? 0), 0);
+  const holderTop10Pct = totalAmount > 0 ? (top10Amount / totalAmount) * 100 : undefined;
+  const mintAuthority = Boolean(info.mintAuthority);
+  const freezeAuthority = Boolean(info.freezeAuthority);
+  return {
+    status: "LIVE",
+    source: "Solana RPC · mint + holder checks",
+    mintAuthority,
+    freezeAuthority,
+    holderTop10Pct: Number.isFinite(holderTop10Pct) ? Number(holderTop10Pct.toFixed(2)) : undefined,
+    decimals: Number(info.decimals ?? supply?.value?.decimals ?? 0),
+    safety: !mintAuthority && !freezeAuthority && (holderTop10Pct === undefined || holderTop10Pct <= 45) ? "PASS" : "WARN",
+  };
+};
+
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
@@ -154,6 +177,11 @@ export default async function handler(req, res) {
       const limit = Math.max(3, Math.min(8, Number(req.query?.limit ?? 6)));
       if (!/^[1-9A-HJ-NP-Za-km-z]{32,50}$/.test(pool) || !/^[1-9A-HJ-NP-Za-km-z]{32,50}$/.test(baseMint)) return res.status(400).json({ error: "invalid_pool_or_mint" });
       return res.status(200).json(await walletSignal(pool, baseMint, limit));
+    }
+    if (kind === "token") {
+      const mint = String(req.query?.mint ?? "");
+      if (!/^[1-9A-HJ-NP-Za-km-z]{32,50}$/.test(mint)) return res.status(400).json({ error: "invalid_mint" });
+      return res.status(200).json(await tokenSignal(mint));
     }
     if (kind === "kol") {
       const symbol = String(req.query?.symbol ?? "").trim().slice(0, 64);

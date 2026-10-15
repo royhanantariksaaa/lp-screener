@@ -326,7 +326,7 @@ async function fetchCandles(pool: Pool) {
 
 async function enrichTechnicalData(pools: Pool[]) {
   const targets = [...pools].sort((a, b) => b.volume24h - a.volume24h || b.liquidity - a.liquidity).filter((pool) => !candleCache.get(pool.pairAddress ?? "")?.candles).slice(0, 6);
-  const results = await mapConcurrent(targets, 3), async (pool) => {
+  const results = await mapConcurrent(targets, 3, async (pool) => {
     const candles = await fetchCandles(pool);
     return candles ? { key: poolKey(pool), candles } : undefined;
   });

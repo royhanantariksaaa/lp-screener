@@ -3,7 +3,7 @@ import { analyzeCandles, derivePlaybooks, evaluateEligibility, parseOhlcv, prima
 
 type Pool = {
   id?: string; pairAddress?: string; sourceUrl?: string; name: string; symbol: string; dex: string; address: string; price: number; liquidity: number; volume24h: number; ageDays: number; fee: number; tvl: number; change24h: number; risk: "LOW" | "MEDIUM" | "HIGH";
-  marketCap?: number; createdAt?: number; quoteTokenAddress?: string; smartWallets?: number; walletFlow?: "INFLOW" | "OUTFLOW" | "MIXED" | "UNAVAILABLE"; walletIntelligence?: "DEMO" | "LIVE" | "UNAVAILABLE"; walletSource?: string; walletEvents?: number; kolMentions?: number; kolRecency?: string; kolCreators?: number; kolPosts?: number; kolTrend?: string; kolSentiment?: number; kolIntelligence?: "DEMO" | "LIVE" | "UNAVAILABLE"; kolSource?: string; screenScore?: number; intelligence?: "DEMO" | "LIVE" | "UNAVAILABLE"; publicLinks?: number; profileUrl?: string; discovery?: string; oculaStatus?: "LIVE" | "UNAVAILABLE"; oculaSource?: string; oculaVolume1h?: number; oculaChange1h?: number; oculaHolders?: number; oculaBuyCount1h?: number; oculaSellCount1h?: number; oculaSocialLinks?: number; tokenAddress?: string; tokenStatus?: "LIVE" | "UNAVAILABLE"; tokenSource?: string; tokenSafety?: "PASS" | "WARN" | "UNAVAILABLE"; mintAuthority?: boolean; freezeAuthority?: boolean; holderTop10Pct?: number; holderProfileStatus?: "LIVE" | "UNAVAILABLE"; holderProfileSource?: string; holderCount?: number; eligibility?: EligibilityAnalysis; candles?: Candle[]; technical?: TechnicalAnalysis; playbooks?: PlaybookSignal[]; primaryPlaybook?: PlaybookSignal;
+  marketCap?: number; createdAt?: number; quoteTokenAddress?: string; smartWallets?: number; walletFlow?: "INFLOW" | "OUTFLOW" | "MIXED" | "UNAVAILABLE"; walletIntelligence?: "DEMO" | "LIVE" | "UNAVAILABLE"; walletSource?: string; walletEvents?: number; walletAddresses?: string[]; smartMoneyLabels?: string[]; kolMentions?: number; kolRecency?: string; kolCreators?: number; kolPosts?: number; kolTrend?: string; kolSentiment?: number; kolIntelligence?: "DEMO" | "LIVE" | "UNAVAILABLE"; kolSource?: string; screenScore?: number; intelligence?: "DEMO" | "LIVE" | "UNAVAILABLE"; publicLinks?: number; profileUrl?: string; discovery?: string; oculaStatus?: "LIVE" | "UNAVAILABLE"; oculaSource?: string; oculaVolume1h?: number; oculaChange1h?: number; oculaHolders?: number; oculaBuyCount1h?: number; oculaSellCount1h?: number; oculaSocialLinks?: number; tokenAddress?: string; tokenStatus?: "LIVE" | "UNAVAILABLE"; tokenSource?: string; tokenSafety?: "PASS" | "WARN" | "UNAVAILABLE"; mintAuthority?: boolean; freezeAuthority?: boolean; holderTop10Pct?: number; holderProfileStatus?: "LIVE" | "UNAVAILABLE"; holderProfileSource?: string; holderCount?: number; eligibility?: EligibilityAnalysis; candles?: Candle[]; technical?: TechnicalAnalysis; playbooks?: PlaybookSignal[]; primaryPlaybook?: PlaybookSignal;
 };
 
 
@@ -79,7 +79,7 @@ function poolEvidence() {
   const live = pool.intelligence === "LIVE";
   const t = pool.technical;
   const walletLabel = pool.walletIntelligence === "UNAVAILABLE" ? "Unavailable" : `${pool.smartWallets ?? 0} recent traders`;
-  const walletDetail = pool.walletIntelligence === "UNAVAILABLE" ? "Waiting for on-chain pool transaction analysis." : `${pool.walletFlow ?? "MIXED"} · ${pool.walletSource ?? "observed in the current snapshot"}`;
+  const walletDetail = pool.walletIntelligence === "UNAVAILABLE" ? "Waiting for on-chain pool transaction analysis." : `${pool.walletFlow ?? "MIXED"} · ${pool.walletSource ?? "observed in the current snapshot"}${pool.smartMoneyLabels?.length ? " · " + pool.smartMoneyLabels.join(", ") : ""}`;
   const publicLabel = (pool.publicLinks ?? 0) > 0 ? `${pool.publicLinks} public links` : "No profile links";
   const publicDetail = pool.oculaStatus === "LIVE" ? `Ocula discovery · ${pool.oculaHolders ? pool.oculaHolders.toLocaleString() : "—"} holders · ${pool.oculaVolume1h ? money(pool.oculaVolume1h) : "—"} 1h volume` : pool.profileUrl ? "Profile data from Dexscreener" : "Attention context only; not KOL confirmation";
   const kolLabel = pool.kolIntelligence === "UNAVAILABLE" ? "Provider required" : `${pool.kolMentions ?? 0} public mentions · ${pool.kolCreators ?? pool.kolMentions ?? 0} creators`;
@@ -182,7 +182,7 @@ async function loadWalletIntelligence() {
   const targets = [...state.pools].sort((a, b) => b.volume24h - a.volume24h || b.liquidity - a.liquidity).filter((pool) => pool.walletIntelligence === "UNAVAILABLE" && pool.pairAddress && pool.tokenAddress).slice(0, 8);
   const results = await mapConcurrent(targets, 3, async (pool) => {
     try {
-      const payload = await fetchJson<{ status?: string; source?: string; smartWallets?: number; walletFlow?: Pool["walletFlow"]; walletEvents?: number }>(liveApi("wallets", { pool: pool.pairAddress!, base: pool.tokenAddress!, limit: "6" }), 20000);
+      const payload = await fetchJson<{ status?: string; source?: string; smartWallets?: number; walletFlow?: Pool["walletFlow"]; walletEvents?: number; walletAddresses?: string[] }>(liveApi("wallets", { pool: pool.pairAddress!, base: pool.tokenAddress!, limit: "6" }), 20000);
       return payload.status === "LIVE" ? { key: poolKey(pool), payload } : undefined;
     } catch (error) {
       console.warn("wallet activity request failed", pool.pairAddress, error);
@@ -193,9 +193,44 @@ async function loadWalletIntelligence() {
   const byKey = new Map(results.map((result) => [result.key, result.payload]));
   state.pools = state.pools.map((pool) => {
     const payload = byKey.get(poolKey(pool));
-    return payload ? { ...pool, smartWallets: Number(payload.smartWallets ?? 0), walletFlow: payload.walletFlow ?? "MIXED", walletEvents: Number(payload.walletEvents ?? 0), walletIntelligence: "LIVE", walletSource: payload.source ?? "Solana RPC · recent pool traders", intelligence: "LIVE" } : pool;
+    return payload ? { ...pool, smartWallets: Number(payload.smartWallets ?? 0), walletFlow: payload.walletFlow ?? "MIXED", walletEvents: Number(payload.walletEvents ?? 0), walletAddresses: payload.walletAddresses, walletIntelligence: "LIVE", walletSource: payload.source ?? "Solana RPC · recent pool traders", intelligence: "LIVE" } : pool;
   });
   state.source = state.source.includes("Ocula") ? `${state.source} + Solana RPC` : "LIVE · Dexscreener + Solana RPC";
+  refreshEligibility();
+}
+
+async function loadNansenIntelligence() {
+  const targets = [...state.pools].sort((a, b) => b.volume24h - a.volume24h || b.liquidity - a.liquidity).filter((pool) => pool.tokenAddress).slice(0, 8);
+  const results = await mapConcurrent(targets, 2, async (pool) => {
+    try {
+      const payload = await fetchJson<{ status?: string; source?: string; smartWallets?: number; walletFlow?: Pool["walletFlow"]; walletEvents?: number; walletAddresses?: string[]; smartMoneyLabels?: string[] }>(liveApi("nansen", { mint: pool.tokenAddress! }), 20000);
+      return payload.status === "LIVE" ? { key: poolKey(pool), payload } : undefined;
+    } catch (error) {
+      console.warn("Nansen smart-money request failed", pool.tokenAddress, error);
+      return undefined;
+    }
+  });
+  if (!results.length) return;
+  const byKey = new Map(results.map((result) => [result.key, result.payload]));
+  state.pools = state.pools.map((pool) => {
+    const payload = byKey.get(poolKey(pool));
+    if (!payload) return pool;
+    const rpcCount = Number(pool.smartWallets ?? 0);
+    const nansenCount = Number(payload.smartWallets ?? 0);
+    const labels = Array.isArray(payload.smartMoneyLabels) ? payload.smartMoneyLabels : [];
+    return {
+      ...pool,
+      smartWallets: Math.max(rpcCount, nansenCount),
+      walletFlow: payload.walletFlow ?? pool.walletFlow ?? "MIXED",
+      walletEvents: Math.max(Number(pool.walletEvents ?? 0), Number(payload.walletEvents ?? 0)),
+      walletAddresses: payload.walletAddresses?.length ? payload.walletAddresses : pool.walletAddresses,
+      smartMoneyLabels: labels.length ? labels : pool.smartMoneyLabels,
+      walletIntelligence: "LIVE",
+      walletSource: pool.walletSource && pool.walletSource !== "Pending Solana RPC analysis" ? `${pool.walletSource} + ${payload.source ?? "Nansen API"}` : payload.source ?? "Nansen API · smart-money holders",
+      intelligence: "LIVE",
+    };
+  });
+  state.source = state.source.includes("Nansen") ? state.source : `${state.source} + Nansen`;
   refreshEligibility();
 }
 
@@ -445,6 +480,7 @@ async function loadLive() {
     await enrichTechnicalData(state.pools);
     await loadPublicProfiles();
     await loadWalletIntelligence();
+    await loadNansenIntelligence();
     await loadKOLIntelligence();
     await loadIntelligence();
     state.lastUpdated = Date.now();

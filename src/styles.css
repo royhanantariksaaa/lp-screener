@@ -48,4 +48,4 @@
 @media(max-width:800px){.live{justify-items:start;margin-top:13px}.feed-notice{align-items:flex-start}.feed-notice b{display:none}.indicator-grid{grid-template-columns:repeat(2,1fr)}.playbook-stack-head{display:block}.playbook-stack-head small{display:block;max-width:none;text-align:left;margin-top:7px}.evidence-bars{grid-template-columns:repeat(2,1fr)}.workspace table{min-width:1080px}}
 
 
-.status-pill.open-now{color:#c8ff7a;border-color:#658d41;background:#1d3518}.status-pill.eligible-wait{color:#f0db83;border-color:#695e35;background:#302915}.status-pill.pending{color:#b9b1ff;border-color:#554d85;background:#252342}
+.research-stack{border:1px solid #21372a;border-radius:8px;background:#0a1510;margin-top:13px;padding:11px}.research-stack>span{display:block;color:#9eb080;font:9px 'DM Mono';letter-spacing:.8px;margin-bottom:8px}.research-stack>div{display:flex;flex-wrap:wrap;gap:6px}.research-stack a{color:#b7df84;border:1px solid #304d36;border-radius:999px;padding:4px 7px;text-decoration:none;font:9px 'DM Mono'}.research-stack a:hover{border-color:#b7ff3c;color:#d9ffab}.research-stack small{display:block;color:#718076;font:9px/1.35 'DM Mono';margin-top:8px}

@@ -31,6 +31,33 @@ export type PlaybookSignal = {
   reason: string;
 };
 
+
+export type TokenSafetyAnalysis = {
+  status: "LIVE" | "UNAVAILABLE";
+  source?: string;
+  mintAuthority?: boolean;
+  freezeAuthority?: boolean;
+  holderTop10Pct?: number;
+  decimals?: number;
+};
+
+export type EligibilityStatus = "OPEN_NOW" | "ELIGIBLE_WAIT" | "PENDING" | "REJECTED";
+
+export type EligibilityAnalysis = {
+  status: EligibilityStatus;
+  score: number;
+  reasons: string[];
+  hardGates: {
+    address: boolean;
+    liquidity: boolean;
+    volume: boolean;
+    age: boolean;
+    technical: boolean;
+    intelligence: boolean;
+    safety: boolean;
+  };
+};
+
 const unavailable = (candlesCount = 0): TechnicalAnalysis => ({
   available: false,
   candlesCount,
@@ -154,7 +181,7 @@ export function analyzeCandles(rawCandles: Candle[]): TechnicalAnalysis {
 const statusRank: Record<PlaybookSignal["status"], number> = { ENTRY_NOW: 4, ARMED_WAIT: 3, MONITOR: 2, UPDATING: 1, NOT_ELIGIBLE: 0 };
 
 export function derivePlaybooks(pool: { dex: string; marketCap?: number; liquidity: number; volume24h: number; ageDays: number }, analysis: TechnicalAnalysis): PlaybookSignal[] {
-  const baseline = (pool.marketCap ?? pool.liquidity) >= 250_000 && pool.volume24h >= 100_000 && pool.ageDays <= 180;
+  const baseline = pool.liquidity >= 5_000 && pool.volume24h >= 2_000 && pool.ageDays <= 365;
   if (!analysis.available) {
     return [{ key: "evilpanda", name: "EvilPanda broad reversion", status: "UPDATING", reason: `Waiting for a 15m candle response (${analysis.candlesCount} candles loaded).` }];
   }
@@ -180,6 +207,59 @@ export function derivePlaybooks(pool: { dex: string; marketCap?: number; liquidi
     { key: "tight-bidask", name: "Tight BidAsk → token flip", status: tightStatus, reason: tightEligible ? `Bollinger width is ${analysis.bollinger?.widthPct.toFixed(1)}%; watch for a fresh bullish flip.` : "Requires a compressed Bollinger range and passing baseline filters." },
     { key: "damm", name: "DAMM consolidation", status: dammStatus, reason: dammEligible ? `DAMM range is compressed at ${analysis.bollinger?.widthPct.toFixed(1)}%; verify pool depth before entry.` : "Requires a DAMM pool with a compressed range and passing baseline filters." },
   ];
+}
+
+
+export function evaluateEligibility(
+  pool: { pairAddress?: string; tokenAddress?: string; liquidity: number; volume24h: number; ageDays: number },
+  analysis: TechnicalAnalysis | undefined,
+  intelligence: { walletLive: boolean; kolLive: boolean },
+  safety: TokenSafetyAnalysis | undefined,
+): EligibilityAnalysis {
+  const address = Boolean(pool.pairAddress && pool.tokenAddress);
+  const liquidity = pool.liquidity >= 5_000;
+  const volume = pool.volume24h >= 2_000;
+  const age = pool.ageDays <= 365;
+  const technical = Boolean(analysis?.available && analysis.fresh);
+  const intelligenceReady = intelligence.walletLive || intelligence.kolLive;
+  const safetyReady = safety?.status === "LIVE";
+  const safetyPass = safetyReady && !safety?.mintAuthority && !safety?.freezeAuthority && (safety?.holderTop10Pct === undefined || safety.holderTop10Pct <= 45);
+  const bullish = analysis?.trend === "BULLISH";
+  const trigger = Boolean(bullish && (analysis?.bullishFlipWithin3 || analysis?.reclaimWithin3));
+  let status: EligibilityStatus;
+  if (!address || !liquidity || !volume || !age) status = "REJECTED";
+  else if (!analysis?.available || !safetyReady || !intelligenceReady) status = "PENDING";
+  else if (!bullish || !safetyPass) status = "REJECTED";
+  else if (trigger && technical) status = "OPEN_NOW";
+  else status = "ELIGIBLE_WAIT";
+
+  const reasons: string[] = [];
+  if (!address) reasons.push("Pool and token addresses are required.");
+  if (!liquidity) reasons.push("Liquidity is below the $5K microcap floor.");
+  if (!volume) reasons.push("24h volume is below the $2K activity floor.");
+  if (!age) reasons.push("Pool is outside the 365-day screening window.");
+  if (!analysis?.available) reasons.push("Waiting for 15m candle history.");
+  else if (!analysis.fresh) reasons.push("15m data is stale; wait for a fresh refresh.");
+  else if (!bullish) reasons.push("15m trend is not bullish.");
+  if (!intelligenceReady) reasons.push("Waiting for live wallet or attention evidence.");
+  if (!safetyReady) reasons.push("Waiting for mint and holder safety checks.");
+  else if (!safetyPass) reasons.push("Mint, freeze, or holder concentration checks failed.");
+  if (!reasons.length) reasons.push(trigger ? "All gates pass and a fresh bullish trigger is present." : "All hard gates pass; wait for the next confirmed trigger.");
+  const score = Math.max(0, Math.min(100,
+    (address ? 10 : 0) +
+    (liquidity ? 15 : 0) +
+    (volume ? 15 : 0) +
+    (age ? 10 : 0) +
+    (technical ? 20 : 0) +
+    (intelligenceReady ? 15 : 0) +
+    (safetyPass ? 15 : 0),
+  ));
+  return {
+    status,
+    score,
+    reasons,
+    hardGates: { address, liquidity, volume, age, technical, intelligence: intelligenceReady, safety: Boolean(safetyPass) },
+  };
 }
 
 export const primaryPlaybook = (signals: PlaybookSignal[]) => [...signals].sort((a, b) => statusRank[b.status] - statusRank[a.status])[0];

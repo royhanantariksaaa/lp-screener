@@ -2,6 +2,7 @@ const GECKO_OHLCV = "https://api.geckoterminal.com/api/v2/networks/solana/pools"
 const SOLANA_RPCS = [process.env.SOLANA_RPC_URL, "https://solana-rpc.publicnode.com", "https://api.mainnet-beta.solana.com"].filter(Boolean);
 const LUNARCRUSH_API = "https://lunarcrush.com/api4";
 const DEFILLAMA_API = "https://api.llama.fi";
+const BIRDEYE_API = "https://public-api.birdeye.so";
 
 const withTimeout = async (url, init = {}, timeoutMs = 12000) => {
   const controller = new AbortController();
@@ -89,6 +90,36 @@ const lunarJson = async (path, apiKey) => {
   return payload;
 };
 
+const birdeyeJson = async (path, apiKey) => {
+  const response = await withTimeout(`${BIRDEYE_API}${path}`, {
+    headers: { accept: "application/json", "X-API-KEY": apiKey, "x-chain": "solana" },
+  }, 12000);
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const detail = payload?.message || payload?.error || `birdeye (${response.status})`;
+    throw new Error(String(detail));
+  }
+  return payload;
+};
+
+const birdeyeHolderProfile = async (mint) => {
+  const apiKey = String(process.env.BIRDEYE_API_KEY ?? "").trim();
+  if (!apiKey) return { status: "UNAVAILABLE", source: "Birdeye key required" };
+  try {
+    const payload = await birdeyeJson(`/token/v1/holder-profile?token_address=${encodeURIComponent(mint)}&include_zero_balance=false`, apiKey);
+    const data = payload?.data ?? {};
+    const holderCount = Number(data.holder_count ?? data.holderCount ?? 0);
+    return {
+      status: "LIVE",
+      source: "Birdeye · holder profile",
+      holderCount: Number.isFinite(holderCount) && holderCount > 0 ? holderCount : undefined,
+      holderTags: data.tags ?? data.holder_tags ?? data.profile ?? undefined,
+    };
+  } catch {
+    return { status: "UNAVAILABLE", source: "Birdeye unavailable" };
+  }
+};
+
 const ageLabel = (timestamp) => {
   const seconds = Number(timestamp ?? 0);
   if (!seconds) return "—";
@@ -138,6 +169,7 @@ const tokenSignal = async (mint) => {
   const holderTop10Pct = totalAmount > 0 && largestRows.length ? (top10Amount / totalAmount) * 100 : undefined;
   const mintAuthority = Boolean(info.mintAuthority);
   const freezeAuthority = Boolean(info.freezeAuthority);
+  const holderProfile = await birdeyeHolderProfile(mint);
   return {
     status: "LIVE",
     source: "Solana RPC · mint + holder checks",
@@ -146,6 +178,32 @@ const tokenSignal = async (mint) => {
     holderTop10Pct: Number.isFinite(holderTop10Pct) ? Number(holderTop10Pct.toFixed(2)) : undefined,
     decimals: Number(info.decimals ?? supply?.value?.decimals ?? 0),
     safety: !mintAuthority && !freezeAuthority && (holderTop10Pct === undefined || holderTop10Pct <= 45) ? "PASS" : "WARN",
+    holderProfileStatus: holderProfile.status,
+    holderProfileSource: holderProfile.source,
+    holderCount: holderProfile.holderCount,
+    holderTags: holderProfile.holderTags,
+  };
+};
+
+const providerHealth = () => {
+  const configured = (name) => Boolean(String(process.env[name] ?? "").trim());
+  return {
+    providers: [
+      { key: "dexscreener", label: "Dexscreener", status: "LIVE", mode: "PUBLIC", source: "Live pair discovery + token profiles" },
+      { key: "geckoterminal", label: "GeckoTerminal", status: "LIVE", mode: "PUBLIC", source: "15m OHLCV candles" },
+      { key: "solana-rpc", label: "Solana RPC", status: "LIVE", mode: "PUBLIC", source: "Wallet activity + mint/freeze/holder checks" },
+      { key: "defillama", label: "DeFiLlama", status: "LIVE", mode: "PUBLIC", source: "Chain TVL context" },
+      { key: "lunarcrush", label: "LunarCrush", status: configured("LUNARCRUSH_API_KEY") ? "LIVE" : "KEY_REQUIRED", mode: "KOL", source: "Topic mentions + creators" },
+      { key: "birdeye", label: "Birdeye", status: configured("BIRDEYE_API_KEY") ? "LIVE" : "KEY_REQUIRED", mode: "HOLDER_PROFILE", source: "Holder behavior enrichment" },
+      { key: "nansen", label: "Nansen", status: configured("NANSEN_API_KEY") ? "CONFIGURED" : "KEY_REQUIRED", mode: "LINK_ONLY", source: "Smart-money context link" },
+      { key: "gmgn", label: "GMGN", status: configured("GMGN_API_KEY") ? "CONFIGURED" : "KEY_REQUIRED", mode: "LINK_ONLY", source: "On-chain trader context link" },
+      { key: "ocula", label: "Ocula", status: configured("OCULA_API_KEY") ? "CONFIGURED" : "KEY_REQUIRED", mode: "LINK_ONLY", source: "Smart-wallet and caller context link" },
+      { key: "bubblemaps", label: "Bubblemaps", status: configured("BUBBLEMAPS_API_KEY") ? "CONFIGURED" : "KEY_REQUIRED", mode: "LINK_ONLY", source: "Holder-cluster context link" },
+      { key: "kaito", label: "Kaito", status: configured("KAITO_API_KEY") ? "CONFIGURED" : "KEY_REQUIRED", mode: "LINK_ONLY", source: "Attention context link" },
+      { key: "cielo", label: "Cielo", status: configured("CIELO_API_KEY") ? "CONFIGURED" : "KEY_REQUIRED", mode: "LINK_ONLY", source: "Wallet context link" },
+      { key: "moby", label: "Moby", status: configured("MOBY_API_KEY") ? "CONFIGURED" : "KEY_REQUIRED", mode: "LINK_ONLY", source: "Market context link" },
+      { key: "artemis", label: "Artemis", status: configured("ARTEMIS_API_KEY") ? "CONFIGURED" : "KEY_REQUIRED", mode: "LINK_ONLY", source: "Fundamental context link" },
+    ],
   };
 };
 
@@ -159,6 +217,9 @@ export default async function handler(req, res) {
 
   const kind = String(req.query?.kind ?? "feed");
   try {
+    if (kind === "providers") {
+      return res.status(200).json(providerHealth());
+    }
     if (kind === "feed") {
       const term = String(req.query?.q ?? "SOL").trim().slice(0, 24);
       const upstream = await withTimeout(`https://api.dexscreener.com/latest/dex/search?q=${encodeURIComponent(term)}`);

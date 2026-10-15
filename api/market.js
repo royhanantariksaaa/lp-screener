@@ -5,6 +5,7 @@ const DEFILLAMA_API = "https://api.llama.fi";
 const BIRDEYE_API = "https://public-api.birdeye.so";
 const OCULA_FEED = "https://vwpzmuprmqwqwshqiyhl.supabase.co/functions/v1/codex-brewing";
 const NANSEN_API = "https://api.nansen.ai/api/v1";
+const KAITO_MCP = "https://bff.kaito.ai/api/mcp";
 
 const withTimeout = async (url, init = {}, timeoutMs = 12000) => {
   const controller = new AbortController();
@@ -173,31 +174,56 @@ const ageLabel = (timestamp) => {
   return minutes < 60 ? `${minutes}m` : `${Math.round(minutes / 60)}h`;
 };
 
+const kaitoCall = async (name, args, apiKey) => {
+  const response = await withTimeout(KAITO_MCP, {
+    method: "POST",
+    headers: { accept: "application/json", "content-type": "application/json", authorization: `Bearer ${apiKey}` },
+    body: JSON.stringify({ jsonrpc: "2.0", id: Date.now(), method: "tools/call", params: { name, arguments: args } }),
+  }, 15000);
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok || payload?.error) throw new Error(String(payload?.error?.message ?? `kaito (${response.status})`));
+  const blocks = Array.isArray(payload?.result?.content) ? payload.result.content : [];
+  const text = blocks.filter((block) => block?.type === "text" && typeof block.text === "string").map((block) => block.text).join("\n");
+  if (text) { try { return JSON.parse(text); } catch { return { text }; } }
+  return payload?.result?.structuredContent ?? payload?.result ?? payload;
+};
+
+const kaitoSignal = async (symbol) => {
+  const apiKey = String(process.env.KAITO_API_KEY ?? "").trim();
+  if (!apiKey) return { status: "UNAVAILABLE", source: "Kaito key required", kolMentions: 0, kolRecency: "—", kolCreators: 0, kolPosts: 0 };
+  const now = new Date();
+  const start = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+  try {
+    const payload = await kaitoCall("kaito_mentions", { token: symbol, start_date: start.toISOString(), end_date: now.toISOString() }, apiKey);
+    const data = payload?.data ?? payload;
+    const rows = Array.isArray(data) ? data : Array.isArray(data?.data) ? data.data : Array.isArray(data?.rows) ? data.rows : [];
+    const mentions = rows.reduce((sum, row) => sum + Number(row?.mentions ?? row?.mention_count ?? row?.count ?? 0), 0) || Number(data?.total_mentions ?? data?.mentions ?? data?.mention_count ?? 0);
+    return { status: "LIVE", source: "Kaito MCP · 24h mentions", kolMentions: Math.max(0, mentions), kolRecency: "24h", kolCreators: 0, kolPosts: Math.max(0, mentions) };
+  } catch {
+    return { status: "UNAVAILABLE", source: "Kaito unavailable", kolMentions: 0, kolRecency: "—", kolCreators: 0, kolPosts: 0 };
+  }
+};
+
 const kolSignal = async (symbol) => {
   const apiKey = String(process.env.LUNARCRUSH_API_KEY ?? "").trim();
-  if (!apiKey) return { status: "UNAVAILABLE", source: "LunarCrush key required", kolMentions: 0, kolRecency: "—", kolCreators: 0, kolPosts: 0 };
+  if (!apiKey) return kaitoSignal(symbol);
   const topic = lunarTopic(symbol);
-  if (!topic) return { status: "UNAVAILABLE", source: "LunarCrush topic unavailable", kolMentions: 0, kolRecency: "—", kolCreators: 0, kolPosts: 0 };
-  const encoded = encodeURIComponent(topic);
-  const [summary, creators] = await Promise.all([
-    lunarJson(`/public/topic/${encoded}/v1`, apiKey),
-    lunarJson(`/public/topic/${encoded}/creators/v1`, apiKey),
-  ]);
-  const data = summary?.data ?? {};
-  const creatorRows = Array.isArray(creators?.data) ? creators.data : [];
-  const creatorCount = creatorRows.filter((row) => row?.creator_id || row?.creator_name).length;
-  const mentions = Number(data.num_posts ?? 0);
-  const generated = Number(summary?.config?.generated ?? summary?.generated ?? 0);
-  return {
-    status: "LIVE",
-    source: "LunarCrush API · 24h topic + creators",
-    kolMentions: Math.max(0, mentions),
-    kolRecency: ageLabel(generated),
-    kolCreators: creatorCount,
-    kolPosts: Math.max(0, mentions),
-    kolTrend: typeof data.trend === "string" ? data.trend.toUpperCase() : undefined,
-    kolSentiment: Number(data.types_sentiment?.tweet ?? data.types_sentiment?.["youtube-video"] ?? 0) || undefined,
-  };
+  if (!topic) return kaitoSignal(symbol);
+  try {
+    const encoded = encodeURIComponent(topic);
+    const [summary, creators] = await Promise.all([
+      lunarJson(`/public/topic/${encoded}/v1`, apiKey),
+      lunarJson(`/public/topic/${encoded}/creators/v1`, apiKey),
+    ]);
+    const data = summary?.data ?? {};
+    const creatorRows = Array.isArray(creators?.data) ? creators.data : [];
+    const creatorCount = creatorRows.filter((row) => row?.creator_id || row?.creator_name).length;
+    const mentions = Number(data.num_posts ?? 0);
+    const generated = Number(summary?.config?.generated ?? summary?.generated ?? 0);
+    return { status: "LIVE", source: "LunarCrush API · 24h topic + creators", kolMentions: Math.max(0, mentions), kolRecency: ageLabel(generated), kolCreators: creatorCount, kolPosts: Math.max(0, mentions), kolTrend: typeof data.trend === "string" ? data.trend.toUpperCase() : undefined, kolSentiment: Number(data.types_sentiment?.tweet ?? data.types_sentiment?.["youtube-video"] ?? 0) || undefined };
+  } catch {
+    return kaitoSignal(symbol);
+  }
 };
 
 const tokenSignal = async (mint) => {
@@ -245,7 +271,7 @@ const providerHealth = () => {
       { key: "gmgn", label: "GMGN", status: "LINK_ONLY", mode: "LINK_ONLY", source: "On-chain trader context link" },
       { key: "ocula", label: "Ocula", status: "LIVE", mode: "PUBLIC", source: "Live Solana discovery + holder/social context" },
       { key: "bubblemaps", label: "Bubblemaps", status: "LINK_ONLY", mode: "LINK_ONLY", source: "Holder-cluster context link" },
-      { key: "kaito", label: "Kaito", status: "LINK_ONLY", mode: "LINK_ONLY", source: "Attention context link" },
+      { key: "kaito", label: "Kaito", status: configured("KAITO_API_KEY") ? "LIVE" : "KEY_REQUIRED", mode: "KOL", source: "Kaito MCP · token mentions" },
       { key: "cielo", label: "Cielo", status: "LINK_ONLY", mode: "LINK_ONLY", source: "Wallet context link" },
       { key: "moby", label: "Moby", status: "LINK_ONLY", mode: "LINK_ONLY", source: "Market context link" },
       { key: "artemis", label: "Artemis", status: "LINK_ONLY", mode: "LINK_ONLY", source: "Fundamental context link" },

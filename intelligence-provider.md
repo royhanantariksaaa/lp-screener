@@ -29,6 +29,7 @@ The public Vercel deployment uses the `/api/market` serverless function to avoid
 
 - `GET /api/market?kind=feed&q=SOL` proxies the public Dexscreener search feed. The client also merges the latest Solana token profiles through Dexscreener's public token endpoints so newly launched and ultra-microcap pools can enter the same screening universe.
 - `GET /api/market?kind=chains` proxies DeFiLlama chain TVL context for the sidebar; it is informational and never changes pool eligibility.
+- `GET /api/market?kind=ocula&ageBucket=all` proxies Ocula's public Solana discovery feed. The client joins Ocula token addresses to Dexscreener pair data, preserving Ocula's live 1h volume, holder count, change, buy/sell counts, and public social links as candidate context. Ocula discovery expands the universe, but it never bypasses the screener's safety, technical, wallet, or KOL gates.
 - `GET /api/market?kind=ohlcv&pool=<solana-pool-address>` proxies GeckoTerminal 15-minute OHLCV data.
 - `GET /api/market?kind=wallets&pool=<solana-pool-address>&base=<token-mint>&limit=6` reads recent pool transactions from the public Solana RPC and returns the number and direction of recent signer activity. This is on-chain recent-trader activity, not a profitability claim.
 - `GET /api/market?kind=token&mint=<token-mint>` checks mint authority, freeze authority, and the top-ten holder concentration proxy through Solana RPC.
@@ -44,4 +45,4 @@ The client calls token-safety checks for the highest-volume candidates, then enr
 
 When `BIRDEYE_API_KEY` is configured, token checks also request Birdeye's Solana holder-profile endpoint as enrichment. The Solana RPC safety gate remains authoritative; Birdeye holder behavior is evidence, not a bypass.
 
-Credential-gated context links (Ocula, GMGN, Bubblemaps, Kaito, Cielo, Moby, Nansen, and Artemis) remain visibly marked as configured or key-required until their authenticated APIs are connected. They are never treated as live eligibility evidence by default.
+Ocula is a public discovery source and is shown as LIVE in provider health. Its public fields are holder/social context, not smart-wallet or KOL confirmation. Credential-gated context links (GMGN, Bubblemaps, Kaito, Cielo, Moby, Nansen, and Artemis) remain visibly marked as configured or key-required until their authenticated APIs are connected. They are never treated as live eligibility evidence by default.

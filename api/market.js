@@ -1,5 +1,5 @@
 const GECKO_OHLCV = "https://api.geckoterminal.com/api/v2/networks/solana/pools";
-const SOLANA_RPCS = [process.env.SOLANA_RPC_URL, "https://api.mainnet-beta.solana.com", "https://solana-rpc.publicnode.com"].filter(Boolean);
+const SOLANA_RPCS = [process.env.SOLANA_RPC_URL, "https://solana-rpc.publicnode.com", "https://api.mainnet-beta.solana.com"].filter(Boolean);
 const LUNARCRUSH_API = "https://lunarcrush.com/api4";
 
 const withTimeout = async (url, init = {}, timeoutMs = 12000) => {
@@ -20,7 +20,7 @@ const rpc = async (method, params, id = 1) => {
         method: "POST",
         headers: { "content-type": "application/json", accept: "application/json" },
         body: JSON.stringify({ jsonrpc: "2.0", id, method, params }),
-      }, 15000);
+      }, 6000);
       if (!response.ok) throw new Error(`solana rpc (${response.status})`);
       const payload = await response.json();
       if (payload.error) throw new Error(payload.error.message || "solana rpc error");
@@ -122,16 +122,19 @@ const kolSignal = async (symbol) => {
   };
 };
 
-
 const tokenSignal = async (mint) => {
-  const account = await rpc("getAccountInfo", [mint, { encoding: "jsonParsed" }]);
-  const supply = await rpc("getTokenSupply", [mint]);
-  const largest = await rpc("getTokenLargestAccounts", [mint]);
+  const safeRpc = (method, params) => rpc(method, params).catch(() => undefined);
+  const [account, supply, largest] = await Promise.all([
+    safeRpc("getAccountInfo", [mint, { encoding: "jsonParsed" }]),
+    safeRpc("getTokenSupply", [mint]),
+    safeRpc("getTokenLargestAccounts", [mint]),
+  ]);
   const info = account?.value?.data?.parsed?.info ?? {};
+  if (!account && !supply) throw new Error("token safety rpc unavailable");
   const totalAmount = Number(supply?.value?.amount ?? info.supply ?? 0);
   const largestRows = Array.isArray(largest?.value) ? largest.value : [];
   const top10Amount = largestRows.reduce((sum, row) => sum + Number(row?.amount ?? 0), 0);
-  const holderTop10Pct = totalAmount > 0 ? (top10Amount / totalAmount) * 100 : undefined;
+  const holderTop10Pct = totalAmount > 0 && largestRows.length ? (top10Amount / totalAmount) * 100 : undefined;
   const mintAuthority = Boolean(info.mintAuthority);
   const freezeAuthority = Boolean(info.freezeAuthority);
   return {

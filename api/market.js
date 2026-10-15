@@ -3,6 +3,7 @@ const SOLANA_RPCS = [process.env.SOLANA_RPC_URL, "https://solana-rpc.publicnode.
 const LUNARCRUSH_API = "https://lunarcrush.com/api4";
 const DEFILLAMA_API = "https://api.llama.fi";
 const BIRDEYE_API = "https://public-api.birdeye.so";
+const OCULA_FEED = "https://vwpzmuprmqwqwshqiyhl.supabase.co/functions/v1/codex-brewing";
 
 const withTimeout = async (url, init = {}, timeoutMs = 12000) => {
   const controller = new AbortController();
@@ -197,7 +198,7 @@ const providerHealth = () => {
       { key: "birdeye", label: "Birdeye", status: configured("BIRDEYE_API_KEY") ? "LIVE" : "KEY_REQUIRED", mode: "HOLDER_PROFILE", source: "Holder behavior enrichment" },
       { key: "nansen", label: "Nansen", status: configured("NANSEN_API_KEY") ? "CONFIGURED" : "KEY_REQUIRED", mode: "LINK_ONLY", source: "Smart-money context link" },
       { key: "gmgn", label: "GMGN", status: configured("GMGN_API_KEY") ? "CONFIGURED" : "KEY_REQUIRED", mode: "LINK_ONLY", source: "On-chain trader context link" },
-      { key: "ocula", label: "Ocula", status: configured("OCULA_API_KEY") ? "CONFIGURED" : "KEY_REQUIRED", mode: "LINK_ONLY", source: "Smart-wallet and caller context link" },
+      { key: "ocula", label: "Ocula", status: "LIVE", mode: "PUBLIC", source: "Live Solana discovery + holder/social context" },
       { key: "bubblemaps", label: "Bubblemaps", status: configured("BUBBLEMAPS_API_KEY") ? "CONFIGURED" : "KEY_REQUIRED", mode: "LINK_ONLY", source: "Holder-cluster context link" },
       { key: "kaito", label: "Kaito", status: configured("KAITO_API_KEY") ? "CONFIGURED" : "KEY_REQUIRED", mode: "LINK_ONLY", source: "Attention context link" },
       { key: "cielo", label: "Cielo", status: configured("CIELO_API_KEY") ? "CONFIGURED" : "KEY_REQUIRED", mode: "LINK_ONLY", source: "Wallet context link" },
@@ -223,6 +224,14 @@ export default async function handler(req, res) {
     if (kind === "feed") {
       const term = String(req.query?.q ?? "SOL").trim().slice(0, 24);
       const upstream = await withTimeout(`https://api.dexscreener.com/latest/dex/search?q=${encodeURIComponent(term)}`);
+      const body = await upstream.text();
+      res.setHeader("Content-Type", "application/json; charset=utf-8");
+      return res.status(upstream.status).send(body);
+    }
+    if (kind === "ocula") {
+      const ageBucket = String(req.query?.ageBucket ?? "all").trim().slice(0, 16) || "all";
+      const params = new URLSearchParams({ launchpad: "all", limit: "100", chain: "solana", ageBucket });
+      const upstream = await withTimeout(`${OCULA_FEED}?${params.toString()}`, { headers: { accept: "application/json" } }, 15000);
       const body = await upstream.text();
       res.setHeader("Content-Type", "application/json; charset=utf-8");
       return res.status(upstream.status).send(body);

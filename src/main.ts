@@ -200,7 +200,7 @@ async function loadWalletIntelligence() {
 }
 
 async function loadKOLIntelligence() {
-  const targets = [...state.pools].sort((a, b) => b.volume24h - a.volume24h || b.liquidity - a.liquidity).filter((pool) => pool.kolIntelligence === "UNAVAILABLE" && pool.symbol).slice(0, 4);
+  const targets = [...state.pools].sort((a, b) => b.volume24h - a.volume24h || b.liquidity - a.liquidity).filter((pool) => pool.kolIntelligence === "UNAVAILABLE" && pool.symbol).slice(0, 8);
   const results = await mapConcurrent(targets, 2, async (pool) => {
     try {
       const symbol = pool.symbol.split("-")[0].trim();

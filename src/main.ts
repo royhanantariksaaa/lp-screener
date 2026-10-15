@@ -302,18 +302,28 @@ async function fetchFeed() {
   }));
   const oculaByToken = new Map<string, OculaToken>();
   try {
-    const payload = await fetchJson<{ tokens?: OculaToken[] }>(liveApi("ocula", { ageBucket: "all" }), 15000);
-    const rows = Array.isArray(payload.tokens) ? payload.tokens : [];
+    const ageBuckets = ["new", "brewing", "mid", "all"];
+    const payloads = await Promise.all(ageBuckets.map(async (ageBucket) => {
+      try { return await fetchJson<{ tokens?: OculaToken[] }>(liveApi("ocula", { ageBucket }), 15000); }
+      catch { return undefined; }
+    }));
+    const rows = payloads.flatMap((payload) => Array.isArray(payload?.tokens) ? payload.tokens : []);
     rows.forEach((row) => {
       const address = String(row.token?.address ?? "").trim();
       if (address) oculaByToken.set(address.toLowerCase(), row);
     });
-    const addresses = rows.map((row) => String(row.token?.address ?? "").trim()).filter(Boolean).slice(0, 100);
-    if (addresses.length) {
-      const pairPayload = await fetchJson<unknown>(`https://api.dexscreener.com/tokens/v1/solana/${addresses.join(",")}`, 15000);
-      const pairs = Array.isArray(pairPayload) ? pairPayload as Array<Record<string, unknown>> : [];
-      results.push({ pairs });
-    }
+    const addresses = [...oculaByToken.keys()].slice(0, 100);
+    const chunks = Array.from({ length: Math.ceil(addresses.length / 30) }, (_, index) => addresses.slice(index * 30, index * 30 + 30));
+    const pairPayloads = await Promise.all(chunks.map(async (chunk) => {
+      try {
+        const pairPayload = await fetchJson<unknown>(`https://api.dexscreener.com/tokens/v1/solana/${chunk.join(",")}`, 15000);
+        return Array.isArray(pairPayload) ? pairPayload as Array<Record<string, unknown>> : [];
+      } catch {
+        return [];
+      }
+    }));
+    const pairs = pairPayloads.flat();
+    if (pairs.length) results.push({ pairs });
   } catch {
     // Ocula is a public discovery expansion; Dexscreener remains the market-data source of record.
   }
@@ -340,7 +350,7 @@ async function fetchFeed() {
     const liquidity = (pair: Record<string, unknown>) => Number((pair.liquidity as { usd?: number } | undefined)?.usd ?? 0);
     const volume = (pair: Record<string, unknown>) => Number((pair.volume as { h24?: number } | undefined)?.h24 ?? 0);
     return (liquidity(b) + volume(b)) - (liquidity(a) + volume(a));
-  }).slice(0, 60);
+  }).slice(0, 90);
 }
 
 function mapLivePair(pair: Record<string, unknown>): Pool {

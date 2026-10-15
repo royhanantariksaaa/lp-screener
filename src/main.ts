@@ -3,7 +3,7 @@ import { analyzeCandles, derivePlaybooks, evaluateEligibility, parseOhlcv, prima
 
 type Pool = {
   id?: string; pairAddress?: string; sourceUrl?: string; name: string; symbol: string; dex: string; address: string; price: number; liquidity: number; volume24h: number; ageDays: number; fee: number; tvl: number; change24h: number; risk: "LOW" | "MEDIUM" | "HIGH";
-  marketCap?: number; createdAt?: number; quoteTokenAddress?: string; smartWallets?: number; walletFlow?: "INFLOW" | "OUTFLOW" | "MIXED" | "UNAVAILABLE"; walletIntelligence?: "DEMO" | "LIVE" | "UNAVAILABLE"; walletSource?: string; walletEvents?: number; kolMentions?: number; kolRecency?: string; kolCreators?: number; kolPosts?: number; kolTrend?: string; kolSentiment?: number; kolIntelligence?: "DEMO" | "LIVE" | "UNAVAILABLE"; kolSource?: string; screenScore?: number; intelligence?: "DEMO" | "LIVE" | "UNAVAILABLE"; publicLinks?: number; tokenAddress?: string; profileUrl?: string; tokenStatus?: "LIVE" | "UNAVAILABLE"; tokenSource?: string; tokenSafety?: "PASS" | "WARN" | "UNAVAILABLE"; mintAuthority?: boolean; freezeAuthority?: boolean; holderTop10Pct?: number; holderProfileStatus?: "LIVE" | "UNAVAILABLE"; holderProfileSource?: string; holderCount?: number; eligibility?: EligibilityAnalysis; candles?: Candle[]; technical?: TechnicalAnalysis; playbooks?: PlaybookSignal[]; primaryPlaybook?: PlaybookSignal;
+  marketCap?: number; createdAt?: number; quoteTokenAddress?: string; smartWallets?: number; walletFlow?: "INFLOW" | "OUTFLOW" | "MIXED" | "UNAVAILABLE"; walletIntelligence?: "DEMO" | "LIVE" | "UNAVAILABLE"; walletSource?: string; walletEvents?: number; kolMentions?: number; kolRecency?: string; kolCreators?: number; kolPosts?: number; kolTrend?: string; kolSentiment?: number; kolIntelligence?: "DEMO" | "LIVE" | "UNAVAILABLE"; kolSource?: string; screenScore?: number; intelligence?: "DEMO" | "LIVE" | "UNAVAILABLE"; publicLinks?: number; profileUrl?: string; discovery?: string; oculaStatus?: "LIVE" | "UNAVAILABLE"; oculaSource?: string; oculaVolume1h?: number; oculaChange1h?: number; oculaHolders?: number; oculaBuyCount1h?: number; oculaSellCount1h?: number; oculaSocialLinks?: number; tokenAddress?: string; profileUrl?: string; tokenStatus?: "LIVE" | "UNAVAILABLE"; tokenSource?: string; tokenSafety?: "PASS" | "WARN" | "UNAVAILABLE"; mintAuthority?: boolean; freezeAuthority?: boolean; holderTop10Pct?: number; holderProfileStatus?: "LIVE" | "UNAVAILABLE"; holderProfileSource?: string; holderCount?: number; eligibility?: EligibilityAnalysis; candles?: Candle[]; technical?: TechnicalAnalysis; playbooks?: PlaybookSignal[]; primaryPlaybook?: PlaybookSignal;
 };
 
 
@@ -13,6 +13,11 @@ type ProviderStatus = {
   status: "LIVE" | "CONFIGURED" | "KEY_REQUIRED";
   mode: string;
   source: string;
+};
+
+type OculaToken = {
+  token?: { name?: string; symbol?: string; address?: string; createdAt?: number; socialLinks?: Record<string, string | null>; launchpad?: { launchpadName?: string; graduationPercent?: number; migrated?: boolean } };
+  priceUSD?: string | number; volume24?: string | number; volume1?: string | number; marketCap?: string | number; liquidity?: string | number; holders?: number; change24?: string | number; change1?: string | number; buyCount24?: number; sellCount24?: number;
 };
 
 const demoPools: Pool[] = [
@@ -76,7 +81,7 @@ function poolEvidence() {
   const walletLabel = pool.walletIntelligence === "UNAVAILABLE" ? "Unavailable" : `${pool.smartWallets ?? 0} recent traders`;
   const walletDetail = pool.walletIntelligence === "UNAVAILABLE" ? "Waiting for on-chain pool transaction analysis." : `${pool.walletFlow ?? "MIXED"} · ${pool.walletSource ?? "observed in the current snapshot"}`;
   const publicLabel = (pool.publicLinks ?? 0) > 0 ? `${pool.publicLinks} public links` : "No profile links";
-  const publicDetail = pool.profileUrl ? "Profile data from Dexscreener" : "Attention context only; not KOL confirmation";
+  const publicDetail = pool.oculaStatus === "LIVE" ? `Ocula discovery · ${pool.oculaHolders ? pool.oculaHolders.toLocaleString() : "—"} holders · ${pool.oculaVolume1h ? money(pool.oculaVolume1h) : "—"} 1h volume` : pool.profileUrl ? "Profile data from Dexscreener" : "Attention context only; not KOL confirmation";
   const kolLabel = pool.kolIntelligence === "UNAVAILABLE" ? "Provider required" : `${pool.kolMentions ?? 0} public mentions · ${pool.kolCreators ?? pool.kolMentions ?? 0} creators`;
   const kolDetail = pool.kolIntelligence === "UNAVAILABLE" ? "Connect LunarCrush, Nansen, or an existing intelligence endpoint." : `${pool.kolSource ?? "Provider-backed activity"} · latest ${pool.kolRecency ?? "—"} ago`;
   const breakdown = scoreBreakdown(pool);
@@ -94,7 +99,7 @@ function renderWorkspace() {
   const intelligenceReady = walletReady || kolReady;
   const heading = state.list === "eligible" ? "Eligible setups" : state.list === "open" ? "Open now" : state.list === "all" ? "All pools" : state.list === "trending" ? "Trending pools" : state.list === "new" ? "New pools" : state.list === "liquidity" ? "High liquidity" : state.list === "smart" ? "Smart-wallet activity" : state.list === "kol" ? "KOL flow" : "Your watchlist";
   const feedMessage = state.loading ? "Fetching market pairs and 15m candles…" : state.liveError ? state.liveError : state.lastUpdated ? `Updated ${timeAgo(Math.floor(state.lastUpdated / 1000))}` : "Demo data loaded";
-  return `<main class="workspace-page"><div class="workspace-layout">${listNav()}<section class="workspace"><div class="section-head"><div><p class="eyebrow">SOLANA · METEORA · SIGNAL STACK</p><h2>${heading}</h2><p class="subhead">Pool quality, technical setup, wallet behavior, and public attention in one read-only screen.</p></div><div class="live ${state.loading ? "is-loading" : state.liveError ? "is-error" : ""}"><span></span> ${state.source}<small>${feedMessage}</small></div></div><div class="feed-notice ${state.liveError ? "error" : state.loading ? "loading" : "ready"}"><span>${state.loading ? "◌" : state.liveError ? "!" : "✓"}</span><p>${state.loading ? "Live discovery is loading market pairs, then calculating Supertrend, Bollinger Bands, RSI(2), and playbook states." : state.liveError ? state.liveError : "This view only shows pools that pass the microcap liquidity, activity, fresh 15m trend, live intelligence, and on-chain token-safety gates. Use All pools to inspect excluded candidates."}</p><b>${state.loading ? "Loading" : state.liveError ? "Fallback" : state.liveReady ? "Live ready" : "Demo"}</b></div><div class="intelligence-strip"><div><span class="intel-icon wallet">♢</span><b>Smart wallets</b><small>${walletReady ? "Live Solana RPC activity" : state.liveReady ? "Analyzing recent traders" : "Demo intelligence loaded"}</small></div><div><span class="intel-icon kol">✧</span><b>KOL flow</b><small>${kolReady ? "Provider-backed mentions" : state.liveReady ? "Provider key required" : "Public mentions only"}</small></div><div><span class="intel-icon score">◎</span><b>Screen score</b><small>Technical + social weighting</small></div><p>Wallet and KOL signals are evidence, not endorsements.</p><button class="source-toggle" id="sourcesToggle">${state.sourcesOpen ? "Hide sources" : "Configure sources"} →</button></div><div class="preset-bar"><span class="eyebrow">QUICK RECIPES</span><button class="preset-btn" data-preset="conviction">High conviction</button><button class="preset-btn" data-preset="wallet">Smart-wallet flow</button><button class="preset-btn" data-preset="attention">KOL attention</button><button class="preset-btn" data-preset="liquidity">Liquidity first</button></div>${state.sourcesOpen ? `<div class="source-panel"><div><label>SMART WALLET WATCHLIST<small>One address per line or comma-separated</small><textarea id="walletSources">${state.trackedWallets.join("\n")}</textarea></label></div><div><label>KOL WATCHLIST<small>Handles or public profile URLs</small><textarea id="kolSources">${state.trackedKols.join("\n")}</textarea></label></div><div class="provider-health"><div class="provider-health-head"><span>PROVIDER HEALTH</span><small>Server-side keys stay private; only LIVE sources can satisfy eligibility.</small></div><div class="provider-health-grid">${state.providers.length ? state.providers.map((provider) => `<div class="provider-health-row"><b>${provider.label}</b><span class="provider-badge ${provider.status.toLowerCase()}">${providerStatusLabel(provider.status)}</span><small>${provider.source}</small></div>`).join("") : "<small>Loading provider health…</small>"}</div></div><div class="provider-note"><b>LunarCrush KOL adapter</b><p>Live creator and mention data requires a server-side <code>LUNARCRUSH_API_KEY</code> in Vercel. The key is never sent to the browser.</p><a href="https://lunarcrush.com/en/developers/keys" target="_blank" rel="noreferrer">Open LunarCrush API keys ↗</a></div><div class="source-panel-footer"><span>Saved locally · sent only to the configured intelligence provider.</span><button class="refresh" id="saveSources">Save watchlists</button></div></div>` : ""}<div class="controls" id="filters"><label>LIQUIDITY MINIMUM ($)<input id="minLiquidity" type="number" value="${state.minLiquidity}" step="10000"/></label><label>24H VOLUME MINIMUM ($)<input id="minVolume" type="number" value="${state.minVolume}" step="10000"/></label><label>MAX AGE (DAYS)<input id="maxAge" type="number" value="${state.maxAge}"/></label><label>MIN SCREEN SCORE<input id="scoreMin" type="number" min="0" max="100" value="${state.scoreMin}"/></label><label>SORT BY<select id="sort"><option value="score" ${state.sort === "score" ? "selected" : ""}>Screen score</option><option value="wallets" ${state.sort === "wallets" ? "selected" : ""}>Smart wallets</option><option value="kol" ${state.sort === "kol" ? "selected" : ""}>KOL mentions</option><option value="liquidity" ${state.sort === "liquidity" ? "selected" : ""}>Liquidity</option><option value="volume" ${state.sort === "volume" ? "selected" : ""}>24h volume</option></select></label><label>WALLET SIGNAL<select id="walletFilter"><option value="all" ${state.walletFilter === "all" ? "selected" : ""}>All wallet activity</option><option value="active" ${state.walletFilter === "active" ? "selected" : ""}>Active wallets</option><option value="inflow" ${state.walletFilter === "inflow" ? "selected" : ""}>Net inflow</option></select></label><label>KOL SIGNAL<select id="kolFilter"><option value="all" ${state.kolFilter === "all" ? "selected" : ""}>All KOL activity</option><option value="recent" ${state.kolFilter === "recent" ? "selected" : ""}>3+ mentions</option><option value="visible" ${state.kolFilter === "visible" ? "selected" : ""}>Any mention</option></select></label></div><div class="toolbar"><div class="search"><span>⌕</span><input id="query" placeholder="Search pools, tokens, or venues" value="${state.query}"/></div><button class="refresh" id="refresh" ${state.loading ? "disabled" : ""}>${state.loading ? "↻ Refreshing…" : "↻ Refresh feed"}</button><span class="count">${pools.length} candidates</span></div><div class="table-wrap"><table><thead><tr><th>POOL</th><th>VENUE</th><th>PRICE</th><th>LIQUIDITY</th><th>24H VOLUME</th><th>AGE</th><th>15M SETUP</th><th>SIGNAL STACK</th><th>SCORE</th></tr></thead><tbody>${pools.map(poolRow).join("") || `<tr><td colspan="9" class="empty">${state.loading ? "Waiting for the live feed…" : "No pools match these filters."}</td></tr>`}</tbody></table></div>${comparePanel()}${poolEvidence()}<div class="screen-method"><span>SCREEN METHOD</span><p>Score combines liquidity, volume, age fit, 15m technical state, wallet activity, KOL recency, and risk. It is a triage aid—not a recommendation.</p><a href="#academy">Learn the signals →</a></div><div class="pagination"><span>Showing ${pools.length} of ${state.pools.length} pools · ${state.liveReady ? "live source" : "fallback source"}</span><div><button disabled>←</button><button class="page-current">1</button><button disabled>→</button></div></div></section></div></main>`;
+  return `<main class="workspace-page"><div class="workspace-layout">${listNav()}<section class="workspace"><div class="section-head"><div><p class="eyebrow">SOLANA · METEORA · SIGNAL STACK</p><h2>${heading}</h2><p class="subhead">Pool quality, technical setup, wallet behavior, and public attention in one read-only screen.</p></div><div class="live ${state.loading ? "is-loading" : state.liveError ? "is-error" : ""}"><span></span> ${state.source}<small>${feedMessage}</small></div></div><div class="feed-notice ${state.liveError ? "error" : state.loading ? "loading" : "ready"}"><span>${state.loading ? "◌" : state.liveError ? "!" : "✓"}</span><p>${state.loading ? "Live discovery is loading market pairs, then calculating Supertrend, Bollinger Bands, RSI(2), and playbook states." : state.liveError ? state.liveError : "This view only shows pools that pass the microcap liquidity, activity, fresh 15m trend, live intelligence, and on-chain token-safety gates. Ocula expands discovery with live holder and social context; it never bypasses the eligibility gates. Use All pools to inspect excluded candidates."}</p><b>${state.loading ? "Loading" : state.liveError ? "Fallback" : state.liveReady ? "Live ready" : "Demo"}</b></div><div class="intelligence-strip"><div><span class="intel-icon wallet">♢</span><b>Smart wallets</b><small>${walletReady ? "Live Solana RPC activity" : state.liveReady ? "Analyzing recent traders" : "Demo intelligence loaded"}</small></div><div><span class="intel-icon kol">✧</span><b>KOL flow</b><small>${kolReady ? "Provider-backed mentions" : state.liveReady ? "Provider key required" : "Public mentions only"}</small></div><div><span class="intel-icon score">◎</span><b>Screen score</b><small>Technical + social weighting</small></div><p>Wallet and KOL signals are evidence, not endorsements.</p><button class="source-toggle" id="sourcesToggle">${state.sourcesOpen ? "Hide sources" : "Configure sources"} →</button></div><div class="preset-bar"><span class="eyebrow">QUICK RECIPES</span><button class="preset-btn" data-preset="conviction">High conviction</button><button class="preset-btn" data-preset="wallet">Smart-wallet flow</button><button class="preset-btn" data-preset="attention">KOL attention</button><button class="preset-btn" data-preset="liquidity">Liquidity first</button></div>${state.sourcesOpen ? `<div class="source-panel"><div><label>SMART WALLET WATCHLIST<small>One address per line or comma-separated</small><textarea id="walletSources">${state.trackedWallets.join("\n")}</textarea></label></div><div><label>KOL WATCHLIST<small>Handles or public profile URLs</small><textarea id="kolSources">${state.trackedKols.join("\n")}</textarea></label></div><div class="provider-health"><div class="provider-health-head"><span>PROVIDER HEALTH</span><small>Server-side keys stay private; only LIVE sources can satisfy eligibility.</small></div><div class="provider-health-grid">${state.providers.length ? state.providers.map((provider) => `<div class="provider-health-row"><b>${provider.label}</b><span class="provider-badge ${provider.status.toLowerCase()}">${providerStatusLabel(provider.status)}</span><small>${provider.source}</small></div>`).join("") : "<small>Loading provider health…</small>"}</div></div><div class="provider-note"><b>LunarCrush KOL adapter</b><p>Live creator and mention data requires a server-side <code>LUNARCRUSH_API_KEY</code> in Vercel. The key is never sent to the browser.</p><a href="https://lunarcrush.com/en/developers/keys" target="_blank" rel="noreferrer">Open LunarCrush API keys ↗</a></div><div class="source-panel-footer"><span>Saved locally · sent only to the configured intelligence provider.</span><button class="refresh" id="saveSources">Save watchlists</button></div></div>` : ""}<div class="controls" id="filters"><label>LIQUIDITY MINIMUM ($)<input id="minLiquidity" type="number" value="${state.minLiquidity}" step="10000"/></label><label>24H VOLUME MINIMUM ($)<input id="minVolume" type="number" value="${state.minVolume}" step="10000"/></label><label>MAX AGE (DAYS)<input id="maxAge" type="number" value="${state.maxAge}"/></label><label>MIN SCREEN SCORE<input id="scoreMin" type="number" min="0" max="100" value="${state.scoreMin}"/></label><label>SORT BY<select id="sort"><option value="score" ${state.sort === "score" ? "selected" : ""}>Screen score</option><option value="wallets" ${state.sort === "wallets" ? "selected" : ""}>Smart wallets</option><option value="kol" ${state.sort === "kol" ? "selected" : ""}>KOL mentions</option><option value="liquidity" ${state.sort === "liquidity" ? "selected" : ""}>Liquidity</option><option value="volume" ${state.sort === "volume" ? "selected" : ""}>24h volume</option></select></label><label>WALLET SIGNAL<select id="walletFilter"><option value="all" ${state.walletFilter === "all" ? "selected" : ""}>All wallet activity</option><option value="active" ${state.walletFilter === "active" ? "selected" : ""}>Active wallets</option><option value="inflow" ${state.walletFilter === "inflow" ? "selected" : ""}>Net inflow</option></select></label><label>KOL SIGNAL<select id="kolFilter"><option value="all" ${state.kolFilter === "all" ? "selected" : ""}>All KOL activity</option><option value="recent" ${state.kolFilter === "recent" ? "selected" : ""}>3+ mentions</option><option value="visible" ${state.kolFilter === "visible" ? "selected" : ""}>Any mention</option></select></label></div><div class="toolbar"><div class="search"><span>⌕</span><input id="query" placeholder="Search pools, tokens, or venues" value="${state.query}"/></div><button class="refresh" id="refresh" ${state.loading ? "disabled" : ""}>${state.loading ? "↻ Refreshing…" : "↻ Refresh feed"}</button><span class="count">${pools.length} candidates</span></div><div class="table-wrap"><table><thead><tr><th>POOL</th><th>VENUE</th><th>PRICE</th><th>LIQUIDITY</th><th>24H VOLUME</th><th>AGE</th><th>15M SETUP</th><th>SIGNAL STACK</th><th>SCORE</th></tr></thead><tbody>${pools.map(poolRow).join("") || `<tr><td colspan="9" class="empty">${state.loading ? "Waiting for the live feed…" : "No pools match these filters."}</td></tr>`}</tbody></table></div>${comparePanel()}${poolEvidence()}<div class="screen-method"><span>SCREEN METHOD</span><p>Score combines liquidity, volume, age fit, 15m technical state, wallet activity, KOL recency, and risk. It is a triage aid—not a recommendation.</p><a href="#academy">Learn the signals →</a></div><div class="pagination"><span>Showing ${pools.length} of ${state.pools.length} pools · ${state.liveReady ? "live source" : "fallback source"}</span><div><button disabled>←</button><button class="page-current">1</button><button disabled>→</button></div></div></section></div></main>`;
 }
 function academyLesson() { const lessons: Record<string, { label: string; title: string; copy: string; kicker: string; points: string[] }> = { bins: { label: "01 · BINS", title: "Liquidity lives in bins.", copy: "A DLMM turns the price range into discrete containers. Bin step controls the distance between neighboring prices, so a position can be narrow, wide, or stacked.", kicker: "FOUNDATIONS", points: ["Bins hold the liquidity", "Bin step sets price spacing", "Active bins are where swaps happen"] }, shapes: { label: "02 · SHAPES", title: "Shape the position around your view.", copy: "Spot, Curve, and Bid–Ask are starting points. The shape decides where capital sits and how the position responds when price moves.", kicker: "POSITION DESIGN", points: ["Spot follows a broad range", "Curve concentrates near price", "Bid–Ask stages below and above"] }, fees: { label: "03 · FEES", title: "Volume creates the fee stream.", copy: "Fees are earned when swaps cross your active liquidity. Dynamic fees respond to volatility, so the highest headline fee is not always the best setup.", kicker: "FEE MECHANICS", points: ["Volume is the input", "Active bins capture flow", "Volatility changes fee conditions"] }, risk: { label: "04 · RISK", title: "Price can leave your range.", copy: "Fees and token appreciation must be weighed against impermanent or divergent loss. A position needs a range, an invalidation rule, and a plan to manage it.", kicker: "RISK CONTROL", points: ["Track price against range", "Compare fees with divergence", "Exit or rebalance deliberately"] }, safety: { label: "05 · SAFETY", title: "Verify before you provide.", copy: "A beautiful chart is not enough. Check the token, contract, pool age, liquidity depth, volume quality, and concentration before committing capital.", kicker: "DUE DILIGENCE", points: ["Verify the contract", "Inspect liquidity and holders", "Treat signals as research"] }, opportunities: { label: "06 · OPPORTUNITIES", title: "Read the setup, not only the APY.", copy: "A useful candidate combines usable liquidity, real volume, a believable age, a fee tier that fits volatility, and a token you can verify.", kicker: "FINDING OPPORTUNITIES", points: ["Start with liquidity and volume", "Check age, volatility, and fees", "Validate the token before entry"] }, manage: { label: "07 · MANAGE", title: "A position is a process.", copy: "After entry, the job is observation: watch active bins, collect fees, compare price with the range, then rebalance or exit when the original thesis changes.", kicker: "POSITION MANAGEMENT", points: ["Monitor active bins", "Claim and record fees", "Rebalance or exit deliberately"] }, performance: { label: "08 · PERFORMANCE", title: "Separate fees from price change.", copy: "Review fee income, inventory change, and price movement as separate lines. A green fee number does not automatically mean the position won.", kicker: "P&L REVIEW", points: ["Track fees earned", "Track inventory and divergence", "Compare the result with holding spot"] } }; return lessons[state.academy] ?? lessons.bins; }
 function academyVisual() { if (state.academy === "opportunities") return `<div class="tutorial-visual opportunity-visual"><div class="radar"><span class="radar-ring r1"></span><span class="radar-ring r2"></span><span class="radar-sweep"></span><i class="radar-dot d1"></i><i class="radar-dot d2"></i><i class="radar-dot d3"></i><b>POOL<br/>FIT</b></div><div class="opportunity-score"><span>SCREENING SCORE</span><strong>78 / 100</strong><div><i style="width:78%"></i></div><small>liquidity · volume · age · safety</small></div></div>`; if (state.academy === "manage") return `<div class="tutorial-visual manage-visual"><div class="manage-loop"><div><b>WATCH</b><small>active bins</small></div><span>→</span><div><b>COLLECT</b><small>fee flow</small></div><span>→</span><div><b>ADJUST</b><small>range thesis</small></div><span>↺</span></div><div class="manage-cursor"></div><p>MANAGEMENT LOOP · REPEAT WHILE THE THESIS HOLDS</p></div>`; if (state.academy === "performance") return `<div class="tutorial-visual performance-visual"><div class="perf-legend"><span><i class="fee-key"></i>FEES</span><span><i class="inventory-key"></i>INVENTORY</span><span><i class="spot-key"></i>HOLD SPOT</span></div><svg viewBox="0 0 500 220"><line x1="30" y1="185" x2="475" y2="185" class="perf-axis"/><line x1="30" y1="30" x2="30" y2="185" class="perf-axis"/><path class="perf-fee" d="M30 177 C90 169 111 160 151 148 S219 126 250 112 S337 81 475 48"/><path class="perf-inventory" d="M30 55 C95 61 125 75 166 91 S240 118 286 136 S370 151 475 163"/><path class="perf-spot" d="M30 169 C87 152 119 142 164 132 S260 98 310 79 S402 55 475 44"/><circle cx="250" cy="112" r="6" class="perf-dot"/></svg><div class="perf-labels"><span>ENTRY</span><span>REVIEW WINDOW</span><span>NOW</span></div></div>`; if (state.academy === "risk") return `<div class="tutorial-visual risk-visual"><div class="risk-range"><span>ACTIVE RANGE</span></div><div class="risk-price"></div><div class="risk-arrow">PRICE OUT OF RANGE ↗</div><div class="visual-axis"><span>LOW</span><span>ENTRY</span><span>HIGH</span></div></div>`; if (state.academy === "fees") return `<div class="tutorial-visual fees-visual"><div class="fee-pool"><span>POOL</span><b>DLMM</b></div><div class="fee-path p1"></div><div class="fee-path p2"></div><div class="fee-path p3"></div><div class="fee-particle f1">＋</div><div class="fee-particle f2">＋</div><div class="fee-particle f3">＋</div><div class="fee-caption">SWAP FLOW → ACTIVE BINS → FEE SHARE</div></div>`; if (state.academy === "shapes") return `<div class="tutorial-visual shapes-visual"><div class="mini-shape"><small>SPOT</small><span class="shape-line spot-line"></span></div><div class="mini-shape"><small>CURVE</small><span class="shape-line curve-line"></span></div><div class="mini-shape"><small>BID–ASK</small><span class="shape-line bid-line"></span></div></div>`; if (state.academy === "safety") return `<div class="tutorial-visual safety-visual"><div class="check-row"><span>✓</span><b>CONTRACT VERIFIED</b><small>address</small></div><div class="check-row"><span>✓</span><b>LIQUIDITY DEPTH</b><small>usable</small></div><div class="check-row warn"><span>!</span><b>CONCENTRATION</b><small>inspect</small></div><div class="check-row"><span>✓</span><b>VOLUME QUALITY</b><small>active</small></div></div>`; return `<div class="tutorial-visual bins-visual"><div class="bin-price">CURRENT PRICE</div><div class="bins"><i></i><i></i><i></i><i></i><i class="active"></i><i class="active"></i><i class="active"></i><i></i><i></i><i></i><i></i><i></i></div><div class="bin-labels"><span>LOW</span><span>ACTIVE BINS</span><span>HIGH</span></div><div class="bin-step">BIN STEP <b>25 bps</b></div></div>`; }
@@ -139,7 +144,7 @@ async function loadProviderStatus() {
   }
 }
 
-async function loadPublicProfiles() { try { const response = await fetch("https://api.dexscreener.com/token-profiles/latest/v1"); if (!response.ok) return; const profiles = await response.json() as Array<{ chainId?: string; tokenAddress?: string; url?: string; links?: Array<unknown> }>; const byAddress = new Map(profiles.filter((item) => item.chainId === "solana" && item.tokenAddress).map((item) => [item.tokenAddress!.toLowerCase(), item])); state.pools = state.pools.map((pool) => { const profile = pool.tokenAddress ? byAddress.get(pool.tokenAddress.toLowerCase()) : undefined; return profile ? { ...pool, publicLinks: profile.links?.length ?? 0, profileUrl: profile.url } : pool; }); } catch { /* Public profile enrichment is optional. */ } }
+async function loadPublicProfiles() { try { const response = await fetch("https://api.dexscreener.com/token-profiles/latest/v1"); if (!response.ok) return; const profiles = await response.json() as Array<{ chainId?: string; tokenAddress?: string; url?: string; links?: Array<unknown> }>; const byAddress = new Map(profiles.filter((item) => item.chainId === "solana" && item.tokenAddress).map((item) => [item.tokenAddress!.toLowerCase(), item])); state.pools = state.pools.map((pool) => { const profile = pool.tokenAddress ? byAddress.get(pool.tokenAddress.toLowerCase()) : undefined; return profile ? { ...pool, publicLinks: Math.max(pool.publicLinks ?? 0, profile.links?.length ?? 0), profileUrl: profile.url } : pool; }); } catch { /* Public profile enrichment is optional. */ } }
 async function loadTokenSafety() {
   const targets = [...state.pools].sort((a, b) => b.volume24h - a.volume24h || b.liquidity - a.liquidity).filter((pool) => pool.tokenStatus !== "LIVE" && pool.tokenAddress).slice(0, 12);
   const results = await mapConcurrent(targets, 4, async (pool) => {
@@ -190,7 +195,7 @@ async function loadWalletIntelligence() {
     const payload = byKey.get(poolKey(pool));
     return payload ? { ...pool, smartWallets: Number(payload.smartWallets ?? 0), walletFlow: payload.walletFlow ?? "MIXED", walletEvents: Number(payload.walletEvents ?? 0), walletIntelligence: "LIVE", walletSource: payload.source ?? "Solana RPC · recent pool traders", intelligence: "LIVE" } : pool;
   });
-  state.source = "LIVE · Dexscreener + Solana RPC";
+  state.source = state.source.includes("Ocula") ? `${state.source} + Solana RPC` : "LIVE · Dexscreener + Solana RPC";
   refreshEligibility();
 }
 
@@ -212,7 +217,7 @@ async function loadKOLIntelligence() {
     const payload = byKey.get(poolKey(pool));
     return payload ? { ...pool, kolMentions: Number(payload.kolMentions ?? 0), kolRecency: payload.kolRecency ?? "—", kolCreators: Number(payload.kolCreators ?? 0), kolPosts: Number(payload.kolPosts ?? 0), kolTrend: payload.kolTrend, kolSentiment: payload.kolSentiment, kolIntelligence: "LIVE", kolSource: payload.source ?? "LunarCrush API", intelligence: "LIVE" } : pool;
   });
-  state.source = state.source.includes("Solana RPC") ? `${state.source} + LunarCrush` : "LIVE · Dexscreener + LunarCrush";
+  state.source = state.source.includes("Solana RPC") ? `${state.source} + LunarCrush` : `${state.source} + LunarCrush`;
   refreshEligibility();
 }
 
@@ -258,6 +263,23 @@ async function fetchFeed() {
     try { return await fetchJson<{ pairs?: Array<Record<string, unknown>> }>(liveApi("feed", { q: term })); }
     catch { return await fetchJson<{ pairs?: Array<Record<string, unknown>> }>(`https://api.dexscreener.com/latest/dex/search?q=${encodeURIComponent(term)}`); }
   }));
+  const oculaByToken = new Map<string, OculaToken>();
+  try {
+    const payload = await fetchJson<{ tokens?: OculaToken[] }>(liveApi("ocula", { ageBucket: "all" }), 15000);
+    const rows = Array.isArray(payload.tokens) ? payload.tokens : [];
+    rows.forEach((row) => {
+      const address = String(row.token?.address ?? "").trim();
+      if (address) oculaByToken.set(address.toLowerCase(), row);
+    });
+    const addresses = rows.map((row) => String(row.token?.address ?? "").trim()).filter(Boolean).slice(0, 100);
+    if (addresses.length) {
+      const pairPayload = await fetchJson<unknown>(`https://api.dexscreener.com/tokens/v1/solana/${addresses.join(",")}`, 15000);
+      const pairs = Array.isArray(pairPayload) ? pairPayload as Array<Record<string, unknown>> : [];
+      results.push({ pairs });
+    }
+  } catch {
+    // Ocula is a public discovery expansion; Dexscreener remains the market-data source of record.
+  }
   try {
     const profiles = await fetchJson<Array<{ chainId?: string; tokenAddress?: string }>>("https://api.dexscreener.com/token-profiles/latest/v1");
     const addresses = profiles.filter((profile) => profile.chainId === "solana" && profile.tokenAddress).slice(0, 12).map((profile) => profile.tokenAddress!);
@@ -272,27 +294,38 @@ async function fetchFeed() {
   const unique = new Map<string, Record<string, unknown>>();
   results.flatMap((result) => result.pairs ?? []).filter((pair) => pair.chainId === "solana").forEach((pair) => {
     const address = String(pair.pairAddress ?? "");
-    if (address && !unique.has(address)) unique.set(address, pair);
+    const base = pair.baseToken as { address?: string } | undefined;
+    const ocula = base?.address ? oculaByToken.get(base.address.toLowerCase()) : undefined;
+    const enriched = ocula ? { ...pair, ocula } : pair;
+    if (address && !unique.has(address)) unique.set(address, enriched);
   });
   return [...unique.values()].sort((a, b) => {
     const liquidity = (pair: Record<string, unknown>) => Number((pair.liquidity as { usd?: number } | undefined)?.usd ?? 0);
     const volume = (pair: Record<string, unknown>) => Number((pair.volume as { h24?: number } | undefined)?.h24 ?? 0);
     return (liquidity(b) + volume(b)) - (liquidity(a) + volume(a));
-  }).slice(0, 36);
+  }).slice(0, 60);
 }
 
 function mapLivePair(pair: Record<string, unknown>): Pool {
   const base = pair.baseToken as { symbol?: string; address?: string } | undefined;
-  const quote = pair.quoteToken as { symbol?: string } | undefined;
-  const baseSymbol = String(base?.symbol ?? "TOKEN");
+  const quote = pair.quoteToken as { symbol?: string; address?: string } | undefined;
+  const ocula = pair.ocula as OculaToken | undefined;
+  const oculaLinks = Object.values(ocula?.token?.socialLinks ?? {}).filter(Boolean).length;
+  const baseSymbol = String(base?.symbol ?? ocula?.token?.symbol ?? "TOKEN");
   const quoteSymbol = String(quote?.symbol ?? "SOL");
   const pairAddress = String(pair.pairAddress ?? "");
-  const liquidity = Number((pair.liquidity as { usd?: number } | undefined)?.usd ?? 0);
-  const volume24h = Number((pair.volume as { h24?: number } | undefined)?.h24 ?? 0);
-  const createdAt = Number(pair.pairCreatedAt ?? 0);
+  const dexLiquidity = Number((pair.liquidity as { usd?: number } | undefined)?.usd ?? 0);
+  const dexVolume24h = Number((pair.volume as { h24?: number } | undefined)?.h24 ?? 0);
+  const oculaLiquidity = Number(ocula?.liquidity ?? 0);
+  const oculaVolume24h = Number(ocula?.volume24 ?? 0);
+  const liquidity = dexLiquidity || oculaLiquidity;
+  const volume24h = dexVolume24h || oculaVolume24h;
+  const oculaCreatedAt = Number(ocula?.token?.createdAt ?? 0) * 1000;
+  const createdAt = Number(pair.pairCreatedAt ?? oculaCreatedAt);
   const ageDays = createdAt > 0 ? Math.max(0, Math.round((Date.now() - createdAt) / 86400000 * 10) / 10) : 0;
   const info = pair.info as { websites?: unknown[]; socials?: unknown[] } | undefined;
   const publicLinks = (info?.websites?.length ?? 0) + (info?.socials?.length ?? 0);
+  const oculaPrice = Number(ocula?.priceUSD ?? 0);
   return {
     id: pairAddress || `${baseSymbol}-${quoteSymbol}-${String(pair.dexId ?? "dex")}`,
     pairAddress,
@@ -301,20 +334,20 @@ function mapLivePair(pair: Record<string, unknown>): Pool {
     symbol: `${baseSymbol}-${quoteSymbol}`,
     dex: String(pair.dexId ?? "DEX"),
     address: pairAddress ? `${pairAddress.slice(0, 4)}…${pairAddress.slice(-4)}` : "unknown",
-    tokenAddress: String(base?.address ?? ""),
-    quoteTokenAddress: String((quote as { address?: string } | undefined)?.address ?? ""),
+    tokenAddress: String(base?.address ?? ocula?.token?.address ?? ""),
+    quoteTokenAddress: String(quote?.address ?? ""),
     tokenStatus: "UNAVAILABLE",
     tokenSource: "Pending Solana RPC safety checks",
     tokenSafety: "UNAVAILABLE",
-    price: Number(pair.priceUsd ?? 0),
-    marketCap: Number(pair.marketCap ?? pair.fdv ?? 0),
+    price: Number(pair.priceUsd ?? oculaPrice ?? 0),
+    marketCap: Number(pair.marketCap ?? pair.fdv ?? ocula?.marketCap ?? 0),
     liquidity,
     volume24h,
     ageDays,
     createdAt,
     fee: 0.1,
     tvl: liquidity / 1_000_000,
-    change24h: Number((pair.priceChange as { h24?: number } | undefined)?.h24 ?? 0),
+    change24h: Number((pair.priceChange as { h24?: number } | undefined)?.h24 ?? ocula?.change24 ?? 0),
     risk: liquidity >= 1_000_000 ? "LOW" : liquidity >= 250_000 ? "MEDIUM" : "HIGH",
     smartWallets: 0,
     walletFlow: "UNAVAILABLE",
@@ -325,7 +358,16 @@ function mapLivePair(pair: Record<string, unknown>): Pool {
     kolRecency: "—",
     kolIntelligence: "UNAVAILABLE",
     kolSource: "Provider key required",
-    publicLinks,
+    publicLinks: Math.max(publicLinks, oculaLinks),
+    discovery: ocula ? "Ocula public feed + Dexscreener pair" : "Dexscreener market feed",
+    oculaStatus: ocula ? "LIVE" : "UNAVAILABLE",
+    oculaSource: ocula ? "Ocula public feed · holders + social links" : "Ocula discovery unavailable",
+    oculaVolume1h: Number(ocula?.volume1 ?? 0) || undefined,
+    oculaChange1h: Number(ocula?.change1 ?? 0) || undefined,
+    oculaHolders: Number(ocula?.holders ?? 0) || undefined,
+    oculaBuyCount1h: Number(ocula?.buyCount24 ?? 0) || undefined,
+    oculaSellCount1h: Number(ocula?.sellCount24 ?? 0) || undefined,
+    oculaSocialLinks: oculaLinks,
     screenScore: 0,
     intelligence: "UNAVAILABLE",
   };
@@ -395,7 +437,7 @@ async function loadLive() {
     if (!pairs.length) throw new Error("No Solana pairs returned");
     state.pools = pairs.map(mapLivePair);
     state.liveReady = true;
-    state.source = "LIVE · Dexscreener market feed";
+    state.source = "LIVE · Dexscreener + Ocula discovery";
     state.lastUpdated = Date.now();
     state.loading = false;
     render();

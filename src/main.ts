@@ -138,6 +138,7 @@ function refreshEligibility() {
       pool.tokenStatus === "LIVE" ? { status: "LIVE", source: pool.tokenSource, mintAuthority: pool.mintAuthority, freezeAuthority: pool.freezeAuthority, holderTop10Pct: pool.holderTop10Pct } : undefined,
     ),
   }));
+  render();
 }
 
 async function loadWalletIntelligence() {
@@ -353,6 +354,7 @@ async function loadLive() {
     state.liveReady = true;
     state.source = "LIVE · Dexscreener market feed";
     state.lastUpdated = Date.now();
+    state.loading = false;
     render();
     await loadTokenSafety();
     await enrichTechnicalData(state.pools);

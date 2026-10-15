@@ -30,9 +30,10 @@ The public Vercel deployment uses the `/api/market` serverless function to avoid
 - `GET /api/market?kind=feed&q=SOL` proxies the public Dexscreener search feed.
 - `GET /api/market?kind=ohlcv&pool=<solana-pool-address>` proxies GeckoTerminal 15-minute OHLCV data.
 - `GET /api/market?kind=wallets&pool=<solana-pool-address>&base=<token-mint>&limit=6` reads recent pool transactions from the public Solana RPC and returns the number and direction of recent signer activity. This is on-chain recent-trader activity, not a profitability claim.
+- `GET /api/market?kind=token&mint=<token-mint>` checks mint authority, freeze authority, and the top-ten holder concentration proxy through Solana RPC.
 - `GET /api/market?kind=kol&symbol=<token-symbol>` reads the 24-hour LunarCrush topic summary and top creators. Set `LUNARCRUSH_API_KEY` as a Vercel server environment variable; it is only read by the serverless function and is never bundled into the client.
 
 The client refreshes the market feed on load and every 60 seconds. It derives pool age from `pairCreatedAt`, then calculates Supertrend, Bollinger Bands (20, 2), RSI(2), history-high drawdown, candle freshness, and playbook states from the returned 15m candles. Candle enrichment is deliberately rate-limit aware: the highest-volume six pools are fetched serially and cached for five minutes.
 
-The client calls the wallet route for the highest-volume live pools and the LunarCrush route for the highest-volume token topics. Without `LUNARCRUSH_API_KEY`, KOL fields remain explicitly unavailable and the UI shows that provider requirement instead of fabricating mentions. Live market data is never relabeled as wallet or KOL intelligence.
+The client calls token-safety checks for the highest-volume candidates, then enriches technical, wallet, and KOL evidence. The default workspace is `Eligible setups`: a pool must clear the microcap liquidity floor ($5K), activity floor ($2K 24h volume), age window (365 days), fresh bullish 15m state, live wallet or attention evidence, and token-safety checks. `Open now` is reserved for an eligible pool with a fresh flip or reclaim trigger. Without `LUNARCRUSH_API_KEY`, KOL fields remain explicitly unavailable and the UI shows that provider requirement instead of fabricating mentions. These gates are screening evidence, not a profitability guarantee.
 

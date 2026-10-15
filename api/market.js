@@ -6,6 +6,13 @@ const BIRDEYE_API = "https://public-api.birdeye.so";
 const OCULA_FEED = "https://vwpzmuprmqwqwshqiyhl.supabase.co/functions/v1/codex-brewing";
 const NANSEN_API = "https://api.nansen.ai/api/v1";
 const KAITO_MCP = "https://bff.kaito.ai/api/mcp";
+const MADEONSOL_API = "https://madeonsol.com/api/v1";
+// MadeOnSol documents this read-only demo key for testing. Production deployments
+// should set MADEONSOL_API_KEY to their own key; the demo feed is delayed and rate limited.
+const MADEONSOL_DEMO_KEY = "msk_demo_try_the_solana_api_2026";
+
+let madeOnSolFeedCache = { fetchedAt: 0, trades: [], delaySeconds: 0, asOf: undefined };
+let madeOnSolFeedPromise;
 
 const withTimeout = async (url, init = {}, timeoutMs = 12000) => {
   const controller = new AbortController();
@@ -204,11 +211,70 @@ const kaitoSignal = async (symbol) => {
   }
 };
 
-const kolSignal = async (symbol) => {
+const madeOnSolJson = async (path, apiKey) => {
+  const response = await withTimeout(`${MADEONSOL_API}${path}`, {
+    headers: { accept: "application/json", authorization: `Bearer ${apiKey}` },
+  }, 15000);
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const detail = payload?.message || payload?.error || `madeonsol (${response.status})`;
+    throw new Error(String(detail));
+  }
+  return payload;
+};
+
+const madeOnSolFeed = async () => {
+  if (madeOnSolFeedCache.fetchedAt && Date.now() - madeOnSolFeedCache.fetchedAt < 5 * 60_000) return madeOnSolFeedCache;
+  if (madeOnSolFeedPromise) return madeOnSolFeedPromise;
+  const apiKey = String(process.env.MADEONSOL_API_KEY ?? MADEONSOL_DEMO_KEY).trim();
+  madeOnSolFeedPromise = madeOnSolJson("/kol/feed?limit=100", apiKey)
+    .then((payload) => {
+      const trades = Array.isArray(payload?.trades) ? payload.trades : [];
+      madeOnSolFeedCache = {
+        fetchedAt: Date.now(),
+        trades,
+        delaySeconds: Number(payload?.delay_seconds ?? 0),
+        asOf: payload?.as_of,
+      };
+      return madeOnSolFeedCache;
+    })
+    .finally(() => {
+      madeOnSolFeedPromise = undefined;
+    });
+  return madeOnSolFeedPromise;
+};
+
+const madeOnSolSignal = async (mint, symbol) => {
+  if (!mint) return { status: "UNAVAILABLE", source: "MadeOnSol mint required", kolMentions: 0, kolRecency: "—", kolCreators: 0, kolPosts: 0 };
+  try {
+    const snapshot = await madeOnSolFeed();
+    const rows = snapshot.trades.filter((row) => String(row?.token_mint ?? "") === mint);
+    const creators = new Set(rows.map((row) => String(row?.wallet_address ?? row?.kol_name ?? "")).filter(Boolean));
+    const buys = rows.filter((row) => String(row?.action ?? "").toLowerCase() === "buy").length;
+    const sells = rows.filter((row) => String(row?.action ?? "").toLowerCase() === "sell").length;
+    const latest = rows.map((row) => Date.parse(String(row?.traded_at ?? ""))).filter(Number.isFinite).sort((a, b) => b - a)[0];
+    const delay = snapshot.delaySeconds > 0 ? `${Math.max(1, Math.round(snapshot.delaySeconds / 60))}m delayed` : "live";
+    return {
+      status: "LIVE",
+      source: `MadeOnSol KOL feed · ${delay}`,
+      kolMentions: rows.length,
+      kolRecency: latest ? ageLabel(Math.round(latest / 1000)) : "—",
+      kolCreators: creators.size,
+      kolPosts: rows.length,
+      kolTrend: buys > sells ? "BUY_FLOW" : sells > buys ? "SELL_FLOW" : rows.length ? "MIXED_FLOW" : "NO_RECENT_FLOW",
+      kolSentiment: undefined,
+      tokenSymbol: symbol,
+    };
+  } catch {
+    return { status: "UNAVAILABLE", source: "MadeOnSol unavailable", kolMentions: 0, kolRecency: "—", kolCreators: 0, kolPosts: 0 };
+  }
+};
+
+const kolSignal = async (symbol, mint) => {
   const apiKey = String(process.env.LUNARCRUSH_API_KEY ?? "").trim();
-  if (!apiKey) return kaitoSignal(symbol);
+  if (!apiKey && String(process.env.KAITO_API_KEY ?? "").trim()) return kaitoSignal(symbol);
   const topic = lunarTopic(symbol);
-  if (!topic) return kaitoSignal(symbol);
+  if (!apiKey || !topic) return madeOnSolSignal(mint, symbol);
   try {
     const encoded = encodeURIComponent(topic);
     const [summary, creators] = await Promise.all([
@@ -222,7 +288,8 @@ const kolSignal = async (symbol) => {
     const generated = Number(summary?.config?.generated ?? summary?.generated ?? 0);
     return { status: "LIVE", source: "LunarCrush API · 24h topic + creators", kolMentions: Math.max(0, mentions), kolRecency: ageLabel(generated), kolCreators: creatorCount, kolPosts: Math.max(0, mentions), kolTrend: typeof data.trend === "string" ? data.trend.toUpperCase() : undefined, kolSentiment: Number(data.types_sentiment?.tweet ?? data.types_sentiment?.["youtube-video"] ?? 0) || undefined };
   } catch {
-    return kaitoSignal(symbol);
+    if (String(process.env.KAITO_API_KEY ?? "").trim()) return kaitoSignal(symbol);
+    return madeOnSolSignal(mint, symbol);
   }
 };
 
@@ -272,6 +339,7 @@ const providerHealth = () => {
       { key: "ocula", label: "Ocula", status: "LIVE", mode: "PUBLIC", source: "Live Solana discovery + holder/social context" },
       { key: "bubblemaps", label: "Bubblemaps", status: "LINK_ONLY", mode: "LINK_ONLY", source: "Holder-cluster context link" },
       { key: "kaito", label: "Kaito", status: configured("KAITO_API_KEY") ? "LIVE" : "KEY_REQUIRED", mode: "KOL", source: "Kaito MCP · token mentions" },
+      { key: "madeonsol", label: "MadeOnSol", status: "LIVE", mode: "KOL", source: configured("MADEONSOL_API_KEY") ? "KOL feed · configured key" : "KOL feed · public demo · 5m delayed" },
       { key: "cielo", label: "Cielo", status: "LINK_ONLY", mode: "LINK_ONLY", source: "Wallet context link" },
       { key: "moby", label: "Moby", status: "LINK_ONLY", mode: "LINK_ONLY", source: "Market context link" },
       { key: "artemis", label: "Artemis", status: "LINK_ONLY", mode: "LINK_ONLY", source: "Fundamental context link" },
@@ -341,7 +409,9 @@ export default async function handler(req, res) {
     }
     if (kind === "kol") {
       const symbol = String(req.query?.symbol ?? "").trim().slice(0, 64);
-      return res.status(200).json(await kolSignal(symbol));
+      const mint = String(req.query?.mint ?? "").trim();
+      if (mint && !/^[1-9A-HJ-NP-Za-km-z]{32,50}$/.test(mint)) return res.status(400).json({ error: "invalid_mint" });
+      return res.status(200).json(await kolSignal(symbol, mint));
     }
     return res.status(400).json({ error: "unknown_kind" });
   } catch (error) {

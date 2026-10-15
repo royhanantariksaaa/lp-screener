@@ -213,7 +213,7 @@ export function derivePlaybooks(pool: { dex: string; marketCap?: number; liquidi
 export function evaluateEligibility(
   pool: { pairAddress?: string; tokenAddress?: string; liquidity: number; volume24h: number; ageDays: number },
   analysis: TechnicalAnalysis | undefined,
-  intelligence: { walletLive: boolean; kolLive: boolean },
+  intelligence: { walletLive: boolean; kolLive: boolean; walletEvidence?: boolean; kolEvidence?: boolean },
   safety: TokenSafetyAnalysis | undefined,
 ): EligibilityAnalysis {
   const address = Boolean(pool.pairAddress && pool.tokenAddress);
@@ -221,8 +221,8 @@ export function evaluateEligibility(
   const volume = pool.volume24h >= 2_000;
   const age = pool.ageDays <= 365;
   const technical = Boolean(analysis?.available && analysis.fresh);
-  const walletReady = intelligence.walletLive;
-  const kolReady = intelligence.kolLive;
+  const walletReady = intelligence.walletLive && Boolean(intelligence.walletEvidence);
+  const kolReady = intelligence.kolLive && Boolean(intelligence.kolEvidence);
   const intelligenceReady = walletReady && kolReady;
   const safetyReady = safety?.status === "LIVE";
   const safetyPass = safetyReady && !safety?.mintAuthority && !safety?.freezeAuthority && (safety?.holderTop10Pct === undefined || safety.holderTop10Pct <= 45);

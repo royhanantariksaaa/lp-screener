@@ -41,6 +41,8 @@ The client refreshes the market feed on load and every 60 seconds. It derives po
 
 The client calls token-safety checks for the highest-volume candidates, then enriches technical, wallet, and KOL evidence. The default workspace is `Eligible setups`: a pool must clear the microcap liquidity floor ($5K), activity floor ($2K 24h volume), age window (365 days), fresh bullish 15m state, at least one observed recent-trader event, at least one attributable KOL trade or mention, and token-safety checks. `Open now` is reserved for an eligible pool with a fresh flip or reclaim trigger. A reachable provider with zero matching evidence does not satisfy the intelligence gate. These gates are screening evidence, not a profitability guarantee.
 
+The client also maintains a bounded local launch-observation history in `localStorage` (`lp-screener-launch-history-v1`). It records first/last seen times, repeat sightings, normalized name reuse, public-link count, transparent vetoes, conviction tells, and an observation score. This layer is explanatory context only: it never bypasses or replaces the technical, wallet, KOL, or token-safety eligibility gates, and it is browser-local until a durable worker/database is added.
+
 ## Provider health and optional holder enrichment
 
 `GET /api/market?kind=providers` returns readiness for the public sources and credential-gated adapters without exposing any secret values. The UI displays these states in the source panel.

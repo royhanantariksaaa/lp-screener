@@ -148,7 +148,9 @@ async function loadProviderStatus() {
 
 async function loadPublicProfiles() { try { const response = await fetch("https://api.dexscreener.com/token-profiles/latest/v1"); if (!response.ok) return; const profiles = await response.json() as Array<{ chainId?: string; tokenAddress?: string; url?: string; links?: Array<unknown> }>; const byAddress = new Map(profiles.filter((item) => item.chainId === "solana" && item.tokenAddress).map((item) => [item.tokenAddress!.toLowerCase(), item])); state.pools = state.pools.map((pool) => { const profile = pool.tokenAddress ? byAddress.get(pool.tokenAddress.toLowerCase()) : undefined; return profile ? { ...pool, publicLinks: Math.max(pool.publicLinks ?? 0, profile.links?.length ?? 0), profileUrl: profile.url } : pool; }); } catch { /* Public profile enrichment is optional. */ } }
 async function loadTokenSafety() {
-  const targets = [...state.pools].sort((a, b) => b.volume24h - a.volume24h || b.liquidity - a.liquidity).filter((pool) => pool.tokenStatus !== "LIVE" && pool.tokenAddress).slice(0, 12);
+  const ranked = [...state.pools].sort((a, b) => b.volume24h - a.volume24h || b.liquidity - a.liquidity);
+  const targets = [...new Map([...ranked.filter((pool) => (pool.kolMentions ?? 0) > 0).slice(0, 4), ...ranked.slice(0, 8)].map((pool) => [poolKey(pool), pool])).values()]
+    .filter((pool) => pool.tokenStatus !== "LIVE" && pool.tokenAddress).slice(0, 12);
   const results = await mapConcurrent(targets, 4, async (pool) => {
     try {
       const payload = await fetchJson<{ status?: "LIVE" | "UNAVAILABLE"; source?: string; mintAuthority?: boolean; freezeAuthority?: boolean; holderTop10Pct?: number; safety?: "PASS" | "WARN"; holderProfileStatus?: "LIVE" | "UNAVAILABLE"; holderProfileSource?: string; holderCount?: number }>(liveApi("token", { mint: pool.tokenAddress! }), 20000);
@@ -186,7 +188,9 @@ function refreshEligibility() {
 }
 
 async function loadWalletIntelligence() {
-  const targets = [...state.pools].sort((a, b) => b.volume24h - a.volume24h || b.liquidity - a.liquidity).filter((pool) => pool.walletIntelligence === "UNAVAILABLE" && pool.pairAddress && pool.tokenAddress).slice(0, 8);
+  const ranked = [...state.pools].sort((a, b) => b.volume24h - a.volume24h || b.liquidity - a.liquidity);
+  const targets = [...new Map([...ranked.filter((pool) => (pool.kolMentions ?? 0) > 0).slice(0, 4), ...ranked.slice(0, 8)].map((pool) => [poolKey(pool), pool])).values()]
+    .filter((pool) => pool.walletIntelligence === "UNAVAILABLE" && pool.pairAddress && pool.tokenAddress).slice(0, 12);
   const results = await mapConcurrent(targets, 3, async (pool) => {
     try {
       const payload = await fetchJson<{ status?: string; source?: string; smartWallets?: number; walletFlow?: Pool["walletFlow"]; walletEvents?: number; walletAddresses?: string[] }>(liveApi("wallets", { pool: pool.pairAddress!, base: pool.tokenAddress!, limit: "6" }), 20000);
@@ -207,7 +211,9 @@ async function loadWalletIntelligence() {
 }
 
 async function loadNansenIntelligence() {
-  const targets = [...state.pools].sort((a, b) => b.volume24h - a.volume24h || b.liquidity - a.liquidity).filter((pool) => pool.tokenAddress).slice(0, 8);
+  const ranked = [...state.pools].sort((a, b) => b.volume24h - a.volume24h || b.liquidity - a.liquidity);
+  const targets = [...new Map([...ranked.filter((pool) => (pool.kolMentions ?? 0) > 0).slice(0, 4), ...ranked.slice(0, 8)].map((pool) => [poolKey(pool), pool])).values()]
+    .filter((pool) => pool.tokenAddress).slice(0, 12);
   const results = await mapConcurrent(targets, 2, async (pool) => {
     try {
       const payload = await fetchJson<{ status?: string; source?: string; smartWallets?: number; walletFlow?: Pool["walletFlow"]; walletEvents?: number; walletAddresses?: string[]; smartMoneyLabels?: string[] }>(liveApi("nansen", { mint: pool.tokenAddress! }), 20000);
@@ -517,7 +523,9 @@ async function fetchCandles(pool: Pool) {
 }
 
 async function enrichTechnicalData(pools: Pool[]) {
-  const targets = [...pools].sort((a, b) => b.volume24h - a.volume24h || b.liquidity - a.liquidity).filter((pool) => !candleCache.get(pool.pairAddress ?? "")?.candles).slice(0, 6);
+  const ranked = [...pools].sort((a, b) => b.volume24h - a.volume24h || b.liquidity - a.liquidity);
+  const targets = [...new Map([...ranked.filter((pool) => (pool.kolMentions ?? 0) > 0).slice(0, 4), ...ranked.slice(0, 6)].map((pool) => [poolKey(pool), pool])).values()]
+    .filter((pool) => !candleCache.get(pool.pairAddress ?? "")?.candles).slice(0, 10);
   const results = await mapConcurrent(targets, 3, async (pool) => {
     const candles = await fetchCandles(pool);
     return candles ? { key: poolKey(pool), candles } : undefined;

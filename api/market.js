@@ -40,7 +40,7 @@ const walletSignal = async (pool, baseMint, limit) => {
   const signatures = await rpc("getSignaturesForAddress", [pool, { limit }]);
   const usable = (signatures ?? []).filter((item) => !item.err && item.signature);
   if (!usable.length) return { status: "LIVE", source: "Solana RPC · no recent swaps", smartWallets: 0, walletFlow: "MIXED", walletEvents: 0 };
-  const transactions = await Promise.all(usable.map((item, index) => rpc("getTransaction", [item.signature, { encoding: "jsonParsed", maxSupportedTransactionVersion: 0 }], index + 1)));
+  const transactions = await Promise.all(usable.map((item, index) => rpc("getTransaction", [item.signature, { encoding: "jsonParsed", maxSupportedTransactionVersion: 1 }], index + 1)));
   const wallets = new Map();
   for (const transaction of transactions) {
     if (!transaction?.meta || transaction.meta.err) continue;

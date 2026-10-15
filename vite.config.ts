@@ -1,6 +1,6 @@
 import { defineConfig } from "vite";
 
 export default defineConfig({
-  base: "/lp-screener/",
+  // Relative asset URLs work on both the GitHub Pages project path and Vercel root.
+  base: "./",
 });
-

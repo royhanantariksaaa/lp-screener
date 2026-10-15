@@ -413,6 +413,17 @@ export default async function handler(req, res) {
       if (mint && !/^[1-9A-HJ-NP-Za-km-z]{32,50}$/.test(mint)) return res.status(400).json({ error: "invalid_mint" });
       return res.status(200).json(await kolSignal(symbol, mint));
     }
+    if (kind === "kolfeed") {
+      const snapshot = await madeOnSolFeed();
+      const apiKey = String(process.env.MADEONSOL_API_KEY ?? "").trim();
+      return res.status(200).json({
+        status: "LIVE",
+        source: apiKey ? "MadeOnSol KOL feed · configured key" : "MadeOnSol KOL feed · public demo · 5m delayed",
+        trades: snapshot.trades.slice(0, 100),
+        delaySeconds: snapshot.delaySeconds,
+        asOf: snapshot.asOf,
+      });
+    }
     return res.status(400).json({ error: "unknown_kind" });
   } catch (error) {
     const message = error instanceof Error ? error.message : "upstream_unavailable";

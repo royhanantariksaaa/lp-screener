@@ -347,6 +347,52 @@ async function fetchFeed() {
   } catch {
     // The public profile feed is an optional discovery expansion.
   }
+  try {
+    const payload = await fetchJson<{ status?: string; source?: string; trades?: Array<Record<string, unknown>>; delaySeconds?: number }>(liveApi("kolfeed"), 15000);
+    const trades = Array.isArray(payload.trades) ? payload.trades : [];
+    const byMint = new Map<string, Array<Record<string, unknown>>>();
+    trades.forEach((trade) => {
+      const mint = String(trade.token_mint ?? "").trim().toLowerCase();
+      if (!mint) return;
+      const rows = byMint.get(mint) ?? [];
+      rows.push(trade);
+      byMint.set(mint, rows);
+    });
+    const addresses = [...byMint.keys()].slice(0, 100);
+    const chunks = Array.from({ length: Math.ceil(addresses.length / 30) }, (_, index) => addresses.slice(index * 30, index * 30 + 30));
+    const pairPayloads = await Promise.all(chunks.map(async (chunk) => {
+      try {
+        const pairPayload = await fetchJson<unknown>(`https://api.dexscreener.com/tokens/v1/solana/${chunk.join(",")}`, 15000);
+        return Array.isArray(pairPayload) ? pairPayload as Array<Record<string, unknown>> : [];
+      } catch {
+        return [];
+      }
+    }));
+    const pairs = pairPayloads.flat().map((pair) => {
+      const base = pair.baseToken as { address?: string } | undefined;
+      const rows = base?.address ? byMint.get(base.address.toLowerCase()) : undefined;
+      if (!rows?.length) return pair;
+      const creators = new Set(rows.map((row) => String(row.wallet_address ?? row.kol_name ?? "")).filter(Boolean));
+      const buys = rows.filter((row) => String(row.action ?? "").toLowerCase() === "buy").length;
+      const sells = rows.filter((row) => String(row.action ?? "").toLowerCase() === "sell").length;
+      const latest = rows.map((row) => Date.parse(String(row.traded_at ?? ""))).filter(Number.isFinite).sort((a, b) => b - a)[0];
+      const delay = Number(payload.delaySeconds ?? 0);
+      return {
+        ...pair,
+        madeOnSol: {
+          mentions: rows.length,
+          creators: creators.size,
+          recency: latest ? timeAgo(Math.round(latest / 1000)) : "—",
+          trend: buys > sells ? "BUY_FLOW" : sells > buys ? "SELL_FLOW" : "MIXED_FLOW",
+          source: payload.source ?? "MadeOnSol KOL feed",
+          delay: delay > 0 ? `${Math.max(1, Math.round(delay / 60))}m delayed` : "live",
+        },
+      };
+    });
+    if (pairs.length) results.push({ pairs });
+  } catch {
+    // MadeOnSol is a bounded KOL discovery expansion; the main market feed remains authoritative.
+  }
   const unique = new Map<string, Record<string, unknown>>();
   results.flatMap((result) => result.pairs ?? []).filter((pair) => pair.chainId === "solana").forEach((pair) => {
     const address = String(pair.pairAddress ?? "");
@@ -366,6 +412,7 @@ function mapLivePair(pair: Record<string, unknown>): Pool {
   const base = pair.baseToken as { symbol?: string; address?: string } | undefined;
   const quote = pair.quoteToken as { symbol?: string; address?: string } | undefined;
   const ocula = pair.ocula as OculaToken | undefined;
+  const madeOnSol = pair.madeOnSol as { mentions?: number; creators?: number; recency?: string; trend?: string; source?: string; delay?: string } | undefined;
   const oculaLinks = Object.values(ocula?.token?.socialLinks ?? {}).filter(Boolean).length;
   const baseSymbol = String(base?.symbol ?? ocula?.token?.symbol ?? "TOKEN");
   const quoteSymbol = String(quote?.symbol ?? "SOL");
@@ -410,10 +457,13 @@ function mapLivePair(pair: Record<string, unknown>): Pool {
     walletIntelligence: "UNAVAILABLE",
     walletSource: "Pending Solana RPC analysis",
     walletEvents: 0,
-    kolMentions: 0,
-    kolRecency: "—",
-    kolIntelligence: "UNAVAILABLE",
-    kolSource: "Provider key required",
+    kolMentions: Number(madeOnSol?.mentions ?? 0),
+    kolRecency: madeOnSol?.recency ?? "—",
+    kolCreators: Number(madeOnSol?.creators ?? 0),
+    kolPosts: Number(madeOnSol?.mentions ?? 0),
+    kolTrend: madeOnSol?.trend,
+    kolIntelligence: madeOnSol ? "LIVE" : "UNAVAILABLE",
+    kolSource: madeOnSol?.source ?? "Provider key required",
     publicLinks: Math.max(publicLinks, oculaLinks),
     discovery: ocula ? "Ocula public feed + Dexscreener pair" : "Dexscreener market feed",
     oculaStatus: ocula ? "LIVE" : "UNAVAILABLE",

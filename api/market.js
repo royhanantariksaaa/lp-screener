@@ -1,6 +1,7 @@
 const GECKO_OHLCV = "https://api.geckoterminal.com/api/v2/networks/solana/pools";
 const SOLANA_RPCS = [process.env.SOLANA_RPC_URL, "https://solana-rpc.publicnode.com", "https://api.mainnet-beta.solana.com"].filter(Boolean);
 const LUNARCRUSH_API = "https://lunarcrush.com/api4";
+const DEFILLAMA_API = "https://api.llama.fi";
 
 const withTimeout = async (url, init = {}, timeoutMs = 12000) => {
   const controller = new AbortController();
@@ -161,6 +162,12 @@ export default async function handler(req, res) {
     if (kind === "feed") {
       const term = String(req.query?.q ?? "SOL").trim().slice(0, 24);
       const upstream = await withTimeout(`https://api.dexscreener.com/latest/dex/search?q=${encodeURIComponent(term)}`);
+      const body = await upstream.text();
+      res.setHeader("Content-Type", "application/json; charset=utf-8");
+      return res.status(upstream.status).send(body);
+    }
+    if (kind === "chains") {
+      const upstream = await withTimeout(`${DEFILLAMA_API}/v2/chains`, { headers: { accept: "application/json" } }, 12000);
       const body = await upstream.text();
       res.setHeader("Content-Type", "application/json; charset=utf-8");
       return res.status(upstream.status).send(body);

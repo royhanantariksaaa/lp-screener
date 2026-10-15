@@ -228,7 +228,7 @@ export function evaluateEligibility(
   const trigger = Boolean(bullish && (analysis?.bullishFlipWithin3 || analysis?.reclaimWithin3));
   let status: EligibilityStatus;
   if (!address || !liquidity || !volume || !age) status = "REJECTED";
-  else if (!analysis?.available || !safetyReady || !intelligenceReady) status = "PENDING";
+  else if (!analysis?.available || !analysis.fresh || !safetyReady || !intelligenceReady) status = "PENDING";
   else if (!bullish || !safetyPass) status = "REJECTED";
   else if (trigger && technical) status = "OPEN_NOW";
   else status = "ELIGIBLE_WAIT";

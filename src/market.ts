@@ -221,7 +221,9 @@ export function evaluateEligibility(
   const volume = pool.volume24h >= 2_000;
   const age = pool.ageDays <= 365;
   const technical = Boolean(analysis?.available && analysis.fresh);
-  const intelligenceReady = intelligence.walletLive || intelligence.kolLive;
+  const walletReady = intelligence.walletLive;
+  const kolReady = intelligence.kolLive;
+  const intelligenceReady = walletReady && kolReady;
   const safetyReady = safety?.status === "LIVE";
   const safetyPass = safetyReady && !safety?.mintAuthority && !safety?.freezeAuthority && (safety?.holderTop10Pct === undefined || safety.holderTop10Pct <= 45);
   const bullish = analysis?.trend === "BULLISH";
@@ -241,7 +243,8 @@ export function evaluateEligibility(
   if (!analysis?.available) reasons.push("Waiting for 15m candle history.");
   else if (!analysis.fresh) reasons.push("15m data is stale; wait for a fresh refresh.");
   else if (!bullish) reasons.push("15m trend is not bullish.");
-  if (!intelligenceReady) reasons.push("Waiting for live wallet or attention evidence.");
+  if (!walletReady) reasons.push("Waiting for live smart-wallet evidence.");
+  if (!kolReady) reasons.push("Waiting for live KOL/attention evidence.");
   if (!safetyReady) reasons.push("Waiting for mint and holder safety checks.");
   else if (!safetyPass) reasons.push("Mint, freeze, or holder concentration checks failed.");
   if (!reasons.length) reasons.push(trigger ? "All gates pass and a fresh bullish trigger is present." : "All hard gates pass; wait for the next confirmed trigger.");
@@ -251,7 +254,8 @@ export function evaluateEligibility(
     (volume ? 15 : 0) +
     (age ? 10 : 0) +
     (technical ? 20 : 0) +
-    (intelligenceReady ? 15 : 0) +
+    (walletReady ? 8 : 0) +
+    (kolReady ? 7 : 0) +
     (safetyPass ? 15 : 0),
   ));
   return {

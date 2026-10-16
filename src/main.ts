@@ -202,16 +202,22 @@ function candleChartSvg(candles: Candle[], label: string, supertrendValue?: numb
   const max = Math.max(...highs);
   const min = Math.min(...lows);
   const span = max - min || Math.max(Math.abs(max) * 0.01, 1);
-  const priceTop = 4;
-  const priceBottom = 78;
-  const volumeTop = 82;
-  const volumeBottom = 98;
+  const plotLeft = 11;
+  const plotRight = 83;
+  const priceTop = 5;
+  const priceBottom = 73;
+  const volumeTop = 78;
+  const volumeBottom = 91;
   const yFor = (value: number) => priceTop + ((max - value) / span) * (priceBottom - priceTop);
+  const priceLabel = (value: number) => `$${formatPrice(value)}`;
+  const timeLabel = (timestamp: number) => new Date(timestamp * 1000).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false });
+  const volumeLabel = (value: number) => value >= 1_000_000 ? `${(value / 1_000_000).toFixed(2)}M` : value >= 1_000 ? `${(value / 1_000).toFixed(1)}K` : `${Math.round(value)}`;
   const maxVolume = Math.max(...candles.map((candle) => Math.max(0, candle.volume)), 1);
-  const step = 100 / candles.length;
+  const plotWidth = plotRight - plotLeft;
+  const step = plotWidth / candles.length;
   const bodyWidth = Math.max(0.8, Math.min(3.6, step * 0.62));
   const bars = candles.map((candle, index) => {
-    const center = (index + 0.5) * step;
+    const center = plotLeft + (index + 0.5) * step;
     const highY = yFor(candle.high);
     const lowY = yFor(candle.low);
     const openY = yFor(candle.open);
@@ -222,22 +228,31 @@ function candleChartSvg(candles: Candle[], label: string, supertrendValue?: numb
     const volumeHeight = Math.max(0.8, (Math.max(0, candle.volume) / maxVolume) * (volumeBottom - volumeTop));
     const volumeY = volumeBottom - volumeHeight;
     const direction = bullish ? "up" : "down";
-    return `<g class="candle ${direction}"><line class="candle-wick" x1="${center.toFixed(3)}" x2="${center.toFixed(3)}" y1="${highY.toFixed(3)}" y2="${lowY.toFixed(3)}"/><rect class="candle-body" x="${(center - bodyWidth / 2).toFixed(3)}" y="${bodyY.toFixed(3)}" width="${bodyWidth.toFixed(3)}" height="${bodyHeight.toFixed(3)}" rx=".35"/></g><rect class="candle-volume ${direction}" x="${(center - bodyWidth / 2).toFixed(3)}" y="${volumeY.toFixed(3)}" width="${bodyWidth.toFixed(3)}" height="${volumeHeight.toFixed(3)}" rx=".25"/>`;
+    const tooltip = `${timeLabel(candle.time)} · O ${priceLabel(candle.open)} · H ${priceLabel(candle.high)} · L ${priceLabel(candle.low)} · C ${priceLabel(candle.close)} · Vol ${volumeLabel(candle.volume)}`;
+    const tooltipAttr = escapeHtml(tooltip);
+    return `<g class="candle-hit candle ${direction}" tabindex="0" data-tooltip="${tooltipAttr}" aria-label="${tooltipAttr}"><title>${tooltipAttr}</title><line class="candle-wick" x1="${center.toFixed(3)}" x2="${center.toFixed(3)}" y1="${highY.toFixed(3)}" y2="${lowY.toFixed(3)}"/><rect class="candle-body" x="${(center - bodyWidth / 2).toFixed(3)}" y="${bodyY.toFixed(3)}" width="${bodyWidth.toFixed(3)}" height="${bodyHeight.toFixed(3)}" rx=".35"/><rect class="candle-volume" x="${(center - bodyWidth / 2).toFixed(3)}" y="${volumeY.toFixed(3)}" width="${bodyWidth.toFixed(3)}" height="${volumeHeight.toFixed(3)}" rx=".25"/><rect class="candle-hitbox" x="${(center - step / 2).toFixed(3)}" y="${priceTop}" width="${step.toFixed(3)}" height="${volumeBottom - priceTop}"/></g>`;
   }).join("");
   const supertrendY = typeof supertrendValue === "number" && Number.isFinite(supertrendValue) ? Math.max(priceTop, Math.min(priceBottom, yFor(supertrendValue))) : undefined;
-  const grid = `<g class="candle-grid"><line x1="0" x2="100" y1="${priceTop}" y2="${priceTop}"/><line x1="0" x2="100" y1="${(priceTop + priceBottom) / 2}" y2="${(priceTop + priceBottom) / 2}"/><line x1="0" x2="100" y1="${priceBottom}" y2="${priceBottom}"/><line x1="0" x2="100" y1="${volumeTop - 1}" y2="${volumeTop - 1}"/></g>`;
-  return `<svg class="candlestick-chart${compact ? " pool-sparkline" : ""}" viewBox="0 0 100 100" preserveAspectRatio="none" role="img" aria-label="15 minute candlestick chart for ${escapeHtml(label)}">${grid}${bars}${supertrendY === undefined ? "" : `<line class="supertrend-line" x1="0" x2="100" y1="${supertrendY.toFixed(3)}" y2="${supertrendY.toFixed(3)}"/>`}</svg>`;
+  const midpoint = (priceTop + priceBottom) / 2;
+  const timeIndexes = [...new Set([0, Math.floor((candles.length - 1) / 2), candles.length - 1])];
+  const timeTicks = timeIndexes.map((index, tick) => {
+    const x = plotLeft + (index + 0.5) * step;
+    const anchor = tick === 0 ? "start" : tick === timeIndexes.length - 1 ? "end" : "middle";
+    return `<text class="chart-axis-label chart-time-label" x="${x.toFixed(3)}" y="98" text-anchor="${anchor}">${timeLabel(candles[index].time)}</text>`;
+  }).join("");
+  const axes = `<g class="candle-grid"><line x1="${plotLeft}" x2="${plotRight}" y1="${priceTop}" y2="${priceTop}"/><line x1="${plotLeft}" x2="${plotRight}" y1="${midpoint}" y2="${midpoint}"/><line x1="${plotLeft}" x2="${plotRight}" y1="${priceBottom}" y2="${priceBottom}"/><line x1="${plotLeft}" x2="${plotRight}" y1="${volumeTop - 1}" y2="${volumeTop - 1}"/><line x1="${plotLeft}" x2="${plotLeft}" y1="${priceTop}" y2="${volumeBottom}"/><line x1="${plotRight}" x2="${plotRight}" y1="${priceTop}" y2="${volumeBottom}"/></g><g class="candle-axis"><text class="chart-axis-label chart-price-label" x="86" y="${priceTop + 2}">${priceLabel(max)}</text><text class="chart-axis-label chart-price-label" x="86" y="${midpoint + 1.5}">${priceLabel((max + min) / 2)}</text><text class="chart-axis-label chart-price-label" x="86" y="${priceBottom + 1.5}">${priceLabel(min)}</text>${timeTicks}</g>`;
+  return `<svg class="candlestick-chart${compact ? " pool-sparkline" : ""}" viewBox="0 0 100 100" preserveAspectRatio="none" role="img" aria-label="15 minute candlestick chart for ${escapeHtml(label)}">${axes}${supertrendY === undefined ? "" : `<line class="supertrend-line" x1="${plotLeft}" x2="${plotRight}" y1="${supertrendY.toFixed(3)}" y2="${supertrendY.toFixed(3)}"/>`}${bars}</svg>`;
 }
 
 function miniChart(pool: Pool) {
   const candles = (pool.candles ?? []).slice(-48);
   if (candles.length < 2) return `<div class="mini-chart empty"><span class="chart-loading-line"></span><div class="mini-chart-head"><span>15M CANDLES</span><span>Loading live history</span></div><p>Waiting for the GeckoTerminal 15m feed. No proxy is shown.</p></div>`;
-  return `<div class="mini-chart"><div class="mini-chart-head"><span>15M CANDLES · OHLC</span><span>${candles.length} candles · ${timeAgo(pool.technical?.latestTimestamp)}</span></div>${candleChartSvg(candles, pool.name, pool.technical?.supertrend)}<div class="mini-chart-legend"><span><i class="candle-key up"></i>Up candle</span><span><i class="candle-key down"></i>Down candle</span><span><i class="st-key"></i>Supertrend</span></div></div>`;
+  return `<div class="mini-chart"><div class="mini-chart-head"><span>15M CANDLES · OHLC</span><span>${candles.length} candles · ${timeAgo(pool.technical?.latestTimestamp)}</span></div>${candleChartSvg(candles, pool.name, pool.technical?.supertrend)}<div class="candle-tooltip" role="status" aria-live="polite" hidden></div><div class="mini-chart-legend"><span><i class="candle-key up"></i>Up candle</span><span><i class="candle-key down"></i>Down candle</span><span><i class="st-key"></i>Supertrend</span></div></div>`;
 }
 function poolSparkline(pool: Pool) {
   const candles = (pool.candles ?? []).slice(-24);
   if (candles.length < 2) return `<div class="pool-chart-visual is-pending"><span class="chart-pending">15m loading</span></div>`;
-  return `<div class="pool-chart-visual is-actual">${candleChartSvg(candles, pool.name, undefined, true)}<small class="chart-state">15m · ${candles.length} candles</small></div>`;
+  return `<div class="pool-chart-visual is-actual">${candleChartSvg(candles, pool.name, undefined, true)}<div class="candle-tooltip" role="status" aria-live="polite" hidden></div><small class="chart-state">15m · ${candles.length} candles</small></div>`;
 }
 
 function poolEvidence() {
@@ -323,6 +338,30 @@ function poolRow(p: Pool) {
 }
 let lastRenderedRoute = "";
 function render() { const activeRoute = route(); const motionClass = activeRoute === lastRenderedRoute ? "motion-settled" : "motion-entry"; lastRenderedRoute = activeRoute; const content = activeRoute === "discover" ? renderWorkspace() : activeRoute === "kol" ? renderKol() : activeRoute === "playbooks" ? renderPlaybooks() : activeRoute === "academy" ? renderAcademy() : renderHome(); const footerUpdated = state.lastUpdated ? timeAgo(Math.floor(state.lastUpdated / 1000)) : "waiting for feed"; document.querySelector<HTMLDivElement>("#app")!.innerHTML = `<div class="shell ${motionClass}">${header()}${content}<footer><span>METEORA LP SCREENER · SOLANA</span><span>LAST UPDATED <b>${footerUpdated}</b></span></footer></div>`; bind(); }
+function bindCandleTooltips() {
+  document.querySelectorAll<SVGGElement>(".candlestick-chart .candle-hit").forEach((hit) => {
+    const chart = hit.closest<SVGSVGElement>(".candlestick-chart");
+    const tooltip = chart?.parentElement?.querySelector<HTMLElement>(".candle-tooltip");
+    if (!chart || !tooltip) return;
+    const position = () => {
+      const container = tooltip.parentElement?.getBoundingClientRect();
+      const candle = hit.getBoundingClientRect();
+      if (!container) return;
+      const width = tooltip.offsetWidth || 180;
+      const left = Math.max(6, Math.min(container.width - width - 6, candle.left - container.left + candle.width / 2 - width / 2));
+      const above = candle.top - container.top > 54;
+      tooltip.style.left = `${left}px`;
+      tooltip.style.top = `${Math.max(6, above ? candle.top - container.top - 48 : candle.bottom - container.top + 6)}px`;
+    };
+    const show = () => { tooltip.textContent = hit.dataset.tooltip ?? ""; tooltip.hidden = false; position(); };
+    const hide = () => { tooltip.hidden = true; };
+    hit.addEventListener("pointerenter", show);
+    hit.addEventListener("pointermove", position);
+    hit.addEventListener("pointerleave", hide);
+    hit.addEventListener("focus", show);
+    hit.addEventListener("blur", hide);
+  });
+}
 function bind() { document.querySelector<HTMLButtonElement>("#mobileNavToggle")?.addEventListener("click", () => { state.mobileNavOpen = !state.mobileNavOpen; render(); }); document.querySelectorAll<HTMLAnchorElement>(".mobile-menu a").forEach((link) => link.addEventListener("click", () => { state.mobileNavOpen = false; })); document.querySelectorAll<HTMLButtonElement>("[data-academy]").forEach((button) => button.addEventListener("click", () => { state.academy = button.dataset.academy ?? "bins"; render(); })); document.querySelector<HTMLButtonElement>("[data-academy-next]")?.addEventListener("click", () => { const order = ["bins", "shapes", "fees", "risk", "safety", "opportunities", "manage", "performance"]; state.academy = order[(order.indexOf(state.academy) + 1) % order.length]; render(); }); document.querySelectorAll<HTMLButtonElement>("[data-lab]").forEach((button) => button.addEventListener("click", () => { state.lab = button.dataset.lab ?? "spot"; render(); })); document.querySelector<HTMLInputElement>("#query")?.addEventListener("input", (e) => { state.query = (e.target as HTMLInputElement).value; render(); document.querySelector<HTMLInputElement>("#query")?.focus(); }); (["minLiquidity", "minVolume", "maxAge", "scoreMin"] as const).forEach((id) => document.querySelector<HTMLInputElement>(`#${id}`)?.addEventListener("change", (e) => { state[id] = Number((e.target as HTMLInputElement).value); render(); })); document.querySelectorAll<HTMLButtonElement>("[data-preset]").forEach((button) => button.addEventListener("click", () => { const preset = button.dataset.preset; if (preset === "conviction") { state.list = "eligible"; state.scoreMin = 75; state.walletFilter = "active"; state.kolFilter = "recent"; state.sort = "score"; } if (preset === "wallet") { state.list = "smart"; state.scoreMin = 0; state.walletFilter = "inflow"; state.kolFilter = "all"; state.sort = "wallets"; } if (preset === "attention") { state.list = "kol"; state.scoreMin = 0; state.walletFilter = "all"; state.kolFilter = "recent"; state.sort = "kol"; } if (preset === "liquidity") { state.list = "liquidity"; state.scoreMin = 50; state.walletFilter = "all"; state.kolFilter = "all"; state.sort = "liquidity"; } render(); })); document.querySelector<HTMLButtonElement>("#sourcesToggle")?.addEventListener("click", () => { state.sourcesOpen = !state.sourcesOpen; render(); }); document.querySelector<HTMLButtonElement>("#saveSources")?.addEventListener("click", () => { const parse = (id: string) => (document.querySelector<HTMLTextAreaElement>(id)?.value ?? "").split(/[\n,]/).map((value) => value.trim()).filter(Boolean); state.trackedWallets = parse("#walletSources"); state.trackedKols = parse("#kolSources"); localStorage.setItem("lp-screener-wallets", JSON.stringify(state.trackedWallets)); localStorage.setItem("lp-screener-kols", JSON.stringify(state.trackedKols)); state.sourcesOpen = false; render(); }); document.querySelector<HTMLSelectElement>("#sort")?.addEventListener("change", (e) => { state.sort = (e.target as HTMLSelectElement).value; render(); }); document.querySelector<HTMLSelectElement>("#walletFilter")?.addEventListener("change", (e) => { state.walletFilter = (e.target as HTMLSelectElement).value; render(); }); document.querySelector<HTMLSelectElement>("#kolFilter")?.addEventListener("change", (e) => { state.kolFilter = (e.target as HTMLSelectElement).value; render(); }); document.querySelectorAll<HTMLButtonElement>("[data-watch]").forEach((button) => button.addEventListener("click", (event) => { event.stopPropagation(); const symbol = button.dataset.watch ?? ""; state.watchlist = state.watchlist.includes(symbol) ? state.watchlist.filter((item) => item !== symbol) : [...state.watchlist, symbol]; localStorage.setItem("lp-screener-watchlist", JSON.stringify(state.watchlist)); render(); })); document.querySelectorAll<HTMLButtonElement>("[data-compare]").forEach((button) => button.addEventListener("click", (event) => { event.stopPropagation(); const symbol = button.dataset.compare ?? ""; state.compareList = state.compareList.includes(symbol) ? state.compareList.filter((item) => item !== symbol) : [...state.compareList, symbol].slice(-4); render(); })); document.querySelector<HTMLButtonElement>("[data-clear-compare]")?.addEventListener("click", () => { state.compareList = []; render(); }); document.querySelectorAll<HTMLTableRowElement>("[data-pool]").forEach((row) => row.addEventListener("click", () => { state.selectedPool = row.dataset.pool ?? ""; render(); void enrichSelectedPool(state.selectedPool); })); document.querySelector<HTMLButtonElement>("[data-close-evidence]")?.addEventListener("click", () => { state.selectedPool = ""; render(); }); document.querySelectorAll<HTMLButtonElement>("[data-list]").forEach((button) => button.addEventListener("click", () => { state.list = button.dataset.list ?? "all"; render(); })); document.querySelector("#refresh")?.addEventListener("click", async (e) => { const button = e.currentTarget as HTMLButtonElement; button.disabled = true; button.textContent = "↻ Refreshing…"; await loadLive(); render(); });
   document.querySelector<HTMLInputElement>("#kolQuery")?.addEventListener("input", (event) => { state.kolQuery = (event.target as HTMLInputElement).value; render(); document.querySelector<HTMLInputElement>("#kolQuery")?.focus(); });
   document.querySelector<HTMLSelectElement>("#kolChain")?.addEventListener("change", (event) => { state.kolChain = (event.target as HTMLSelectElement).value; render(); });
@@ -333,6 +372,7 @@ function bind() { document.querySelector<HTMLButtonElement>("#mobileNavToggle")?
   document.querySelectorAll<HTMLButtonElement>("[data-kol-watch]").forEach((button) => button.addEventListener("click", (event) => { event.stopPropagation(); const handle = button.dataset.kolWatch ?? ""; state.kolWatchlist = state.kolWatchlist.includes(handle) ? state.kolWatchlist.filter((item) => item !== handle) : [...state.kolWatchlist, handle]; localStorage.setItem("lp-screener-kol-watchlist", JSON.stringify(state.kolWatchlist)); render(); }));
   document.querySelectorAll<HTMLButtonElement>("[data-copy-address]").forEach((button) => button.addEventListener("click", async (event) => { event.stopPropagation(); const address = button.dataset.copyAddress ?? ""; try { await navigator.clipboard.writeText(address); button.textContent = "Copied"; setTimeout(() => { button.textContent = "Copy"; }, 1400); } catch { button.textContent = "Select"; } }));
   document.querySelectorAll<HTMLButtonElement>("[data-copy-ca]").forEach((button) => button.addEventListener("click", async (event) => { event.stopPropagation(); const address = button.dataset.copyCa ?? ""; try { await navigator.clipboard.writeText(address); button.textContent = "Copied"; setTimeout(() => { button.textContent = `CA ${shortAddress(address)}`; }, 1400); } catch { button.textContent = "Select"; } }));
+  bindCandleTooltips();
 }
 async function loadChainContext() {
   try {
@@ -520,6 +560,15 @@ async function loadIntelligence() {
 let refreshInFlight = false;
 const candleCache = new Map<string, { candles?: Candle[]; fetchedAt: number; failedAt?: number }>();
 const candleEnrichmentInFlight = new Set<string>();
+let nextCandleRequestAt = 0;
+let candleBackoffUntil = 0;
+const waitForCandleSlot = async () => {
+  const now = Date.now();
+  const slot = Math.max(now, nextCandleRequestAt, candleBackoffUntil);
+  nextCandleRequestAt = slot + 650;
+  const wait = slot - now;
+  if (wait) await new Promise<void>((resolve) => window.setTimeout(resolve, wait));
+};
 const liveApi = (kind: string, params: Record<string, string> = {}) => { const query = new URLSearchParams({ kind, ...params }); return `/api/market?${query.toString()}`; };
 
 async function fetchJson<T>(url: string, timeoutMs = 15000): Promise<T> {
@@ -732,16 +781,24 @@ async function fetchCandles(pool: Pool) {
   const cached = candleCache.get(pool.pairAddress);
   if (cached && cached.candles && Date.now() - cached.fetchedAt < 5 * 60_000) return cached.candles;
   if (cached?.failedAt && Date.now() - cached.failedAt < 60_000) return undefined;
+  await waitForCandleSlot();
   try {
-    const payload = await fetchJson<unknown>(liveApi("ohlcv", { pool: pool.pairAddress }), 30000);
+    const payload = await fetchJson<unknown>(liveApi("ohlcv", { pool: pool.pairAddress, limit: "48" }), 12000);
     const candles = parseOhlcv(payload);
     if (candles.length) { candleCache.set(pool.pairAddress, { candles, fetchedAt: Date.now() }); return candles; }
-  } catch {
+  } catch (error) {
+    const errorText = String(error);
+    if (/\b429\b/.test(errorText)) candleBackoffUntil = Date.now() + 15_000;
+    if (/request failed \(4\d\d\)/.test(errorText)) {
+      candleCache.set(pool.pairAddress, { fetchedAt: Date.now(), failedAt: Date.now() });
+      return undefined;
+    }
     try {
-      const payload = await fetchJson<unknown>(`https://api.geckoterminal.com/api/v2/networks/solana/pools/${encodeURIComponent(pool.pairAddress)}/ohlcv/minute?aggregate=15&limit=100`, 30000);
+      const payload = await fetchJson<unknown>(`https://api.geckoterminal.com/api/v2/networks/solana/pools/${encodeURIComponent(pool.pairAddress)}/ohlcv/minute?aggregate=15&limit=48`, 12000);
       const candles = parseOhlcv(payload);
       if (candles.length) { candleCache.set(pool.pairAddress, { candles, fetchedAt: Date.now() }); return candles; }
     } catch (fallbackError) {
+      if (/\b429\b/.test(String(fallbackError))) candleBackoffUntil = Date.now() + 15_000;
       console.warn("15m candle request failed", pool.pairAddress, fallbackError);
       candleCache.set(pool.pairAddress, { fetchedAt: Date.now(), failedAt: Date.now() });
     }
@@ -779,10 +836,10 @@ async function enrichTechnicalData(pools: Pool[]) {
       return undefined;
     });
   };
-  const priority = targets.slice(0, 12);
-  const remainder = targets.slice(12);
+  const priority = targets.slice(0, 24);
+  const remainder = targets.slice(24);
   await enrichTargets(priority, 3);
-  if (remainder.length) void enrichTargets(remainder, 2);
+  if (remainder.length) window.setTimeout(() => { void enrichTargets(remainder, 1); }, 750);
 }
 
 const enrichmentInFlight = new Set<string>();

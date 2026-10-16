@@ -15,6 +15,7 @@ const MADEONSOL_DEMO_KEY = "msk_demo_try_the_solana_api_2026";
 
 let madeOnSolFeedCache = { fetchedAt: 0, trades: [], delaySeconds: 0, asOf: undefined };
 let madeOnSolFeedPromise;
+const ohlcvCache = new Map();
 const trackedWalletIndex = new Map((Array.isArray(trackedWalletMap) ? trackedWalletMap : []).map((row) => [String(row.address ?? "").toLowerCase(), Array.isArray(row.matches) ? row.matches : []]));
 const confidenceRank = (confidence) => confidence === "verified" ? 3 : confidence === "likely" ? 2 : 1;
 
@@ -396,10 +397,21 @@ export default async function handler(req, res) {
     if (kind === "ohlcv") {
       const pool = String(req.query?.pool ?? "");
       if (!/^[1-9A-HJ-NP-Za-km-z]{32,50}$/.test(pool)) return res.status(400).json({ error: "invalid_pool" });
-      const url = `${GECKO_OHLCV}/${encodeURIComponent(pool)}/ohlcv/minute?aggregate=15&limit=100`;
+      const cached = ohlcvCache.get(pool);
+      if (cached && Date.now() - cached.fetchedAt < 5 * 60_000) {
+        res.setHeader("Cache-Control", "s-maxage=300, stale-while-revalidate=600");
+        res.setHeader("X-OHLCV-Cache", "hit");
+        return res.status(200).json(cached.body);
+      }
+      const limit = Math.max(24, Math.min(100, Number(req.query?.limit ?? 48)));
+      const url = `${GECKO_OHLCV}/${encodeURIComponent(pool)}/ohlcv/minute?aggregate=15&limit=${limit}`;
       const upstream = await withTimeout(url, { headers: { accept: "application/json" } }, 20000);
       const body = await upstream.text();
       res.setHeader("Content-Type", "application/json; charset=utf-8");
+      if (upstream.ok) {
+        try { ohlcvCache.set(pool, { body: JSON.parse(body), fetchedAt: Date.now() }); } catch { /* Preserve the upstream response if it is not JSON. */ }
+        res.setHeader("Cache-Control", "s-maxage=300, stale-while-revalidate=600");
+      }
       return res.status(upstream.status).send(body);
     }
     if (kind === "wallets") {

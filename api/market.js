@@ -412,6 +412,11 @@ export default async function handler(req, res) {
         try { ohlcvCache.set(pool, { body: JSON.parse(body), fetchedAt: Date.now() }); } catch { /* Preserve the upstream response if it is not JSON. */ }
         res.setHeader("Cache-Control", "s-maxage=300, stale-while-revalidate=600");
       }
+      if (upstream.status === 429 && cached?.body) {
+        res.setHeader("Cache-Control", "s-maxage=30, stale-while-revalidate=300");
+        res.setHeader("X-OHLCV-Cache", "stale");
+        return res.status(200).json(cached.body);
+      }
       return res.status(upstream.status).send(body);
     }
     if (kind === "wallets") {

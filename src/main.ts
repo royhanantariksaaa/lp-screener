@@ -251,7 +251,11 @@ function miniChart(pool: Pool) {
 }
 function poolSparkline(pool: Pool) {
   const candles = (pool.candles ?? []).slice(-24);
-  if (candles.length < 2) return `<div class="pool-chart-visual is-pending"><span class="chart-pending">15m loading</span></div>`;
+  if (candles.length < 2) {
+    const cache = candleCache.get(pool.pairAddress ?? "");
+    const label = cache?.retryAt && Date.now() < cache.retryAt ? "15m retrying" : cache?.failedAt && !cache.retryAt ? "15m unavailable" : "15m loading";
+    return `<div class="pool-chart-visual is-pending"><span class="chart-pending">${label}</span></div>`;
+  }
   return `<div class="pool-chart-visual is-actual">${candleChartSvg(candles, pool.name, undefined, true)}<div class="candle-tooltip" role="status" aria-live="polite" hidden></div><small class="chart-state">15m · ${candles.length} candles</small></div>`;
 }
 
@@ -558,16 +562,53 @@ async function loadIntelligence() {
   }
 }
 let refreshInFlight = false;
-const candleCache = new Map<string, { candles?: Candle[]; fetchedAt: number; failedAt?: number }>();
+type CandleCacheEntry = { candles?: Candle[]; fetchedAt: number; failedAt?: number; retryAt?: number };
+const candleStorageKey = "lp-screener-candle-cache-v1";
+const readCandleCache = () => {
+  try {
+    const saved = JSON.parse(localStorage.getItem(candleStorageKey) ?? "{}") as Record<string, CandleCacheEntry>;
+    return new Map(Object.entries(saved).filter(([, entry]) => Array.isArray(entry?.candles) && Date.now() - Number(entry.fetchedAt ?? 0) < 15 * 60_000) as Array<[string, CandleCacheEntry]>);
+  } catch {
+    return new Map<string, CandleCacheEntry>();
+  }
+};
+const candleCache = readCandleCache();
+const persistCandleCache = () => {
+  try {
+    const rows = [...candleCache.entries()].filter(([, entry]) => entry.candles?.length && Date.now() - entry.fetchedAt < 15 * 60_000).slice(-120);
+    localStorage.setItem(candleStorageKey, JSON.stringify(Object.fromEntries(rows)));
+  } catch {
+    // Browser storage is optional; live requests remain authoritative.
+  }
+};
 const candleEnrichmentInFlight = new Set<string>();
 let nextCandleRequestAt = 0;
 let candleBackoffUntil = 0;
+let candleBurstRemaining = 0;
+let candleRetryTimer: number | undefined;
+let candleRetryPasses = 0;
+const resetCandleBudget = () => { nextCandleRequestAt = 0; candleBackoffUntil = 0; candleBurstRemaining = 6; candleRetryPasses = 0; if (candleRetryTimer) { window.clearTimeout(candleRetryTimer); candleRetryTimer = undefined; } };
 const waitForCandleSlot = async () => {
+  if (candleBurstRemaining > 0) { candleBurstRemaining -= 1; return; }
   const now = Date.now();
   const slot = Math.max(now, nextCandleRequestAt, candleBackoffUntil);
   nextCandleRequestAt = slot + 650;
   const wait = slot - now;
   if (wait) await new Promise<void>((resolve) => window.setTimeout(resolve, wait));
+};
+const hydrateCandleCache = () => {
+  state.pools = state.pools.map((pool) => {
+    const cached = candleCache.get(pool.pairAddress ?? "");
+    if (!cached?.candles?.length || cached.candles.length < 2 || pool.candles?.length) return pool;
+    const technical = analyzeCandles(cached.candles);
+    const playbooks = derivePlaybooks(pool, technical);
+    return { ...pool, candles: cached.candles, technical, playbooks, primaryPlaybook: primaryPlaybook(playbooks) };
+  });
+};
+const scheduleCandleRetry = () => {
+  if (candleRetryTimer || candleRetryPasses >= 4) return;
+  candleRetryPasses += 1;
+  candleRetryTimer = window.setTimeout(() => { candleRetryTimer = undefined; void enrichTechnicalData(state.pools); }, 12_000);
 };
 const liveApi = (kind: string, params: Record<string, string> = {}) => { const query = new URLSearchParams({ kind, ...params }); return `/api/market?${query.toString()}`; };
 
@@ -785,36 +826,44 @@ async function fetchCandles(pool: Pool) {
   if (!pool.pairAddress) return undefined;
   const cached = candleCache.get(pool.pairAddress);
   if (cached && cached.candles && Date.now() - cached.fetchedAt < 5 * 60_000) return cached.candles;
-  if (cached?.failedAt && Date.now() - cached.failedAt < 60_000) return undefined;
+  if (cached?.retryAt && Date.now() < cached.retryAt) return undefined;
+  if (cached?.failedAt && !cached.retryAt && Date.now() - cached.failedAt < 60_000) return undefined;
+  const markFailure = (retryMs?: number) => { const now = Date.now(); candleCache.set(pool.pairAddress!, { fetchedAt: cached?.fetchedAt ?? now, failedAt: now, retryAt: retryMs ? now + retryMs : undefined }); };
   await waitForCandleSlot();
   try {
     const payload = await fetchJson<unknown>(liveApi("ohlcv", { pool: pool.pairAddress, limit: "48" }), 12000);
     const candles = parseOhlcv(payload);
-    if (candles.length) { candleCache.set(pool.pairAddress, { candles, fetchedAt: Date.now() }); return candles; }
+    if (candles.length) { candleCache.set(pool.pairAddress, { candles, fetchedAt: Date.now() }); persistCandleCache(); return candles; }
   } catch (error) {
     const errorText = String(error);
-    if (/\b429\b/.test(errorText)) candleBackoffUntil = Date.now() + 15_000;
+    const rateLimited = /\b429\b/.test(errorText);
+    if (rateLimited) candleBackoffUntil = Date.now() + 15_000;
     if (/request failed \(4\d\d\)/.test(errorText)) {
-      candleCache.set(pool.pairAddress, { fetchedAt: Date.now(), failedAt: Date.now() });
+      markFailure(rateLimited ? 15_000 : undefined);
       return undefined;
     }
     try {
       const payload = await fetchJson<unknown>(`https://api.geckoterminal.com/api/v2/networks/solana/pools/${encodeURIComponent(pool.pairAddress)}/ohlcv/minute?aggregate=15&limit=48`, 12000);
       const candles = parseOhlcv(payload);
-      if (candles.length) { candleCache.set(pool.pairAddress, { candles, fetchedAt: Date.now() }); return candles; }
+      if (candles.length) { candleCache.set(pool.pairAddress, { candles, fetchedAt: Date.now() }); persistCandleCache(); return candles; }
     } catch (fallbackError) {
-      if (/\b429\b/.test(String(fallbackError))) candleBackoffUntil = Date.now() + 15_000;
+      const rateLimited = /\b429\b/.test(String(fallbackError));
+      if (rateLimited) candleBackoffUntil = Date.now() + 15_000;
       console.warn("15m candle request failed", pool.pairAddress, fallbackError);
-      candleCache.set(pool.pairAddress, { fetchedAt: Date.now(), failedAt: Date.now() });
+      markFailure(rateLimited ? 15_000 : 30_000);
     }
   }
+  markFailure(30_000);
   return undefined;
 }
 
 async function enrichTechnicalData(pools: Pool[]) {
   const ranked = [...pools].sort((a, b) => b.volume24h - a.volume24h || b.liquidity - a.liquidity);
   const targets = [...new Map(ranked.filter((pool) => pool.pairAddress).map((pool) => [poolKey(pool), pool])).values()]
-    .filter((pool) => !candleCache.get(pool.pairAddress ?? "")?.candles);
+    .filter((pool) => {
+      const cached = candleCache.get(pool.pairAddress ?? "");
+      return !cached?.candles || Date.now() - cached.fetchedAt >= 5 * 60_000;
+    });
   const enrichTargets = async (batch: Pool[], concurrency: number) => {
     const queued = batch.filter((pool) => !candleEnrichmentInFlight.has(poolKey(pool)));
     queued.forEach((pool) => candleEnrichmentInFlight.add(poolKey(pool)));
@@ -841,9 +890,10 @@ async function enrichTechnicalData(pools: Pool[]) {
       return undefined;
     });
   };
-  const priority = targets.slice(0, 24);
-  const remainder = targets.slice(24);
-  await enrichTargets(priority, 3);
+  const priority = targets.slice(0, 30);
+  const remainder = targets.slice(30);
+  await enrichTargets(priority, 6);
+  if (targets.some((pool) => candleCache.get(pool.pairAddress ?? "")?.retryAt)) scheduleCandleRetry();
   if (remainder.length) window.setTimeout(() => { void enrichTargets(remainder, 1); }, 750);
 }
 
@@ -918,12 +968,14 @@ async function loadLive() {
   refreshInFlight = true;
   state.loading = true;
   state.liveError = "";
+  resetCandleBudget();
   render();
   try {
     let candleJob: Promise<void> | undefined;
     const pairs = await fetchFeed((basePairs) => {
       if (!basePairs.length || state.liveReady) return;
       state.pools = recordLaunchObservations(basePairs.map(mapLivePair));
+      hydrateCandleCache();
       state.liveReady = true;
       state.source = "LIVE · Dexscreener";
       state.lastUpdated = Date.now();
@@ -935,6 +987,7 @@ async function loadLive() {
     const priorPools = new Map(state.pools.map((pool) => [poolKey(pool), pool]));
     const expandedPools = recordLaunchObservations(pairs.map(mapLivePair));
     state.pools = expandedPools.map((pool) => ({ ...priorPools.get(poolKey(pool)), ...pool }));
+    hydrateCandleCache();
     state.liveReady = true;
     state.source = "LIVE · Dexscreener + Ocula discovery + local launch history";
     state.lastUpdated = Date.now();

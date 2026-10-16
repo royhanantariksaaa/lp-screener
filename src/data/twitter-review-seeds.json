@@ -1,0 +1,24 @@
+{
+  "0xdetweiler": {
+    "xHandle": "0xdetweiler",
+    "xUrl": "https://x.com/0xdetweiler",
+    "status": "LIKELY",
+    "note": "The public X profile uses the exact 0xdetweiler handle and public posts refer to FOMO activity. This supports a FOMO-profile-to-social-handle match; it is not independent proof that every linked wallet is controlled by the X account.",
+    "sourceUrls": [
+      "https://boldnet.twstalker.com/0xdetweiler",
+      "https://fomo.family/profile/0xdetweiler"
+    ],
+    "updatedAt": "2026-10-17"
+  },
+  "unipcs": {
+    "xHandle": "theunipcs",
+    "xUrl": "https://x.com/theunipcs",
+    "status": "LIKELY",
+    "note": "The public X profile identifies as Unipcs and repeatedly references the FOMO profile and its FOMO wallet. This supports the social-handle-to-FOMO-profile match; it is not independent proof that every linked wallet is controlled by the X account.",
+    "sourceUrls": [
+      "https://www.sotwe.com/theunipcs?lang=en",
+      "https://fomo.family/profile/unipcs"
+    ],
+    "updatedAt": "2026-10-17"
+  }
+}

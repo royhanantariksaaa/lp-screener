@@ -388,5 +388,50 @@
     "sourceUrls": ["https://www.sotwe.com/BTCdayu?lang=en", "https://mobile.twstalker.com/BTCdayu", "https://provadata.com/traders/BTCdayu", "https://fomo.family/profile/BTCdayu"],
     "thesisMatches": [{"token": "PONS / 牛来 / MEME", "evidenceUrl": "https://www.sotwe.com/BTCdayu?lang=en", "thesis": "Public posts describe PONS and 牛来 as the paired opening thesis, report a 10x PONS result, and identify MEME as the steadier Robinhood Chain follow-up. Treat this as the author’s recorded thesis context, not a recommendation.", "sourceUrls": ["https://www.sotwe.com/BTCdayu?lang=en", "https://mobile.twstalker.com/BTCdayu", "https://provadata.com/traders/BTCdayu"], "updatedAt": "2026-10-17"}],
     "updatedAt": "2026-10-17"
+  },
+  "tvmx": {
+    "xHandle": "tvmx",
+    "xUrl": "https://x.com/tvmx",
+    "status": "LIKELY",
+    "note": "The FOMO profile and X URL use the exact tvmx handle, but the current X page is suspended. FomoLens records the same trader with verified Solana and Robinhood wallets, so this remains a cautious social mapping rather than account-owned wallet proof.",
+    "sourceUrls": ["https://x.com/tvmx", "https://fomolens.app/trader/tvmx", "https://provadata.com/traders/tvmx", "https://fomo.family/profile/tvmx"],
+    "thesisMatches": [{"token": "PONS / FAZE", "evidenceUrl": "https://fomolens.app/trader/tvmx", "thesis": "FomoLens records a PONS call about rotating capital elsewhere and a FAZE thesis centered on ecosystem growth, trading activity, liquidity, revenue, and product momentum. These are Fomo-reported thesis records, not a live X post or recommendation.", "sourceUrls": ["https://fomolens.app/trader/tvmx", "https://fomolens.app/token/robinhood/0x39dbed3a2bd333467115de45665cc57f813c4571", "https://fomolens.app/token/arc/0x394d38f807ee0027a182216f5e67a15ae441fa2e"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "000000": {
+    "xHandle": "lesabrefomo",
+    "xUrl": "https://x.com/lesabrefomo",
+    "status": "LIKELY",
+    "note": "The FomoLens CARDS call links directly to an @lesabrefomo X post, while Provadata and the FOMO profile identify the 000000 trader with verified wallets. This is a strong public-post lead, but it does not independently prove that the X account controls every linked address.",
+    "sourceUrls": ["https://x.com/lesabrefomo", "https://x.com/lesabrefomo/status/2110411959418155457?s=20", "https://fomolens.app/trader/000000", "https://provadata.com/traders/000000", "https://fomo.family/profile/000000"],
+    "thesisMatches": [{"token": "CARDS", "evidenceUrl": "https://x.com/lesabrefomo/status/2110411959418155457?s=20", "thesis": "FomoLens records the 000000 profile calling CARDS and attaches the @lesabrefomo post; the post text points readers to a five-minute read. Preserve this as a token-call lead and inspect the original post before treating the thesis as directly authored by the wallet.", "sourceUrls": ["https://x.com/lesabrefomo/status/2110411959418155457?s=20", "https://fomolens.app/trader/000000"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "Chubbi230": {
+    "xHandle": "Chubbi230",
+    "xUrl": "https://x.com/Chubbi230",
+    "status": "LIKELY",
+    "note": "The public @Chubbi230 profile links back to FOMO and the TCG/gacha context, while Provadata and FomoLens expose the matching wallet-backed trader. The social link is strong, but wallet ownership remains a separate evidence layer.",
+    "sourceUrls": ["https://x.com/Chubbi230", "https://fomolens.app/trader/Chubbi230", "https://provadata.com/traders/Chubbi230", "https://fomo.family/profile/Chubbi230"],
+    "thesisMatches": [{"token": "BONER / CARDS / ROBBIE", "evidenceUrl": "https://fomolens.app/trader/Chubbi230", "thesis": "FomoLens records a BONER “generational acquisition” call, a CARDS thesis about on-chain winners buying TCG/gacha grails, and a ROBBIE “bottom on the bird” call. These are captured FOMO thesis records, not recommendations.", "sourceUrls": ["https://fomolens.app/trader/Chubbi230", "https://x.com/Chubbi230"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "DONBAGS": {
+    "xHandle": "Donbags",
+    "xUrl": "https://x.com/Donbags",
+    "status": "LIKELY",
+    "note": "The X profile resolves to @Donbags, while FomoLens, Provadata, and the FOMO profile expose the matching DONBAGS trader and verified wallets. The current X bio is generic, so keep the handle-to-wallet link cautious.",
+    "sourceUrls": ["https://x.com/Donbags", "https://fomolens.app/trader/DONBAGS", "https://provadata.com/traders/DONBAGS", "https://fomo.family/profile/DONBAGS"],
+    "thesisMatches": [{"token": "MASK / SI / STONK", "evidenceUrl": "https://fomolens.app/trader/DONBAGS", "thesis": "FomoLens records MASK calls about flipping STONK and a potential $1bn run, plus SI calls about adding on a dip and a broader meme-cycle narrative. Preserve this as wallet-backed FOMO thesis context, not a recommendation or proof that the generic X bio authored each call.", "sourceUrls": ["https://fomolens.app/trader/DONBAGS", "https://x.com/Donbags"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "pianches": {
+    "xHandle": "pianches",
+    "xUrl": "https://x.com/pianches",
+    "status": "LIKELY",
+    "note": "The public @pianches profile identifies Joon, while FomoLens records the same FOMO handle and Provadata links its verified wallet record. No account-owned wallet disclosure was found, so the identity remains a likely match.",
+    "sourceUrls": ["https://x.com/pianches", "https://fomolens.app/trader/pianches", "https://provadata.com/traders/pianches", "https://fomo.family/profile/pianches"],
+    "thesisMatches": [{"token": "GHOSTCAT", "evidenceUrl": "https://fomolens.app/trader/pianches", "thesis": "FomoLens records a GHOSTCAT call framed as an Aave ghost and Halloween narrative, with the position and PnL attached to the FOMO profile. Treat this as captured thesis context, not a recommendation or direct proof of X authorship.", "sourceUrls": ["https://fomolens.app/trader/pianches", "https://x.com/pianches"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
   }
 }

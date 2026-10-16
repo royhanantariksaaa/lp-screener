@@ -17,6 +17,10 @@ The `/api/market?kind=ohlcv` route uses DexPaprika for pool-specific 15-minute O
 
 The KOL Radar wallet detail view can run an on-demand Solana related-wallet scan through `/api/market?kind=wallet-cluster&chain=solana&address=...`. It reads recent finalized signatures, co-signers, and SPL token-account owners from the configured RPCs. Results are candidate relationships for research and are never presented as proof of common ownership. EVM and Robinhood history requires indexed transfer logs or trace data; same-address reuse across the captured chain labels remains separate evidence.
 
+Each KOL detail also includes a manual X review record. The reviewer can save an X handle, evidence note, and status locally as `CONFIRMED`, `LIKELY`, or `NO_MATCH`; the app never infers a social identity from a similar name.
+
+The persisted wallet snapshots are generated with `npm run scan:solana` and `npm run scan:evm` (the EVM command uses the Windows PowerShell runner to pass Blockscout's Cloudflare edge). Each scanner resumes from its state file and writes after every address. The current snapshot covers 269 Solana wallets and 139 indexed EVM tasks; BNB rows remain marked `KEY_REQUIRED`.
+
 ## Production
 
 `main` deploys to GitHub Pages through `.github/workflows/deploy-pages.yml`.

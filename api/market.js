@@ -1,4 +1,6 @@
 import trackedWalletMap from "./wallet-map.json" with { type: "json" };
+import solanaWalletClusters from "./solana-wallet-clusters.json" with { type: "json" };
+import evmWalletClusters from "./evm-wallet-clusters.json" with { type: "json" };
 
 const GECKO_OHLCV = "https://api.geckoterminal.com/api/v2/networks/solana/pools";
 const DEXPAPRIKA_API = "https://api.dexpaprika.com";
@@ -476,6 +478,7 @@ const providerHealth = () => {
       { key: "dexpaprika", label: "DexPaprika", status: configured("DEXPAPRIKA_API_KEY") ? "LIVE" : "KEY_REQUIRED", mode: "15M_OHLCV", source: configured("DEXPAPRIKA_API_KEY") ? "Pool-specific 15m OHLCV · primary" : "Pool-specific 15m OHLCV · server key required" },
       { key: "geckoterminal", label: "GeckoTerminal", status: "LIVE", mode: "FALLBACK", source: "15m OHLCV fallback · public rate limited" },
       { key: "solana-rpc", label: "Solana RPC", status: "LIVE", mode: "PUBLIC", source: "Wallet activity + token safety + on-demand related-wallet scans" },
+      { key: "blockscout", label: "Blockscout indexes", status: "LIVE", mode: "INDEXED_EVM", source: "Persisted Ethereum + Base + Robinhood wallet history · BNB key required" },
       { key: "defillama", label: "DeFiLlama", status: "LIVE", mode: "PUBLIC", source: "Chain TVL context" },
       { key: "lunarcrush", label: "LunarCrush", status: configured("LUNARCRUSH_API_KEY") ? "LIVE" : "KEY_REQUIRED", mode: "KOL", source: "Topic mentions + creators" },
       { key: "birdeye", label: "Birdeye", status: configured("BIRDEYE_API_KEY") ? "LIVE" : "KEY_REQUIRED", mode: "HOLDER_PROFILE", source: "Holder behavior enrichment" },
@@ -490,6 +493,15 @@ const providerHealth = () => {
       { key: "artemis", label: "Artemis", status: "LINK_ONLY", mode: "LINK_ONLY", source: "Fundamental context link" },
     ],
   };
+};
+
+const persistedWalletCluster = (address, chain) => {
+  const normalized = String(address ?? "").toLowerCase();
+  const snapshot = chain === "solana" ? solanaWalletClusters : evmWalletClusters;
+  const record = (snapshot.records ?? []).find((item) => String(item.address ?? "").toLowerCase() === normalized && (chain === "solana" || item.chain === chain));
+  if (record) return { ...record, status: record.status === "LIVE" ? "LIVE" : record.status };
+  if (chain === "bnb") return { status: "KEY_REQUIRED", source: "BNB Chain indexed history needs a BscScan/BSCTrace key", address, chain, relatedWallets: [], note: "No public BNB Blockscout index is configured." };
+  return { status: "UNAVAILABLE", source: "No persisted indexed wallet snapshot", address, chain, relatedWallets: [], note: "Run the corresponding resumable scanner before using this evidence panel." };
 };
 
 export default async function handler(req, res) {
@@ -573,6 +585,13 @@ export default async function handler(req, res) {
       if (chain !== "solana") return res.status(200).json({ status: "UNAVAILABLE", source: "Public RPC history scan is currently Solana-only", address, chain, relatedWallets: [], note: "EVM and Robinhood links require indexed Transfer logs or trace history; same-address chain reuse remains visible in the KOL evidence file." });
       if (!isSolanaAddress(address)) return res.status(400).json({ error: "invalid_solana_address" });
       return res.status(200).json(await walletCluster(address, scanLimit));
+    }
+    if (kind === "wallet-clusters") {
+      const address = String(req.query?.address ?? "").trim();
+      const chain = String(req.query?.chain ?? "solana").trim().toLowerCase();
+      if (chain === "solana" && !isSolanaAddress(address)) return res.status(400).json({ error: "invalid_solana_address" });
+      if (chain !== "solana" && !/^0x[0-9a-fA-F]{40}$/.test(address)) return res.status(400).json({ error: "invalid_evm_address" });
+      return res.status(200).json(persistedWalletCluster(address, chain));
     }
     if (kind === "wallets") {
       const pool = String(req.query?.pool ?? "");

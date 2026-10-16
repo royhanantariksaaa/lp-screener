@@ -784,5 +784,32 @@
     "sourceUrls": ["https://x.com/ResellCalendar", "https://fomolens.app/trader/ResellCalendar", "https://fomolens.app/token/solana/DKYcjobF7HPtL9RyQBRdeRQ2iWvizpfbgWwPWNXdpump", "https://fomo.family/profile/ResellCalendar"],
     "thesisMatches": [{"token": "NIHILISM / DACITYCOIN / UNICORN", "evidenceUrl": "https://fomolens.app/trader/ResellCalendar", "thesis": "FomoLens records a Nihilism crowdsourced-app question, a DacityCoin one-month conviction call, and a UNICORN thesis tied to real-life genetic-modification utility. Preserve these as recorded thesis context, not recommendations.", "sourceUrls": ["https://fomolens.app/trader/ResellCalendar", "https://x.com/lessin/status/2110968553742782609", "https://x.com/ResellCalendar"], "updatedAt": "2026-10-17"}],
     "updatedAt": "2026-10-17"
+  },
+  "Bayc364": {
+    "xHandle": "Bayc364",
+    "xUrl": "https://x.com/Bayc364",
+    "status": "LIKELY",
+    "note": "The public @Bayc364 profile identifies KOKO around BAYC, ApeChain, and memecoins, while FomoLens and the FOMO profile expose the matching resolver-backed trader. No Provadata record is present, so the wallet link remains likely.",
+    "sourceUrls": ["https://x.com/Bayc364", "https://fomolens.app/trader/Bayc364", "https://fomolens.app/token/solana/Ai66LHZG9MCzg1WKdawwqduVAXpNDUuV8M3uyq5ppump", "https://fomo.family/profile/Bayc364"],
+    "thesisMatches": [{"token": "FLEG / ALTAI / CATE", "evidenceUrl": "https://fomolens.app/trader/Bayc364", "thesis": "FomoLens records a FLEG product/fee-benefit thesis, an uncertain Altai bottom call, and a strong CATE cycle-conviction call. Preserve these as captured thesis context, not recommendations.", "sourceUrls": ["https://fomolens.app/trader/Bayc364", "https://x.com/Bayc364"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "Altcoinist": {
+    "xHandle": "Altcoinist",
+    "xUrl": "https://x.com/Altcoinist",
+    "status": "LIKELY",
+    "note": "The public @Altcoinist profile identifies the Altcoinist crypto project, while FomoLens and Provadata link the same FOMO trader to two verified wallets. The social identity and wallet proof are retained as separate evidence layers.",
+    "sourceUrls": ["https://x.com/Altcoinist", "https://fomolens.app/trader/Altcoinist", "https://provadata.com/traders/Altcoinist", "https://fomo.family/profile/Altcoinist"],
+    "thesisMatches": [{"token": "TIBBIR / ALTT", "evidenceUrl": "https://fomolens.app/trader/Altcoinist", "thesis": "FomoLens records a TIBBIR meme call and an ALTT daily-performance call from the wallet-backed profile. Preserve the thesis context as research evidence, not a recommendation.", "sourceUrls": ["https://fomolens.app/trader/Altcoinist", "https://provadata.com/traders/Altcoinist", "https://x.com/Altcoinist"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "mrfernando88": {
+    "xHandle": "mrfernando88",
+    "xUrl": "https://x.com/mrfernando88",
+    "status": "LIKELY",
+    "note": "The public @mrfernando88 profile identifies MrFernando with BAYC/PUNKS context, while FomoLens and the FOMO profile expose the matching resolver-backed trader. No Provadata record is present, so the wallet mapping remains likely.",
+    "sourceUrls": ["https://x.com/mrfernando88", "https://fomolens.app/trader/mrfernando88", "https://fomolens.app/token/solana/HKJa4Y8actmpGvHpgL6DBWjsUjVt8r6bmvPaV33fpump", "https://fomo.family/profile/mrfernando88"],
+    "thesisMatches": [{"token": "CATNIP / HIRE", "evidenceUrl": "https://fomolens.app/trader/mrfernando88", "thesis": "FomoLens records Catnip and HIRE calls as short speculative theses from the wallet-backed profile. Treat these as captured call context, not recommendations or independent wallet-control proof.", "sourceUrls": ["https://fomolens.app/trader/mrfernando88", "https://x.com/mrfernando88"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
   }
 }

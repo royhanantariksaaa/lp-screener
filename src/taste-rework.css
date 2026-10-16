@@ -78,16 +78,45 @@ nav a.active, nav a:hover { color: var(--taste-accent-soft); }
 .pool-chart-visual .pool-sparkline polyline { fill: none; stroke: var(--taste-accent-soft); stroke-width: 2; vector-effect: non-scaling-stroke; }
 .pool-chart-visual.is-proxy .pool-sparkline polyline { stroke: #9ba994; stroke-dasharray: 4 3; opacity: .82; }
 .chart-state { color: var(--taste-quiet); font: 8px/1 'DM Mono', monospace; letter-spacing: .45px; }
+.pool-chart-visual.is-pending { min-height: 34px; align-content: center; }
+.pool-chart-visual.is-pending .chart-pending { display: block; padding: 8px 7px; border: 1px dashed var(--taste-line); border-radius: 4px; color: var(--taste-quiet); font: 8px/1 'DM Mono', monospace; letter-spacing: .4px; }
 .mini-chart { background: var(--taste-raised); background-image: none; border-color: var(--taste-line); box-shadow: none; }
 .mini-chart.is-proxy svg { background: #0d100e; }
 .mini-chart .proxy-line { fill: none; stroke: #9ba994; stroke-width: 1.7; stroke-dasharray: 4 3; vector-effect: non-scaling-stroke; }
 .mini-chart .proxy-key { display: inline-block; width: 14px; height: 2px; margin-right: 5px; vertical-align: middle; background: #9ba994; }
+.mini-chart.empty { min-height: 148px; display: grid; align-content: center; gap: 12px; color: var(--taste-muted); }
+.mini-chart.empty p { margin: 0; color: var(--taste-muted); font: 10px/1.5 'DM Mono', monospace; }
+.chart-loading-line { display: block; height: 68px; border: 1px dashed var(--taste-line); border-radius: 6px; background: #0d100e; }
 
 .page-home .hero, .liquidity-lab, .home-cards article, .playbook-grid article, .kol-hero, .academy-progress, .academy-nav, .lesson-card { background: var(--taste-surface); background-image: none; border-color: var(--taste-line); box-shadow: none; }
 .page-home .hero h1, .playbooks-page h1, .academy-intro h1, .kol-hero h1 { color: var(--taste-ink-strong); letter-spacing: -.05em; }
 .primary { background: var(--taste-ink-strong); color: var(--taste-canvas); border-radius: 5px; box-shadow: none; }
 .primary:hover { background: var(--taste-accent-soft); transform: none; }
 .text-link, .research-stack a, .evidence-footer a { color: var(--taste-accent-soft); }
+
+/* Carry the same quiet editorial system through every research surface. */
+.playbooks-page, .kol-page, .academy-page { padding-top: 42px; }
+.playbooks-page .section-head, .kol-results-head, .academy-intro { border-color: var(--taste-line); }
+.playbooks-page .playbook-grid article { min-height: 240px; background: var(--taste-surface); background-image: none; border-color: var(--taste-line); border-radius: 10px; box-shadow: none; }
+.playbooks-page .playbook-grid article:first-child { background: var(--taste-surface); }
+.playbooks-page .playbook-grid article:hover { transform: none; background: var(--taste-raised); border-color: #66765e; }
+.playbooks-page .playbook-num { color: var(--taste-accent); }
+.playbooks-page .playbook-grid p, .kol-results-head p, .academy-intro .lede { color: var(--taste-muted); }
+.kol-page .kol-hero { border-radius: 12px; background: var(--taste-surface); background-image: none; box-shadow: none; }
+.kol-page .kol-summary > div, .kol-page .kol-filters, .kol-page .kol-card, .kol-page .kol-detail, .kol-page .kol-method, .kol-page .kol-gap-card, .kol-page .kol-chain-card { background: var(--taste-surface); background-image: none; border-color: var(--taste-line); box-shadow: none; }
+.kol-page .kol-card { border-radius: 9px; }
+.kol-page .kol-card:hover, .kol-page .kol-card.selected { background: var(--taste-raised); border-color: #66765e; transform: none; }
+.kol-page .kol-avatar { background: var(--taste-accent-wash); border-color: var(--taste-line); }
+.kol-page .kol-filters input, .kol-page .kol-filters select { background: var(--taste-raised); border-color: var(--taste-line); color: var(--taste-ink); }
+.academy-page .academy-progress, .academy-page .academy-nav, .academy-page .lesson-card, .academy-page .tutorial-visual { background: var(--taste-surface); background-image: none; border-color: var(--taste-line); box-shadow: none; }
+.academy-page .academy-nav { border-radius: 10px; }
+.academy-page .academy-tab { border-radius: 5px; color: var(--taste-muted); }
+.academy-page .academy-tab:hover, .academy-page .academy-tab.selected { background: var(--taste-accent-wash); border-color: var(--taste-line); color: var(--taste-ink-strong); }
+.academy-page .academy-tab.selected span, .academy-page .academy-tab.selected b { color: var(--taste-accent-soft); }
+.academy-page .lesson-card { border-radius: 12px; }
+
+/* Data refreshes replace the page shell. Settle animations on same-route rerenders so they cannot replay in a loop. */
+.shell.motion-settled * { animation-duration: .001ms !important; animation-delay: 0ms !important; animation-iteration-count: 1 !important; animation-fill-mode: both !important; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }

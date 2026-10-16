@@ -196,31 +196,9 @@ const gateCount = (status: EligibilityAnalysis["status"]) => state.pools.filter(
 const gateSummary = () => `<div class="gate-summary"><span><i class="gate-dot open"></i><b>${gateCount("OPEN_NOW")}</b> OPEN NOW</span><span><i class="gate-dot wait"></i><b>${gateCount("ELIGIBLE_WAIT")}</b> ELIGIBLE · WAIT</span><span><i class="gate-dot screening"></i><b>${gateCount("PENDING")}</b> SCREENING</span><span><i class="gate-dot rejected"></i><b>${gateCount("REJECTED")}</b> REJECTED</span><small>Hard gates: liquidity · volume · 15m history · wallet evidence · attention evidence · token safety</small></div>`;
 function listNav() { return `<aside class="list-sidebar"><p class="eyebrow">MARKET VIEWS</p><button class="list-link ${state.list === "eligible" ? "selected" : ""}" data-list="eligible"><span>✓</span>Eligible setups <b>${listCount("eligible")}</b></button><button class="list-link ${state.list === "open" ? "selected" : ""}" data-list="open"><span>↗</span>Open now <b>${listCount("open")}</b></button><button class="list-link ${state.list === "all" ? "selected" : ""}" data-list="all"><span>◎</span>All pools <b>${listCount("all")}</b></button><button class="list-link ${state.list === "trending" ? "selected" : ""}" data-list="trending"><span>↗</span>Trending <b>${listCount("trending")}</b></button><button class="list-link ${state.list === "new" ? "selected" : ""}" data-list="new"><span>✦</span>New pools <b>${listCount("new")}</b></button><button class="list-link ${state.list === "liquidity" ? "selected" : ""}" data-list="liquidity"><span>◉</span>High liquidity <b>${listCount("liquidity")}</b></button><button class="list-link ${state.list === "smart" ? "selected" : ""}" data-list="smart"><span>♢</span>Smart wallets <b>${listCount("smart")}</b></button><button class="list-link ${state.list === "kol" ? "selected" : ""}" data-list="kol"><span>✧</span>KOL flow <b>${listCount("kol")}</b></button><button class="list-link ${state.list === "watchlist" ? "selected" : ""}" data-list="watchlist"><span>☆</span>Watchlist <b>${listCount("watchlist")}</b></button><div class="chain-block"><p class="eyebrow">CHAINS</p><div class="chain selected"><span class="chain-dot"></span>Solana <b>${formatTvl(state.chainTvl.Solana)}</b></div><div class="chain muted-row"><span class="chain-dot eth"></span>Ethereum <b>${formatTvl(state.chainTvl.Ethereum)}</b></div><div class="chain muted-row"><span class="chain-dot base"></span>Base <b>${formatTvl(state.chainTvl.Base)}</b></div></div></aside>`; }
 function comparePanel() { const pools = state.compareList.map((key) => poolByKey(key)).filter(Boolean) as Pool[]; if (!pools.length) return ""; return `<div class="compare-panel"><div class="compare-head"><div><p class="eyebrow">CANDIDATE COMPARISON</p><b>${pools.length} selected</b></div><button class="evidence-close" data-clear-compare>×</button></div><div class="compare-grid">${pools.map((pool) => { const breakdown = scoreBreakdown(pool); return `<div class="compare-card"><div class="compare-title"><strong>${pool.name}</strong><button class="row-compare active" data-compare="${poolKey(pool)}">✓</button></div><small>${pool.dex} · ${pool.risk} risk</small><div><span>Score <b>${scoreFor(pool)}</b></span><span>Liquidity <b>${money(pool.liquidity)}</b></span><span>15m <b>${pool.technical?.trend ?? "—"}</b></span><span>Wallets <b>${pool.walletIntelligence === "UNAVAILABLE" ? "?" : pool.smartWallets ?? 0}</b></span><span>Tracked <b>${pool.trackedWalletHits ?? 0}</b></span><span>KOL <b>${pool.kolIntelligence === "UNAVAILABLE" ? "?" : pool.kolMentions ?? 0}</b></span></div><i class="compare-bar"><em style="width:${scoreFor(pool)}%"></em></i></div>`; }).join("")}</div></div>`; }
-function proxyChartValues(pool: Pool, count: number) {
-  const change = Number.isFinite(pool.change24h) ? Math.max(-35, Math.min(35, pool.change24h)) / 100 : 0;
-  return Array.from({ length: count }, (_, index) => {
-    const progress = index / Math.max(1, count - 1);
-    const drift = (progress - 0.5) * change;
-    const wave = Math.sin(progress * Math.PI * 2.6) * 0.045 + Math.sin(progress * Math.PI * 6.1) * 0.018;
-    return Math.max(0.12, 1 + drift + wave);
-  });
-}
-function chartSeries(pool: Pool, limit: number) {
-  const candles = (pool.candles ?? []).slice(-limit);
-  return candles.length >= 2 ? { values: candles.map((candle) => candle.close), actual: true, candles: candles.length } : { values: proxyChartValues(pool, limit), actual: false, candles: 0 };
-}
-function chartPoints(values: number[]) {
-  const min = Math.min(...values);
-  const max = Math.max(...values);
-  const span = max - min || Math.max(Math.abs(max) * 0.01, 1);
-  return values.map((value, index) => `${(index / Math.max(1, values.length - 1)) * 100},${88 - ((value - min) / span) * 72}`).join(" ");
-}
 function miniChart(pool: Pool) {
   const candles = (pool.candles ?? []).slice(-48);
-  if (candles.length < 2) {
-    const proxy = chartSeries(pool, 48);
-    return `<div class="mini-chart is-proxy"><div class="mini-chart-head"><span>24H TREND PROXY</span><span>15m feed pending</span></div><svg viewBox="0 0 100 100" preserveAspectRatio="none" role="img" aria-label="24 hour trend proxy for ${pool.name}; 15 minute candle history pending"><polyline points="${chartPoints(proxy.values)}" class="proxy-line"/></svg><div class="mini-chart-legend"><span><i class="proxy-key"></i>Market direction</span><span>awaiting 15m candles</span></div></div>`;
-  }
+  if (candles.length < 2) return `<div class="mini-chart empty"><span class="chart-loading-line"></span><div class="mini-chart-head"><span>15M CANDLES</span><span>Loading live history</span></div><p>Waiting for the GeckoTerminal 15m feed. No proxy is shown.</p></div>`;
   const values = candles.map((candle) => candle.close);
   const min = Math.min(...values);
   const max = Math.max(...values);
@@ -231,15 +209,14 @@ function miniChart(pool: Pool) {
   return `<div class="mini-chart"><div class="mini-chart-head"><span>15M CLOSE</span><span>${candles.length} candles · ${timeAgo(pool.technical?.latestTimestamp)}</span></div><svg viewBox="0 0 100 100" preserveAspectRatio="none" role="img" aria-label="15 minute close and Supertrend for ${pool.name}"><polyline points="${points}" class="close-line"/>${stY === undefined || stY < 0 || stY > 100 ? "" : `<line x1="0" x2="100" y1="${stY}" y2="${stY}" class="supertrend-line"/>`}</svg><div class="mini-chart-legend"><span><i class="close-key"></i>Close</span><span><i class="st-key"></i>Supertrend</span></div></div>`;
 }
 function poolSparkline(pool: Pool) {
-  const series = chartSeries(pool, 24);
-  const points = series.values.map((value, index) => {
-    const min = Math.min(...series.values);
-    const max = Math.max(...series.values);
-    const span = max - min || Math.max(Math.abs(max) * 0.01, 1);
-    return `${(index / Math.max(1, series.values.length - 1)) * 100},${27 - ((value - min) / span) * 22}`;
-  }).join(" ");
-  const label = series.actual ? `15 minute price chart for ${pool.name}` : `24 hour trend proxy for ${pool.name}; 15 minute candle history pending`;
-  return `<div class="pool-chart-visual ${series.actual ? "is-actual" : "is-proxy"}"><svg class="pool-sparkline" viewBox="0 0 100 30" preserveAspectRatio="none" role="img" aria-label="${label}"><polyline points="${points}"/></svg>${series.actual ? "" : `<small class="chart-state">24h proxy</small>`}</div>`;
+  const candles = (pool.candles ?? []).slice(-24);
+  if (candles.length < 2) return `<div class="pool-chart-visual is-pending"><span class="chart-pending">15m loading</span></div>`;
+  const values = candles.map((candle) => candle.close);
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const span = max - min || Math.max(Math.abs(max) * 0.01, 1);
+  const points = values.map((value, index) => `${(index / Math.max(1, values.length - 1)) * 100},${27 - ((value - min) / span) * 22}`).join(" ");
+  return `<div class="pool-chart-visual is-actual"><svg class="pool-sparkline" viewBox="0 0 100 30" preserveAspectRatio="none" role="img" aria-label="15 minute price chart for ${pool.name}"><polyline points="${points}"/></svg><small class="chart-state">15m · ${candles.length} candles</small></div>`;
 }
 
 function poolEvidence() {
@@ -323,7 +300,8 @@ function poolRow(p: Pool) {
   const contract = p.tokenAddress ? `<button class="copy-ca" data-copy-ca="${p.tokenAddress}" title="Copy token contract address">CA ${shortAddress(p.tokenAddress)}</button>` : `<span class="ca-missing">CA unavailable</span>`;
   return `<tr class="pool-row" data-pool="${key}"><td data-label="POOL"><div class="pool-name">${tokenAvatar}<strong>${p.name}</strong><button class="row-watch ${state.watchlist.includes(key) ? "active" : ""}" data-watch="${key}" title="Toggle watchlist">${state.watchlist.includes(key) ? "★" : "☆"}</button><button class="row-compare ${state.compareList.includes(key) ? "active" : ""}" data-compare="${key}" title="Compare candidate">${state.compareList.includes(key) ? "✓" : "+"}</button></div><small>${p.symbol} · pair ${p.address}</small><div class="pool-contract">${contract}</div></td><td data-label="VENUE">${p.dex}</td><td data-label="PRICE">$${formatPrice(p.price)}</td><td data-label="LIQUIDITY">${money(p.liquidity)}</td><td data-label="24H VOLUME">${money(p.volume24h)}</td><td data-label="AGE">${p.ageDays}d</td><td data-label="15M SETUP"><div class="signal-stack">${technical}${eligibilitySignal}<span class="status-pill ${statusClass(signal?.status)}">${statusLabel(signal?.status)}</span></div></td><td data-label="SIGNALS"><div class="signal-stack">${wallets}${trackedWallets}${kol}${safety}${publicSignal}${launch}</div></td><td data-label="CHART"><div class="pool-chart-cell">${poolSparkline(p)}</div></td><td data-label="SCORE"><span class="screen-score ${scoreFor(p) >= 75 ? "high" : scoreFor(p) >= 55 ? "mid" : "low"}">${scoreFor(p)}</span></td></tr>`;
 }
-function render() { const content = route() === "discover" ? renderWorkspace() : route() === "kol" ? renderKol() : route() === "playbooks" ? renderPlaybooks() : route() === "academy" ? renderAcademy() : renderHome(); const footerUpdated = state.lastUpdated ? timeAgo(Math.floor(state.lastUpdated / 1000)) : "waiting for feed"; document.querySelector<HTMLDivElement>("#app")!.innerHTML = `<div class="shell">${header()}${content}<footer><span>METEORA LP SCREENER · SOLANA</span><span>LAST UPDATED <b>${footerUpdated}</b></span></footer></div>`; bind(); }
+let lastRenderedRoute = "";
+function render() { const activeRoute = route(); const motionClass = activeRoute === lastRenderedRoute ? "motion-settled" : "motion-entry"; lastRenderedRoute = activeRoute; const content = activeRoute === "discover" ? renderWorkspace() : activeRoute === "kol" ? renderKol() : activeRoute === "playbooks" ? renderPlaybooks() : activeRoute === "academy" ? renderAcademy() : renderHome(); const footerUpdated = state.lastUpdated ? timeAgo(Math.floor(state.lastUpdated / 1000)) : "waiting for feed"; document.querySelector<HTMLDivElement>("#app")!.innerHTML = `<div class="shell ${motionClass}">${header()}${content}<footer><span>METEORA LP SCREENER · SOLANA</span><span>LAST UPDATED <b>${footerUpdated}</b></span></footer></div>`; bind(); }
 function bind() { document.querySelector<HTMLButtonElement>("#mobileNavToggle")?.addEventListener("click", () => { state.mobileNavOpen = !state.mobileNavOpen; render(); }); document.querySelectorAll<HTMLAnchorElement>(".mobile-menu a").forEach((link) => link.addEventListener("click", () => { state.mobileNavOpen = false; })); document.querySelectorAll<HTMLButtonElement>("[data-academy]").forEach((button) => button.addEventListener("click", () => { state.academy = button.dataset.academy ?? "bins"; render(); })); document.querySelector<HTMLButtonElement>("[data-academy-next]")?.addEventListener("click", () => { const order = ["bins", "shapes", "fees", "risk", "safety", "opportunities", "manage", "performance"]; state.academy = order[(order.indexOf(state.academy) + 1) % order.length]; render(); }); document.querySelectorAll<HTMLButtonElement>("[data-lab]").forEach((button) => button.addEventListener("click", () => { state.lab = button.dataset.lab ?? "spot"; render(); })); document.querySelector<HTMLInputElement>("#query")?.addEventListener("input", (e) => { state.query = (e.target as HTMLInputElement).value; render(); document.querySelector<HTMLInputElement>("#query")?.focus(); }); (["minLiquidity", "minVolume", "maxAge", "scoreMin"] as const).forEach((id) => document.querySelector<HTMLInputElement>(`#${id}`)?.addEventListener("change", (e) => { state[id] = Number((e.target as HTMLInputElement).value); render(); })); document.querySelectorAll<HTMLButtonElement>("[data-preset]").forEach((button) => button.addEventListener("click", () => { const preset = button.dataset.preset; if (preset === "conviction") { state.list = "eligible"; state.scoreMin = 75; state.walletFilter = "active"; state.kolFilter = "recent"; state.sort = "score"; } if (preset === "wallet") { state.list = "smart"; state.scoreMin = 0; state.walletFilter = "inflow"; state.kolFilter = "all"; state.sort = "wallets"; } if (preset === "attention") { state.list = "kol"; state.scoreMin = 0; state.walletFilter = "all"; state.kolFilter = "recent"; state.sort = "kol"; } if (preset === "liquidity") { state.list = "liquidity"; state.scoreMin = 50; state.walletFilter = "all"; state.kolFilter = "all"; state.sort = "liquidity"; } render(); })); document.querySelector<HTMLButtonElement>("#sourcesToggle")?.addEventListener("click", () => { state.sourcesOpen = !state.sourcesOpen; render(); }); document.querySelector<HTMLButtonElement>("#saveSources")?.addEventListener("click", () => { const parse = (id: string) => (document.querySelector<HTMLTextAreaElement>(id)?.value ?? "").split(/[\n,]/).map((value) => value.trim()).filter(Boolean); state.trackedWallets = parse("#walletSources"); state.trackedKols = parse("#kolSources"); localStorage.setItem("lp-screener-wallets", JSON.stringify(state.trackedWallets)); localStorage.setItem("lp-screener-kols", JSON.stringify(state.trackedKols)); state.sourcesOpen = false; render(); }); document.querySelector<HTMLSelectElement>("#sort")?.addEventListener("change", (e) => { state.sort = (e.target as HTMLSelectElement).value; render(); }); document.querySelector<HTMLSelectElement>("#walletFilter")?.addEventListener("change", (e) => { state.walletFilter = (e.target as HTMLSelectElement).value; render(); }); document.querySelector<HTMLSelectElement>("#kolFilter")?.addEventListener("change", (e) => { state.kolFilter = (e.target as HTMLSelectElement).value; render(); }); document.querySelectorAll<HTMLButtonElement>("[data-watch]").forEach((button) => button.addEventListener("click", (event) => { event.stopPropagation(); const symbol = button.dataset.watch ?? ""; state.watchlist = state.watchlist.includes(symbol) ? state.watchlist.filter((item) => item !== symbol) : [...state.watchlist, symbol]; localStorage.setItem("lp-screener-watchlist", JSON.stringify(state.watchlist)); render(); })); document.querySelectorAll<HTMLButtonElement>("[data-compare]").forEach((button) => button.addEventListener("click", (event) => { event.stopPropagation(); const symbol = button.dataset.compare ?? ""; state.compareList = state.compareList.includes(symbol) ? state.compareList.filter((item) => item !== symbol) : [...state.compareList, symbol].slice(-4); render(); })); document.querySelector<HTMLButtonElement>("[data-clear-compare]")?.addEventListener("click", () => { state.compareList = []; render(); }); document.querySelectorAll<HTMLTableRowElement>("[data-pool]").forEach((row) => row.addEventListener("click", () => { state.selectedPool = row.dataset.pool ?? ""; render(); void enrichSelectedPool(state.selectedPool); })); document.querySelector<HTMLButtonElement>("[data-close-evidence]")?.addEventListener("click", () => { state.selectedPool = ""; render(); }); document.querySelectorAll<HTMLButtonElement>("[data-list]").forEach((button) => button.addEventListener("click", () => { state.list = button.dataset.list ?? "all"; render(); })); document.querySelector("#refresh")?.addEventListener("click", async (e) => { const button = e.currentTarget as HTMLButtonElement; button.disabled = true; button.textContent = "↻ Refreshing…"; await loadLive(); render(); });
   document.querySelector<HTMLInputElement>("#kolQuery")?.addEventListener("input", (event) => { state.kolQuery = (event.target as HTMLInputElement).value; render(); document.querySelector<HTMLInputElement>("#kolQuery")?.focus(); });
   document.querySelector<HTMLSelectElement>("#kolChain")?.addEventListener("change", (event) => { state.kolChain = (event.target as HTMLSelectElement).value; render(); });
@@ -520,6 +498,7 @@ async function loadIntelligence() {
 }
 let refreshInFlight = false;
 const candleCache = new Map<string, { candles?: Candle[]; fetchedAt: number; failedAt?: number }>();
+const candleEnrichmentInFlight = new Set<string>();
 const liveApi = (kind: string, params: Record<string, string> = {}) => { const query = new URLSearchParams({ kind, ...params }); return `/api/market?${query.toString()}`; };
 
 async function fetchJson<T>(url: string, timeoutMs = 15000): Promise<T> {
@@ -751,21 +730,38 @@ async function fetchCandles(pool: Pool) {
 
 async function enrichTechnicalData(pools: Pool[]) {
   const ranked = [...pools].sort((a, b) => b.volume24h - a.volume24h || b.liquidity - a.liquidity);
-  const targets = [...new Map([...ranked.filter((pool) => (pool.kolMentions ?? 0) > 0).slice(0, 4), ...ranked.slice(0, 6)].map((pool) => [poolKey(pool), pool])).values()]
-    .filter((pool) => !candleCache.get(pool.pairAddress ?? "")?.candles).slice(0, 10);
-  const results = await mapConcurrent(targets, 3, async (pool) => {
-    const candles = await fetchCandles(pool);
-    return candles ? { key: poolKey(pool), candles } : undefined;
-  });
-  const byKey = new Map(results.map((result) => [result.key, result.candles]));
-  state.pools = state.pools.map((pool) => {
-    const candles = byKey.get(poolKey(pool));
-    if (!candles) { const technical = pool.technical ?? { available: false, candlesCount: 0, fresh: false, trend: "UNAVAILABLE" as const, bullishFlipWithin3: false, reclaimWithin3: false, trendSeries: [] }; const playbooks = derivePlaybooks(pool, technical); return { ...pool, technical, playbooks, primaryPlaybook: primaryPlaybook(playbooks) }; }
-    const technical = analyzeCandles(candles);
-    const playbooks = derivePlaybooks(pool, technical);
-    return { ...pool, candles, technical, playbooks, primaryPlaybook: primaryPlaybook(playbooks) };
-  });
-  refreshEligibility();
+  const targets = [...new Map(ranked.filter((pool) => pool.pairAddress).map((pool) => [poolKey(pool), pool])).values()]
+    .filter((pool) => !candleCache.get(pool.pairAddress ?? "")?.candles);
+  const enrichTargets = async (batch: Pool[], concurrency: number) => {
+    const queued = batch.filter((pool) => !candleEnrichmentInFlight.has(poolKey(pool)));
+    queued.forEach((pool) => candleEnrichmentInFlight.add(poolKey(pool)));
+    let completed = 0;
+    await mapConcurrent(queued, concurrency, async (pool) => {
+      const key = poolKey(pool);
+      try {
+        const candles = await fetchCandles(pool);
+        const current = poolByKey(key);
+        if (current && candles && candles.length >= 2) {
+          const technical = analyzeCandles(candles);
+          const playbooks = derivePlaybooks(current, technical);
+          state.pools = state.pools.map((item) => poolKey(item) === key ? { ...item, candles, technical, playbooks, primaryPlaybook: primaryPlaybook(playbooks) } : item);
+        } else if (current && !current.candles) {
+          const technical = current.technical ?? { available: false, candlesCount: 0, fresh: false, trend: "UNAVAILABLE" as const, bullishFlipWithin3: false, reclaimWithin3: false, trendSeries: [] };
+          const playbooks = derivePlaybooks(current, technical);
+          state.pools = state.pools.map((item) => poolKey(item) === key ? { ...item, technical, playbooks, primaryPlaybook: primaryPlaybook(playbooks) } : item);
+        }
+      } finally {
+        candleEnrichmentInFlight.delete(key);
+        completed += 1;
+        if (completed % 8 === 0 || completed === queued.length) refreshEligibility();
+      }
+      return undefined;
+    });
+  };
+  const priority = targets.slice(0, 12);
+  const remainder = targets.slice(12);
+  await enrichTargets(priority, 3);
+  if (remainder.length) void enrichTargets(remainder, 2);
 }
 
 const enrichmentInFlight = new Set<string>();

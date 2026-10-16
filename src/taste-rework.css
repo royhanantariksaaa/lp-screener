@@ -120,7 +120,8 @@ nav a.active, nav a:hover { color: var(--taste-accent-soft); }
 .academy-page .academy-tab.selected span, .academy-page .academy-tab.selected b { color: var(--taste-accent-soft); }
 .academy-page .lesson-card { border-radius: 12px; }
 
-/* Data refreshes replace the page shell. Settle animations on same-route rerenders so they cannot replay in a loop. */
+/* Data refreshes replace the page shell. Route entry gets one pass; same-route rerenders settle immediately. */
+.shell.motion-entry * { animation-iteration-count: 1 !important; animation-fill-mode: both !important; }
 .shell.motion-settled * { animation-duration: .001ms !important; animation-delay: 0ms !important; animation-iteration-count: 1 !important; animation-fill-mode: both !important; }
 
 @media (prefers-reduced-motion: reduce) {

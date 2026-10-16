@@ -83,7 +83,7 @@ const walletSignal = async (pool, baseMint, limit) => {
   }
   const totals = [...wallets.values()].reduce((summary, wallet) => ({ inflow: summary.inflow + wallet.inflow, outflow: summary.outflow + wallet.outflow, events: summary.events + wallet.events }), { inflow: 0, outflow: 0, events: 0 });
   const walletFlow = totals.inflow > totals.outflow ? "INFLOW" : totals.outflow > totals.inflow ? "OUTFLOW" : "MIXED";
-  return { status: "LIVE", source: "Solana RPC · recent pool traders", smartWallets: wallets.size, walletFlow, walletEvents: totals.events, walletAddresses: [...wallets.entries()].sort((a, b) => b[1].events - a[1].events).slice(0, 8).map(([address]) => address) };
+  return { status: "LIVE", source: `Solana RPC · ${limit} recent pool transactions`, smartWallets: wallets.size, walletFlow, walletEvents: totals.events, walletAddresses: [...wallets.keys()] };
 };
 
 const lunarTopic = (value) => String(value ?? "").toLowerCase().trim().replace(/[^a-z0-9#$ ]/g, " ").replace(/\s+/g, " ").slice(0, 48);
@@ -393,7 +393,7 @@ export default async function handler(req, res) {
     if (kind === "wallets") {
       const pool = String(req.query?.pool ?? "");
       const baseMint = String(req.query?.base ?? "");
-      const limit = Math.max(3, Math.min(8, Number(req.query?.limit ?? 6)));
+      const limit = Math.max(3, Math.min(20, Number(req.query?.limit ?? 12)));
       if (!/^[1-9A-HJ-NP-Za-km-z]{32,50}$/.test(pool) || !/^[1-9A-HJ-NP-Za-km-z]{32,50}$/.test(baseMint)) return res.status(400).json({ error: "invalid_pool_or_mint" });
       return res.status(200).json(await walletSignal(pool, baseMint, limit));
     }

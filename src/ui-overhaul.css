@@ -133,7 +133,7 @@ footer { padding: 22px 0 32px; border-top-color: rgba(127, 166, 137, .16); color
 .list-sidebar .eyebrow { padding: 0 10px; margin-bottom: 14px; }.list-link { min-height: 40px; padding: 10px; border-left: 2px solid transparent; border-radius: 7px; transition: background .18s ease, border-color .18s ease, color .18s ease, transform .18s ease; }
 .list-link:hover { background: #122017; border-color: #42623c; color: #dfeade; transform: translateX(2px); }.list-link.selected { background: #15251a; border-color: var(--lime); color: #eff7ef; box-shadow: inset 12px 0 22px rgba(194, 255, 85, .035); }.list-link.selected span { color: var(--lime); }
 .chain-block { border-top-color: #26392b; margin-top: 22px; padding-top: 19px; }
-.workspace-page .workspace { padding: 30px 32px; margin: 0; border-radius: 18px; border-color: #22382a; background: rgba(8, 15, 12, .86); box-shadow: var(--shadow); }
+.workspace-page .workspace { container: workspace / inline-size; padding: 30px 32px; margin: 0; border-radius: 18px; border-color: #22382a; background: rgba(8, 15, 12, .86); box-shadow: var(--shadow); }
 .workspace .section-head { align-items: flex-start; gap: 20px; padding-bottom: 22px; border-bottom: 1px solid #213429; }.workspace .section-head h2 { font-size: 32px; letter-spacing: -1.5px; }
 .workspace .live { max-width: 340px; display: grid; justify-items: end; gap: 6px; text-align: right; line-height: 1.35; }.workspace .live small { color: #66786c; line-height: 1.4; }
 .feed-notice { margin: 20px 0 15px; padding: 14px 16px; border-radius: 10px; border-color: #2a4331; background: #0d1912; box-shadow: inset 0 0 28px rgba(194, 255, 85, .025); }.feed-notice p { color: #8e9d92; line-height: 1.5; }.feed-notice b { color: var(--lime); font-size: 9px; letter-spacing: 1.1px; }
@@ -189,6 +189,28 @@ footer { padding: 22px 0 32px; border-top-color: rgba(127, 166, 137, .16); color
 
 /* Tablet widths still need card mode: the workspace rail leaves too little room for a 1,160px table. */
 @media (min-width: 801px) and (max-width: 1200px) {
+  .workspace-page .table-wrap { width: 100%; max-width: 100%; min-width: 0; overflow: visible; border: 0; box-shadow: none; }
+  .workspace-page table { width: 100%; min-width: 0; display: block; border-spacing: 0; padding: 0; }
+  .workspace-page thead { display: none; }
+  .workspace-page tbody { display: grid; gap: 12px; width: 100%; }
+  .workspace-page tr.pool-row { display: grid; grid-template-columns: minmax(0, 1fr); width: 100%; min-width: 0; border: 1px solid #294333; border-radius: 12px; background: #0a1510; overflow: hidden; box-shadow: 0 10px 24px rgba(0, 0, 0, .12); }
+  .workspace-page tr.pool-row td { grid-column: 1 / -1 !important; display: grid; grid-template-columns: 96px minmax(0, 1fr); align-items: start; gap: 9px; min-width: 0; padding: 13px 15px; border-top: 1px solid #1f3427; background: #0a1510; white-space: normal; overflow-wrap: anywhere; }
+  .workspace-page tr.pool-row td::before { display: block; padding-top: 2px; color: #71857a; font-size: 8px; letter-spacing: .75px; }
+  .workspace-page tr.pool-row td[data-label="POOL"], .workspace-page tr.pool-row td[data-label="15M SETUP"], .workspace-page tr.pool-row td[data-label="SIGNALS"] { display: block; }
+  .workspace-page tr.pool-row td[data-label="POOL"] { padding: 17px 15px 15px; background: linear-gradient(135deg, #102016, #0a1510); border-top: 0; }
+  .workspace-page tr.pool-row td[data-label="15M SETUP"]::before, .workspace-page tr.pool-row td[data-label="SIGNALS"]::before { display: block; margin-bottom: 9px; }
+  .workspace-page tr.pool-row td[data-label="CHART"] { align-items: center; }
+  .workspace-page tr.pool-row td[data-label="CHART"] .pool-chart-cell { width: min(100%, 190px); }
+  .workspace-page tr.pool-row td[data-label="SCORE"] { display: flex; align-items: center; justify-content: space-between; }
+  .workspace-page tr.pool-row td[data-label="SCORE"]::before { flex: 1 1 auto; }
+  .workspace-page tr.pool-row .pool-name { min-width: 0; gap: 9px; }
+  .workspace-page tr.pool-row .pool-name strong { min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
+  .workspace-page tr.pool-row .pool-contract { max-width: 100%; }
+  .workspace-page tr.pool-row .copy-ca { max-width: min(100%, 260px); }
+  .workspace-page tr.pool-row .signal-stack { min-width: 0; }
+}
+/* Use the actual workspace width as a second guard. Browser zoom, side panels, and embedded previews can make the CSS viewport look wide while the feed is still narrow. */
+@container workspace (max-width: 1150px) {
   .workspace-page .table-wrap { width: 100%; max-width: 100%; min-width: 0; overflow: visible; border: 0; box-shadow: none; }
   .workspace-page table { width: 100%; min-width: 0; display: block; border-spacing: 0; padding: 0; }
   .workspace-page thead { display: none; }

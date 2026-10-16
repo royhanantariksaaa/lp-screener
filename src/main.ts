@@ -923,11 +923,12 @@ async function loadLive() {
     state.lastUpdated = Date.now();
     state.loading = false;
     render();
+    const candleJob = enrichTechnicalData(state.pools);
     await loadTokenSafety();
     await loadPublicProfiles();
     state.pools = recordLaunchObservations(state.pools);
     render();
-    await enrichTechnicalData(state.pools);
+    await candleJob;
     await loadWalletIntelligence();
     await loadNansenIntelligence();
     await loadKOLIntelligence();

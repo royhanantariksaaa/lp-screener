@@ -25,7 +25,7 @@ The persisted wallet snapshots are generated with `npm run scan:solana` and `npm
 
 `npm run analyze:wallets` joins those snapshots into `api/wallet-graph.json` and the KOL Radar's related-wallet graph. It reports direct counterparties, repeated links, counterparties shared by multiple tracked wallets, same-address reuse across EVM chains, tracked-wallet matches, and candidate graph clusters. High-fanout addresses are separated as infrastructure-like so a router, token contract, or exchange hub is not presented as a person-controlled wallet. The graph is exposed through `/api/market?kind=wallet-graph` and remains research evidence rather than proof of common ownership.
 
-The `brrrgrrrz`/`notanicecat69` grouping above represents two separate seed rows. After the ranked tranches below, the review seed file contains eighty-four profile entries.
+The `brrrgrrrz`/`notanicecat69` grouping above represents two separate seed rows. After the ranked tranches below, the review seed file contains eighty-eight profile entries.
 
 The next review tranche adds eight more cautious candidates (`koy`, `jotagezin`, `MoneyLord`, `OhMyJack`, `starcatcher444`, `RugDalio`, `artthatfucks`, and `SolSwizzle`). Their seed records preserve the public source trail and add a token thesis lead where a public X mirror or on-chain activity index exposes one. Indirect FOMO analytics are labeled as such and still need original-post review.
 
@@ -70,6 +70,8 @@ The following pass adds `jelitics`, `PoorGoat_`, and `soby0x`, preserving their 
 The next pass adds `sadcrissy` and `0xsneakky`, preserving their live X profiles, resolver-backed source trails, and cautious indirect thesis notes.
 
 The latest pass adds `RareDualJay` with an explicitly weak identity caveat because its X profile has minimal public detail; its ORBIO call and resolver source trail remain preserved for review.
+
+The next evidence pass adds `AwareFinePrawn`, `prometheusx91`, `bystevenr`, and `ResellCalendar`, preserving their public trading identities, FomoLens thesis records, and resolver-backed source trails.
 
 ## Production
 

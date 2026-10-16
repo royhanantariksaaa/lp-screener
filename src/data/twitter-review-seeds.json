@@ -748,5 +748,41 @@
     "sourceUrls": ["https://x.com/RareDualJay", "https://fomolens.app/trader/RareDualJay", "https://fomolens.app/token/robinhood/0xaa07a0e9209e16ac99708c3ec70159c6ef3128a3", "https://fomo.family/profile/RareDualJay"],
     "thesisMatches": [{"token": "ORBIO", "evidenceUrl": "https://fomolens.app/trader/RareDualJay", "thesis": "FomoLens records an ORBIO call quoting a public podcast announcement about tokenized inference. The account identity and authorship link are weak, so preserve this only as indirect thesis context.", "sourceUrls": ["https://fomolens.app/trader/RareDualJay", "https://x.com/0x_aster/status/2110716266088673603", "https://x.com/RareDualJay"], "updatedAt": "2026-10-17"}],
     "updatedAt": "2026-10-17"
+  },
+  "AwareFinePrawn": {
+    "xHandle": "AwareFinePrawn",
+    "xUrl": "https://x.com/AwareFinePrawn",
+    "status": "LIKELY",
+    "note": "The public @AwareFinePrawn profile explicitly references Fomo, while FomoLens and the FOMO profile expose the matching resolver-backed trader. No Provadata record is present, so the wallet mapping remains likely.",
+    "sourceUrls": ["https://x.com/AwareFinePrawn", "https://fomolens.app/trader/AwareFinePrawn", "https://fomolens.app/token/robinhood/0x8d4dfaaa4198b6486e0293fec914c2b6a821d4dc", "https://fomo.family/profile/AwareFinePrawn"],
+    "thesisMatches": [{"token": "KITSU", "evidenceUrl": "https://fomolens.app/trader/AwareFinePrawn", "thesis": "FomoLens records a KITSU call discussing support failure, an underside retest, and a possible later re-entry. Preserve this as captured chart/thesis context, not a recommendation.", "sourceUrls": ["https://fomolens.app/trader/AwareFinePrawn", "https://x.com/AwareFinePrawn"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "prometheusx91": {
+    "xHandle": "prometheusx91",
+    "xUrl": "https://x.com/prometheusx91",
+    "status": "LIKELY",
+    "note": "The public @prometheusx91 profile identifies a tech founder/developer and trading account, while FomoLens and the FOMO profile expose the matching resolver-backed trader. No Provadata record is present, so wallet ownership remains separate evidence.",
+    "sourceUrls": ["https://x.com/prometheusx91", "https://fomolens.app/trader/prometheusx91", "https://fomolens.app/token/solana/DdVXE425xZe27FhY41PR8dwfL3VczYdyJJAWDC1jpump", "https://fomo.family/profile/prometheusx91"],
+    "thesisMatches": [{"token": "OPTIMA / IFO / PATCH", "evidenceUrl": "https://fomolens.app/trader/prometheusx91", "thesis": "FomoLens records OPTIMA as an agent-run strategy revenue thesis, IFO as a launch/loan bootstrap thesis tied to the PONS pool, and PATCH as a borrowed-conviction chart discussion. Treat this as captured thesis context, not a recommendation.", "sourceUrls": ["https://fomolens.app/trader/prometheusx91", "https://x.com/prometheusx91"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "bystevenr": {
+    "xHandle": "bystevenr",
+    "xUrl": "https://x.com/bystevenr",
+    "status": "LIKELY",
+    "note": "The public @bystevenr profile describes multi-asset trading, while FomoLens and the FOMO profile expose the matching resolver-backed trader. No Provadata record is present, so this remains a likely social-to-wallet mapping.",
+    "sourceUrls": ["https://x.com/bystevenr", "https://fomolens.app/trader/bystevenr", "https://fomolens.app/token/solana/GKboyzRdB93iEpfr6Gjs8A2wXe7Tp4kVD5WwkNfepump", "https://fomo.family/profile/bystevenr"],
+    "thesisMatches": [{"token": "TANG / 交易猫 / BACKED / CATCH", "evidenceUrl": "https://fomolens.app/trader/bystevenr", "thesis": "FomoLens records TANG as a high-ceiling cards-style project, 交易猫 as a Chinese-quant-followed gamble, BACKED as a social sports-betting layer, and CATCH as a solid runner. Preserve as thesis leads, not recommendations.", "sourceUrls": ["https://fomolens.app/trader/bystevenr", "https://x.com/bystevenr"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "ResellCalendar": {
+    "xHandle": "ResellCalendar",
+    "xUrl": "https://x.com/ResellCalendar",
+    "status": "LIKELY",
+    "note": "The public @ResellCalendar profile presents a buy-low/sell-high trader, while FomoLens and the FOMO profile expose the matching resolver-backed trader. No Provadata record is present, so the wallet mapping remains likely.",
+    "sourceUrls": ["https://x.com/ResellCalendar", "https://fomolens.app/trader/ResellCalendar", "https://fomolens.app/token/solana/DKYcjobF7HPtL9RyQBRdeRQ2iWvizpfbgWwPWNXdpump", "https://fomo.family/profile/ResellCalendar"],
+    "thesisMatches": [{"token": "NIHILISM / DACITYCOIN / UNICORN", "evidenceUrl": "https://fomolens.app/trader/ResellCalendar", "thesis": "FomoLens records a Nihilism crowdsourced-app question, a DacityCoin one-month conviction call, and a UNICORN thesis tied to real-life genetic-modification utility. Preserve these as recorded thesis context, not recommendations.", "sourceUrls": ["https://fomolens.app/trader/ResellCalendar", "https://x.com/lessin/status/2110968553742782609", "https://x.com/ResellCalendar"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
   }
 }

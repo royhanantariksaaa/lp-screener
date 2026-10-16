@@ -25,7 +25,7 @@ The persisted wallet snapshots are generated with `npm run scan:solana` and `npm
 
 `npm run analyze:wallets` joins those snapshots into `api/wallet-graph.json` and the KOL Radar's related-wallet graph. It reports direct counterparties, repeated links, counterparties shared by multiple tracked wallets, same-address reuse across EVM chains, tracked-wallet matches, and candidate graph clusters. High-fanout addresses are separated as infrastructure-like so a router, token contract, or exchange hub is not presented as a person-controlled wallet. The graph is exposed through `/api/market?kind=wallet-graph` and remains research evidence rather than proof of common ownership.
 
-The `brrrgrrrz`/`notanicecat69` grouping above represents two separate seed rows. After the ranked tranches below, the review seed file contains seventy-eight profile entries.
+The `brrrgrrrz`/`notanicecat69` grouping above represents two separate seed rows. After the ranked tranches below, the review seed file contains eighty-one profile entries.
 
 The next review tranche adds eight more cautious candidates (`koy`, `jotagezin`, `MoneyLord`, `OhMyJack`, `starcatcher444`, `RugDalio`, `artthatfucks`, and `SolSwizzle`). Their seed records preserve the public source trail and add a token thesis lead where a public X mirror or on-chain activity index exposes one. Indirect FOMO analytics are labeled as such and still need original-post review.
 
@@ -64,6 +64,8 @@ The next pass adds `attnmarkets` and `yeon__`, preserving their public X identit
 The latest evidence refresh adds the score-91 `0xesprezzo` profile after FomoLens exposed a current HOOKR thesis; its X, Provadata, and FOMO profile trail is retained as a `LIKELY` mapping.
 
 The next pass adds `Pasterniq` and `Zapoleon`, preserving their FomoLens token calls, X handles, and resolver or verified wallet source trails.
+
+The following pass adds `jelitics`, `PoorGoat_`, and `soby0x`, preserving their public X identities, FomoLens thesis calls, and resolver or provider source trails.
 
 ## Production
 

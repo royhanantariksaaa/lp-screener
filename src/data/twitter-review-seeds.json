@@ -694,5 +694,32 @@
     "sourceUrls": ["https://x.com/Zapoleon", "https://fomolens.app/trader/Zapoleon", "https://provadata.com/traders/Zapoleon", "https://fomo.family/profile/Zapoleon"],
     "thesisMatches": [{"token": "ZCAT", "evidenceUrl": "https://fomolens.app/trader/Zapoleon", "thesis": "FomoLens records repeated ZCAT calls framed as holding conviction and staying on top. Treat this as recorded FOMO thesis evidence, not a recommendation.", "sourceUrls": ["https://fomolens.app/trader/Zapoleon", "https://x.com/Zapoleon", "https://provadata.com/traders/Zapoleon"], "updatedAt": "2026-10-17"}],
     "updatedAt": "2026-10-17"
+  },
+  "jelitics": {
+    "xHandle": "Jelitics",
+    "xUrl": "https://x.com/Jelitics",
+    "status": "LIKELY",
+    "note": "The public @Jelitics profile is live, while FomoLens, Provadata, and the FOMO profile expose matching verified wallet records. The X bio is sparse, so social authorship remains separate from wallet verification.",
+    "sourceUrls": ["https://x.com/Jelitics", "https://fomolens.app/trader/jelitics", "https://provadata.com/traders/jelitics", "https://fomo.family/profile/jelitics"],
+    "thesisMatches": [{"token": "SI", "evidenceUrl": "https://fomolens.app/trader/jelitics", "thesis": "FomoLens records a bullish SI call tied to reducing supply concentration and giving other holders room to enter. Preserve it as recorded thesis context, not a recommendation.", "sourceUrls": ["https://fomolens.app/trader/jelitics", "https://provadata.com/traders/jelitics", "https://x.com/Jelitics"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "PoorGoat_": {
+    "xHandle": "PoorGoat_",
+    "xUrl": "https://x.com/PoorGoat_",
+    "status": "LIKELY",
+    "note": "The public @PoorGoat_ profile presents as a crypto/meme trader, while FomoLens and the FOMO profile expose the matching resolver-backed trader. No Provadata record is present, so the wallet link remains likely.",
+    "sourceUrls": ["https://x.com/PoorGoat_", "https://fomolens.app/trader/PoorGoat_", "https://fomolens.app/token/solana/Ai66LHZG9MCzg1WKdawwqduVAXpNDUuV8M3uyq5ppump", "https://fomo.family/profile/PoorGoat_"],
+    "thesisMatches": [{"token": "CATE", "evidenceUrl": "https://fomolens.app/trader/PoorGoat_", "thesis": "FomoLens records CATE as the profile’s largest onboarding conviction and describes it as the cycle’s dominant onboarding coin. Preserve as a thesis lead, not a recommendation or wallet-control proof.", "sourceUrls": ["https://fomolens.app/trader/PoorGoat_", "https://x.com/PoorGoat_"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "soby0x": {
+    "xHandle": "soby0x",
+    "xUrl": "https://x.com/soby0x",
+    "status": "LIKELY",
+    "note": "The public @soby0x profile identifies a builder, while FomoLens and the FOMO profile expose the matching resolver-backed trader. No Provadata record is present, so this remains a likely social-to-wallet mapping.",
+    "sourceUrls": ["https://x.com/soby0x", "https://fomolens.app/trader/soby0x", "https://fomolens.app/token/robinhood/0x947ac56bb8e722ddef0d58303b1113847781e240", "https://fomo.family/profile/soby0x"],
+    "thesisMatches": [{"token": "BALLS", "evidenceUrl": "https://fomolens.app/trader/soby0x", "thesis": "FomoLens records a concise BALLS call from the wallet-backed profile. Treat this as a public thesis lead, not a recommendation or independent proof of wallet ownership.", "sourceUrls": ["https://fomolens.app/trader/soby0x", "https://x.com/soby0x"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
   }
 }

@@ -190,5 +190,41 @@
     "sourceUrls": ["https://www.fomp.app/kol/0339343d-cb6c-5223-bfd7-721203a5f024", "https://www.copyfomo.com/traders/inyourwalls", "https://fomoradar.app/trader/inyourwalls", "https://fomo.family/profile/inyourwalls"],
     "thesisMatches": [{"token": "JEANPHIL / MUSEBOOK / BATON", "evidenceUrl": "https://www.copyfomo.com/traders/inyourwalls", "thesis": "Public wallet research identifies JEANPHIL, musebook, and baton as the largest recent buys for the FOMO profile. This is on-chain thesis evidence, not a direct X post.", "sourceUrls": ["https://www.copyfomo.com/traders/inyourwalls", "https://fomoradar.app/trader/inyourwalls"], "updatedAt": "2026-10-17"}],
     "updatedAt": "2026-10-17"
+  },
+  "pointfarmcap": {
+    "xHandle": "pointfarmcap",
+    "xUrl": "https://x.com/pointfarmcap",
+    "status": "LIKELY",
+    "note": "Provadata links one verified Solana wallet to @pointfarmcap, while public X mirrors and FOMO research pages use the same handle. Wallet ownership is not upgraded to confirmed because the public evidence does not include an account-owned wallet disclosure.",
+    "sourceUrls": ["https://provadata.com/traders/pointfarmcap", "https://kyawgyii.twstalker.com/pointfarmcap", "https://www.creatorcapital.trade/x/pointfarmcap", "https://fomo.family/profile/pointfarmcap"],
+    "thesisMatches": [{"token": "STONK / CLANKER / PURR / ZCAT", "evidenceUrl": "https://aghaonujohnbosco.substack.com/p/a-guy-just-made-585-million-on-fomo", "thesis": "Public analysis of the FOMO record describes an ecosystem-first strategy: early STONK accumulation followed by CLANKER, PURR, and ZCAT positions. This is an indirect reconstruction from public FOMO data and X mirrors, not a direct account-owned thesis post.", "sourceUrls": ["https://aghaonujohnbosco.substack.com/p/a-guy-just-made-585-million-on-fomo", "https://zamantika.com/fr/lansingzhao/status/2096856834577756605", "https://kyawgyii.twstalker.com/pointfarmcap"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "NachSOL": {
+    "xHandle": "NachSOL",
+    "xUrl": "https://x.com/NachSOL",
+    "status": "LIKELY",
+    "note": "Provadata records two verified wallets for @NachSOL on Solana and Robinhood Chain. A public X mirror and FOMO pages use the same handle, but no explicit account-owned wallet disclosure was found in this pass.",
+    "sourceUrls": ["https://provadata.com/traders/nachsol", "https://www.sotwe.com/NachSOL?lang=id", "https://fomoradar.app/trader/NachSOL", "https://fomo.family/profile/NachSOL"],
+    "thesisMatches": [{"token": "CASHCAT / AI", "evidenceUrl": "https://www.sotwe.com/NachSOL?lang=id", "thesis": "The public mirror records NachSOL saying CASHCAT was called near $7M and AI near $6M, with the rest of the thesis activity primarily posted on FOMO. FomoRadar independently shows AI and CASHCAT as major open positions.", "sourceUrls": ["https://www.sotwe.com/NachSOL?lang=id", "https://fomoradar.app/trader/NachSOL"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "RZDxbt": {
+    "xHandle": "RZDxbt",
+    "xUrl": "https://x.com/RZDxbt",
+    "status": "LIKELY",
+    "note": "The captured profile has verified Solana and Robinhood wallet links, and public FOMO mirrors use @RZDxbt for the same thesis feed. The handle remains likely until account-owned wallet proof is found.",
+    "sourceUrls": ["https://hansem.io/fomo/RZDxbt", "https://fomo.glass/", "https://fomoradar.app/trader/RZDxbt", "https://fomo.family/profile/RZDxbt"],
+    "thesisMatches": [{"token": "STONK / COMPUTER / KNOTS", "evidenceUrl": "https://hansem.io/fomo/RZDxbt", "thesis": "Hansem’s captured FOMO feed shows thesis posts for STONK, COMPUTER, and KNOTS, with STONK and COMPUTER carrying the largest open thesis positions. These are public mirror records and should not be treated as an account-owned X endorsement.", "sourceUrls": ["https://hansem.io/fomo/RZDxbt", "https://fomo.glass/"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "CryptoCurb": {
+    "xHandle": "CryptoCurb",
+    "xUrl": "https://x.com/CryptoCurb",
+    "status": "LIKELY",
+    "note": "Linktree and public Curb Calls posts connect @CryptoCurb to the X/FOMO identity, while Provadata and FomoRadar carry the wallet-backed record. One EVM wallet is still labeled likely, so the social-wallet match stays cautious.",
+    "sourceUrls": ["https://linktr.ee/cryptocurb", "https://t.me/s/CurbCalls", "https://fomoradar.app/trader/CryptoCurb", "https://fomo.family/profile/CryptoCurb"],
+    "thesisMatches": [{"token": "ANSEM / iCOIN / CURB", "evidenceUrl": "https://t.me/s/CurbCalls", "thesis": "Public Curb Calls posts describe the ANSEM bet, an AAPL-paired iCOIN thesis on Robinhood Chain, and CURB as the creator token. Preserve this as captured thesis evidence rather than a recommendation.", "sourceUrls": ["https://t.me/s/CurbCalls", "https://newsletter.fomo.family/p/is-ansem-heading-to-1-billion-plus-new-ai-meme-gamefi-picks", "https://linktr.ee/cryptocurb"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
   }
 }

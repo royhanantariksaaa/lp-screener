@@ -31,6 +31,8 @@ The next review tranche adds eight more cautious candidates (`koy`, `jotagezin`,
 
 The following tranche adds four more (`motiyawerey`, `TheOnlyOMP`, `kv4rl`, and `inyourwalls`) with the same evidence and thesis fields. The review layer now contains twenty-two profile rows; rows without an account-owned X mirror remain `LIKELY` and explicitly say so.
 
+The next ranked tranche adds four more (`pointfarmcap`, `NachSOL`, `RZDxbt`, and `CryptoCurb`). Each row carries a source trail and a thesis lead; the public evidence is still indirect where it does not include an account-owned wallet disclosure, so all four remain `LIKELY`.
+
 ## Production
 
 `main` deploys to GitHub Pages through `.github/workflows/deploy-pages.yml`.

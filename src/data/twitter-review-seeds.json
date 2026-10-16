@@ -865,5 +865,32 @@
     "sourceUrls": ["https://x.com/notarandomuser", "https://fomolens.app/trader/notarandomuser", "https://fomolens.app/token/robinhood/0x15f3385625d7e364c5a6216fbbceadf10fa90e7d", "https://fomo.family/profile/NotARandomUser"],
     "thesisMatches": [{"token": "ABYSS / WOLFPACK", "evidenceUrl": "https://fomolens.app/trader/notarandomuser", "thesis": "FomoLens records repeated Robinhood Chain ABYSS calls around a renewed RH season and a thesis that innovative tokens on Robinhood can reprice, plus a WOLFPACK call. Preserve this as captured thesis context, not a recommendation.", "sourceUrls": ["https://fomolens.app/trader/notarandomuser", "https://fomolens.app/token/robinhood/0x15f3385625d7e364c5a6216fbbceadf10fa90e7d", "https://x.com/notarandomuser"], "updatedAt": "2026-10-17"}],
     "updatedAt": "2026-10-17"
+  },
+  "niyedie": {
+    "xHandle": "niyedie",
+    "xUrl": "https://x.com/niyedie",
+    "status": "LIKELY",
+    "note": "The public @niyedie profile resolves to the same normalized handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. No Provadata record is present, so the social-to-wallet mapping remains likely.",
+    "sourceUrls": ["https://x.com/niyedie", "https://fomolens.app/trader/niyedie", "https://fomolens.app/token/solana/2j5SaS7xy776qCBpyPQbZjyQSAtKiFgrwjfErthnW2ZM", "https://fomo.family/profile/niyedie"],
+    "thesisMatches": [{"token": "CLAUDIA", "evidenceUrl": "https://fomolens.app/trader/niyedie", "thesis": "FomoLens records a Solana CLAUDIA call describing a new meta and a patience/holding thesis. Preserve this as captured call context, not a recommendation or independent proof of wallet ownership.", "sourceUrls": ["https://fomolens.app/trader/niyedie", "https://fomolens.app/token/solana/2j5SaS7xy776qCBpyPQbZjyQSAtKiFgrwjfErthnW2ZM", "https://x.com/niyedie"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "chosen_1": {
+    "xHandle": "Chosen_1",
+    "xUrl": "https://x.com/Chosen_1",
+    "status": "LIKELY",
+    "note": "The public @Chosen_1 profile resolves to the same normalized handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. No Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/Chosen_1", "https://fomolens.app/trader/chosen_1", "https://fomolens.app/token/solana/6Mix12LiHrQFojaQEnfPUC65Qkwd6X4Y5Qg93oFbordr", "https://fomo.family/profile/chosen_1"],
+    "thesisMatches": [{"token": "BORDR", "evidenceUrl": "https://fomolens.app/trader/chosen_1", "thesis": "FomoLens records a Solana BORDR thesis tying the token to a new standard and SDK for future Stonkfun-style launchpads. Preserve this as captured thesis context, not a recommendation.", "sourceUrls": ["https://fomolens.app/trader/chosen_1", "https://fomolens.app/token/solana/6Mix12LiHrQFojaQEnfPUC65Qkwd6X4Y5Qg93oFbordr", "https://x.com/Chosen_1"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "ImBrentJames": {
+    "xHandle": "ImBrentJames",
+    "xUrl": "https://x.com/ImBrentJames",
+    "status": "LIKELY",
+    "note": "The public @ImBrentJames profile resolves to the same handle, while Provadata provides a verified Solana wallet and FomoLens/FOMO expose the matching trader record. The social identity and provider wallet proof remain separate evidence layers.",
+    "sourceUrls": ["https://x.com/ImBrentJames", "https://fomolens.app/trader/ImBrentJames", "https://provadata.com/traders/ImBrentJames", "https://fomo.family/profile/ImBrentJames"],
+    "thesisMatches": [{"token": "STONK / ZCAT / NEARKAT", "evidenceUrl": "https://fomolens.app/trader/ImBrentJames", "thesis": "FomoLens records repeated STONK revenue/burn conviction and a comparison to ZCAT and NEARKAT ecosystem exposure. Preserve this as captured thesis context, not a recommendation or proof that the X account controls the verified wallet.", "sourceUrls": ["https://fomolens.app/trader/ImBrentJames", "https://fomolens.app/token/solana/6GmAFSYs4gk3FDao5FzzySQpPZaWsa4rUJHacpMpUNgx", "https://provadata.com/traders/ImBrentJames", "https://x.com/ImBrentJames"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
   }
 }

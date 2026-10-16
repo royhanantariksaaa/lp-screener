@@ -21,6 +21,8 @@ Each KOL detail also includes a manual X review record. The reviewer can save an
 
 The persisted wallet snapshots are generated with `npm run scan:solana` and `npm run scan:evm` (the EVM command uses the Windows PowerShell runner to pass Blockscout's Cloudflare edge). Each scanner resumes from its state file and writes after every address. The current snapshot covers 269 Solana wallets and 139 indexed EVM tasks; BNB rows remain marked `KEY_REQUIRED`.
 
+`npm run analyze:wallets` joins those snapshots into `api/wallet-graph.json` and the KOL Radar's related-wallet graph. It reports direct counterparties, repeated links, counterparties shared by multiple tracked wallets, same-address reuse across EVM chains, tracked-wallet matches, and candidate graph clusters. High-fanout addresses are separated as infrastructure-like so a router, token contract, or exchange hub is not presented as a person-controlled wallet. The graph is exposed through `/api/market?kind=wallet-graph` and remains research evidence rather than proof of common ownership.
+
 ## Production
 
 `main` deploys to GitHub Pages through `.github/workflows/deploy-pages.yml`.

@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "scripts": { "dev": "vite", "build": "tsc -b && vite build", "preview": "vite preview", "scan:solana": "node scripts/scan-solana-wallets.mjs", "scan:evm": "pwsh -NoProfile -File scripts/scan-evm-wallets.ps1", "scan:evm:node": "node scripts/scan-evm-wallets.mjs" },
+  "scripts": { "dev": "vite", "build": "tsc -b && vite build", "preview": "vite preview", "scan:solana": "node scripts/scan-solana-wallets.mjs", "scan:evm": "pwsh -NoProfile -File scripts/scan-evm-wallets.ps1", "scan:evm:node": "node scripts/scan-evm-wallets.mjs", "analyze:wallets": "node scripts/analyze-wallet-clusters.mjs" },
   "devDependencies": { "@types/node": "^22.0.0", "typescript": "^5.7.0", "vite": "^7.0.0" }
 }
 

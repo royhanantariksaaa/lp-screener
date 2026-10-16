@@ -1,6 +1,7 @@
 import trackedWalletMap from "./wallet-map.json" with { type: "json" };
 import solanaWalletClusters from "./solana-wallet-clusters.json" with { type: "json" };
 import evmWalletClusters from "./evm-wallet-clusters.json" with { type: "json" };
+import walletGraph from "./wallet-graph.json" with { type: "json" };
 
 const GECKO_OHLCV = "https://api.geckoterminal.com/api/v2/networks/solana/pools";
 const DEXPAPRIKA_API = "https://api.dexpaprika.com";
@@ -504,6 +505,30 @@ const persistedWalletCluster = (address, chain) => {
   return { status: "UNAVAILABLE", source: "No persisted indexed wallet snapshot", address, chain, relatedWallets: [], note: "Run the corresponding resumable scanner before using this evidence panel." };
 };
 
+const persistedWalletGraph = (handle, address, chain) => {
+  const normalizedHandle = String(handle ?? "").trim().toLowerCase();
+  const normalizedAddress = String(address ?? "").trim().toLowerCase();
+  const profiles = Array.isArray(walletGraph.profiles) ? walletGraph.profiles : [];
+  if (normalizedHandle || normalizedAddress) {
+    const profile = profiles.find((item) => {
+      if (normalizedHandle && String(item.handle ?? "").toLowerCase() === normalizedHandle) return true;
+      if (!normalizedAddress) return false;
+      return (item.wallets ?? []).some((wallet) => String(wallet.address ?? "").toLowerCase() === normalizedAddress && (!chain || String(wallet.chain ?? "").toLowerCase() === String(chain).toLowerCase()));
+    });
+    return profile
+      ? { status: "LIVE", source: "Persisted wallet graph · PublicNode + Blockscout", capturedAt: walletGraph.capturedAt, methodology: walletGraph.methodology, summary: walletGraph.summary, profile }
+      : { status: "UNAVAILABLE", source: "Persisted wallet graph", summary: walletGraph.summary, note: "No matching tracked profile or wallet was found in the captured graph." };
+  }
+  return {
+    status: "LIVE",
+    source: "Persisted wallet graph · PublicNode + Blockscout",
+    capturedAt: walletGraph.capturedAt,
+    methodology: walletGraph.methodology,
+    summary: walletGraph.summary,
+    clusters: (walletGraph.clusters ?? []).slice(0, 12).map((cluster) => ({ ...cluster, topLinks: (cluster.topLinks ?? []).slice(0, 6) })),
+  };
+};
+
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
@@ -592,6 +617,13 @@ export default async function handler(req, res) {
       if (chain === "solana" && !isSolanaAddress(address)) return res.status(400).json({ error: "invalid_solana_address" });
       if (chain !== "solana" && !/^0x[0-9a-fA-F]{40}$/.test(address)) return res.status(400).json({ error: "invalid_evm_address" });
       return res.status(200).json(persistedWalletCluster(address, chain));
+    }
+    if (kind === "wallet-graph") {
+      const handle = String(req.query?.handle ?? "").trim().slice(0, 128);
+      const address = String(req.query?.address ?? "").trim();
+      const chain = String(req.query?.chain ?? "").trim().toLowerCase();
+      if (address && !isSolanaAddress(address) && !/^0x[0-9a-fA-F]{40}$/.test(address)) return res.status(400).json({ error: "invalid_wallet_address" });
+      return res.status(200).json(persistedWalletGraph(handle, address, chain));
     }
     if (kind === "wallets") {
       const pool = String(req.query?.pool ?? "");

@@ -27,6 +27,8 @@ The persisted wallet snapshots are generated with `npm run scan:solana` and `npm
 
 The `brrrgrrrz`/`notanicecat69` grouping above represents two separate seed rows, so the review seed file contains ten profile entries.
 
+The next review tranche adds eight more cautious candidates (`koy`, `jotagezin`, `MoneyLord`, `OhMyJack`, `starcatcher444`, `RugDalio`, `artthatfucks`, and `SolSwizzle`). Their seed records preserve the public source trail and add a token thesis lead where a public X mirror or on-chain activity index exposes one. Indirect FOMO analytics are labeled as such and still need original-post review.
+
 ## Production
 
 `main` deploys to GitHub Pages through `.github/workflows/deploy-pages.yml`.

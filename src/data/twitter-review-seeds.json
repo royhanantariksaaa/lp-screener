@@ -82,5 +82,77 @@
     "note": "The public X profile uses the exact FOMO handle and discusses trading on FOMO. This is a likely social-to-FOMO match; wallet ownership remains separate evidence.",
     "sourceUrls": ["https://mobile.twstalker.com/notanicecat69", "https://fomoradar.app/trader/notanicecat69"],
     "updatedAt": "2026-10-17"
+  },
+  "koy": {
+    "xHandle": "koy",
+    "xUrl": "https://x.com/koy",
+    "status": "LIKELY",
+    "note": "Public FOMO analytics identify @koy as a high-activity trader and expose the same profile’s wallet-backed activity. The exact X-to-FOMO identity is kept as a likely match until a direct profile disclosure is found.",
+    "sourceUrls": ["https://fomoradar.app/trader/koy", "https://www.fomp.app/kol/bb2ab76d-f022-53a1-820e-a5f46522576b?tab=history", "https://fomo.family/profile/koy"],
+    "thesisMatches": [{"token": "ZCAT", "evidenceUrl": "https://fomoradar.app/trader/koy", "thesis": "FomoRadar records ZCAT as Koy’s largest open position and describes repeated ZCAT flow. This is on-chain thesis evidence, not a direct X post.", "sourceUrls": ["https://fomoradar.app/trader/koy", "https://www.fomp.app/kol/bb2ab76d-f022-53a1-820e-a5f46522576b?tab=history"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "jotagezin": {
+    "xHandle": "jotagezin",
+    "xUrl": "https://x.com/jotagezin",
+    "status": "LIKELY",
+    "note": "The public @jotagezin mirror explicitly references holding a FOMO position, while Provadata reports two verified wallet matches for the same handle. This supports the social-to-FOMO link without proving control of every linked address.",
+    "sourceUrls": ["https://mobile.twstalker.com/jotagezin", "https://provadata.com/traders/jotagezin", "https://fomoradar.app/trader/jotagezin"],
+    "thesisMatches": [{"token": "AI", "evidenceUrl": "https://fomoradar.app/trader/jotagezin", "thesis": "FomoRadar describes the recent PnL concentration around AI and records AI as the dominant open position. Treat this as an on-chain thesis lead until the original X post is reviewed.", "sourceUrls": ["https://fomoradar.app/trader/jotagezin", "https://mobile.twstalker.com/jotagezin"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "MoneyLord": {
+    "xHandle": "MoneyLord",
+    "xUrl": "https://x.com/MoneyLord",
+    "status": "LIKELY",
+    "note": "The public @MoneyLord profile links directly to FOMO and publishes cross-chain trading commentary. Wallet-backed FOMO analytics corroborate the same trader record; wallet ownership remains separate evidence.",
+    "sourceUrls": ["https://twstalker.com/MoneyLord", "https://fomoradar.app/trader/MoneyLord", "https://fomo.family/profile/MoneyLord"],
+    "thesisMatches": [{"token": "ASTEROID / SPCX", "evidenceUrl": "https://www6.twstalker.com/MoneyLord", "thesis": "Public posts frame ASTEROID around the SpaceX/SPCX tokenized-stock narrative; FomoRadar records ASTEROID as the main held position. Store as a thesis lead, not a recommendation.", "sourceUrls": ["https://www6.twstalker.com/MoneyLord", "https://fomoradar.app/trader/MoneyLord"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "OhMyJack": {
+    "xHandle": "OhMyJack",
+    "xUrl": "https://x.com/OhMyJack",
+    "status": "LIKELY",
+    "note": "The public @OhMyJack profile discusses FOMO, Robinhood/Base tokenized-stock flows, and links back to the same trader identity. The social match is strong but remains separate from wallet-control proof.",
+    "sourceUrls": ["https://www.sotwe.com/OhMyJack?lang=id", "https://fomoradar.app/trader/OhMyJack", "https://fomo.family/profile/OhMyJack"],
+    "thesisMatches": [{"token": "PONS / STONKEX", "evidenceUrl": "https://www.sotwe.com/OhMyJack?lang=id", "thesis": "Public posts connect PONS performance to a broader STONKEX/tokenized-stock flywheel on Base and Robinhood. This is a captured thesis statement, not a recommendation.", "sourceUrls": ["https://www.sotwe.com/OhMyJack?lang=id", "https://fomoradar.app/trader/OhMyJack"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "starcatcher444": {
+    "xHandle": "starcatcher444",
+    "xUrl": "https://x.com/starcatcher444",
+    "status": "LIKELY",
+    "note": "The public profile says to follow the trader’s moves on FOMO and posts token theses under the exact @starcatcher444 handle. That links the social identity to the FOMO profile; it does not prove wallet ownership.",
+    "sourceUrls": ["https://www.sotwe.com/starcatcher444?lang=id", "https://fomomarket.live/traders/starcatcher444", "https://fomo.family/profile/starcatcher444"],
+    "thesisMatches": [{"token": "POLLY / PENGU", "evidenceUrl": "https://www.sotwe.com/starcatcher444?lang=id", "thesis": "Public posts describe POLLY/PENGU pairing and reward flow as the active thesis. Preserve the original contract references separately when the post is reviewed directly.", "sourceUrls": ["https://www.sotwe.com/starcatcher444?lang=id"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "RugDalio": {
+    "xHandle": "RugDalio",
+    "xUrl": "https://x.com/RugDalio",
+    "status": "LIKELY",
+    "note": "Public X mirrors show the exact @RugDalio account discussing FOMO-era token narratives, while independent wallet research reports verified Solana and Robinhood matches. Keep identity and wallet proof as separate evidence layers.",
+    "sourceUrls": ["https://ww.twstalker.com/RugDalio/status/1941736188991398012", "https://vaulted.finance/vaults/rugdalio", "https://fomoradar.app/trader/RugDalio"],
+    "thesisMatches": [{"token": "PONS", "evidenceUrl": "https://fomoradar.app/trader/RugDalio", "thesis": "FomoRadar records PONS as the centrepiece position for the profile, with the largest open PnL contribution. This is on-chain thesis evidence, not a direct X post.", "sourceUrls": ["https://fomoradar.app/trader/RugDalio", "https://ww.twstalker.com/RugDalio/status/1941736188991398012"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "artthatfucks": {
+    "xHandle": "artthatfucks",
+    "xUrl": "https://x.com/artthatfucks",
+    "status": "LIKELY",
+    "note": "The public @artthatfucks profile is identified as imo.eth and is also indexed as the FML FOMO trader. The exact handle is strong evidence for the social link; wallet-control evidence remains separate.",
+    "sourceUrls": ["https://www.sotwe.com/artthatfucks?lang=tr", "https://www.fomp.app/kol/3ced5abf-4690-5427-bc20-c8be715621e5", "https://fomo.family/profile/artthatfucks"],
+    "thesisMatches": [{"token": "ZCAT / AGI", "evidenceUrl": "https://www.fomp.app/kol/3ced5abf-4690-5427-bc20-c8be715621e5", "thesis": "The public FOMO activity index exposes three theses and lists ZCAT and AGI among the profile’s tracked token activity. Treat this as an indirect thesis lead until the original post is reviewed.", "sourceUrls": ["https://www.fomp.app/kol/3ced5abf-4690-5427-bc20-c8be715621e5", "https://www.sotwe.com/artthatfucks?lang=tr"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "SolSwizzle": {
+    "xHandle": "SolSwizzle",
+    "xUrl": "https://x.com/SolSwizzle",
+    "status": "LIKELY",
+    "note": "The public @SolSwizzle profile identifies Swizzle, links to FOMO, and is corroborated by Provadata’s two verified wallet matches. This is a strong social-to-FOMO match without claiming ownership of unrelated addresses.",
+    "sourceUrls": ["https://w.twstalker.com/SolSwizzle", "https://provadata.com/traders/solswizzle", "https://fomoradar.app/trader/SolSwizzle"],
+    "thesisMatches": [{"token": "KNOTS", "evidenceUrl": "https://fade.ac/thesis/132567", "thesis": "A public thesis mirror attributes a KNOTS thesis to @SolSwizzle; FomoRadar also records KNOTS as a major open position. Verify the original X post before treating it as direct evidence.", "sourceUrls": ["https://fade.ac/thesis/132567", "https://fomoradar.app/trader/SolSwizzle"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
   }
 }

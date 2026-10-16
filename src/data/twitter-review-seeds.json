@@ -433,5 +433,50 @@
     "sourceUrls": ["https://x.com/pianches", "https://fomolens.app/trader/pianches", "https://provadata.com/traders/pianches", "https://fomo.family/profile/pianches"],
     "thesisMatches": [{"token": "GHOSTCAT", "evidenceUrl": "https://fomolens.app/trader/pianches", "thesis": "FomoLens records a GHOSTCAT call framed as an Aave ghost and Halloween narrative, with the position and PnL attached to the FOMO profile. Treat this as captured thesis context, not a recommendation or direct proof of X authorship.", "sourceUrls": ["https://fomolens.app/trader/pianches", "https://x.com/pianches"], "updatedAt": "2026-10-17"}],
     "updatedAt": "2026-10-17"
+  },
+  "Kale_Abe": {
+    "xHandle": "kale_abe",
+    "xUrl": "https://x.com/kale_abe",
+    "status": "LIKELY",
+    "note": "The public @kale_abe profile describes repeated crypto wins, while FomoLens and Provadata expose the matching Kale_Abe trader with a verified Solana wallet. The social-to-wallet link remains likely because no account-owned wallet disclosure was captured.",
+    "sourceUrls": ["https://x.com/kale_abe", "https://fomolens.app/trader/Kale_Abe", "https://provadata.com/traders/Kale_Abe", "https://fomo.family/profile/Kale_Abe"],
+    "thesisMatches": [{"token": "ZCAT / TACZ / ZEC", "evidenceUrl": "https://fomolens.app/trader/Kale_Abe", "thesis": "FomoLens records a long ZCAT thesis built around the ZEC pairing and cycle-meme narrative, plus TACZ and ZCAT bottom calls. Preserve this as captured FOMO thesis text, not a recommendation or direct proof that the linked wallet is controlled by X.", "sourceUrls": ["https://fomolens.app/trader/Kale_Abe", "https://x.com/kale_abe"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "CryptoTalkMan": {
+    "xHandle": "CryptoTalkMan",
+    "xUrl": "https://x.com/CryptoTalkMan",
+    "status": "LIKELY",
+    "note": "The public @CryptoTalkMan profile identifies CTM as a full-time crypto participant, while FomoLens and Provadata expose the matching wallet-backed FOMO trader. Wallet ownership remains a separate evidence layer.",
+    "sourceUrls": ["https://x.com/CryptoTalkMan", "https://fomolens.app/trader/CryptoTalkMan", "https://provadata.com/traders/CryptoTalkMan", "https://fomo.family/profile/CryptoTalkMan"],
+    "thesisMatches": [{"token": "FLORK", "evidenceUrl": "https://fomolens.app/trader/CryptoTalkMan", "thesis": "FomoLens records CTM calling FLORK in response to a Binance post. Treat this as a public-attention and thesis lead; the referenced Binance post is not proof that CTM authored or controls the token wallet.", "sourceUrls": ["https://fomolens.app/trader/CryptoTalkMan", "https://x.com/binance/status/2111094963756769509?s=46&t=3vbNHvOag-yi1-ueuoBtiw", "https://x.com/CryptoTalkMan"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "SpicyPeruvian_": {
+    "xHandle": "SpicyPeruvian_",
+    "xUrl": "https://x.com/SpicyPeruvian_",
+    "status": "LIKELY",
+    "note": "The public @SpicyPeruvian_ profile identifies Spicy, while FomoLens and Provadata expose the matching wallet-backed FOMO trader. No account-owned wallet disclosure was found, so the social link stays cautious.",
+    "sourceUrls": ["https://x.com/SpicyPeruvian_", "https://fomolens.app/trader/SpicyPeruvian_", "https://provadata.com/traders/SpicyPeruvian_", "https://fomo.family/profile/SpicyPeruvian_"],
+    "thesisMatches": [{"token": "ALLINU / AI / LinkedInu", "evidenceUrl": "https://fomolens.app/trader/SpicyPeruvian_", "thesis": "FomoLens records an ALLINU thesis about reversing capitulation and outperforming the watchlist, plus AI and LinkedInu calls. Preserve the recorded thesis context as research evidence, not a recommendation or direct X-authorship proof.", "sourceUrls": ["https://fomolens.app/trader/SpicyPeruvian_", "https://x.com/SpicyPeruvian_"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "TMtheOG": {
+    "xHandle": "TMtheOG",
+    "xUrl": "https://x.com/TMtheOG",
+    "status": "LIKELY",
+    "note": "The public @TMtheOG profile presents as a crypto alpha account, and FomoLens links several calls to TM’s own X posts. Provadata and the FOMO profile provide the matching verified wallet record, but this remains a likely social-to-wallet match.",
+    "sourceUrls": ["https://x.com/TMtheOG", "https://fomolens.app/trader/TMtheOG", "https://provadata.com/traders/TMtheOG", "https://fomo.family/profile/TMtheOG"],
+    "thesisMatches": [{"token": "V4RC / EARN / UBIK / PRIORS", "evidenceUrl": "https://x.com/tmtheog/status/2111028085319688295", "thesis": "FomoLens records TM’s V4RC technical-moat thesis and direct X posts about EARN, UBIK, and PRIORS. The post links are strong social evidence, while wallet control remains separate provider evidence.", "sourceUrls": ["https://fomolens.app/trader/TMtheOG", "https://x.com/tmtheog/status/2111028085319688295", "https://x.com/tmtheog/status/2110975538848584044", "https://x.com/tmtheog/status/2110760936055423007"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "bamblewood8": {
+    "xHandle": "bamblewood8",
+    "xUrl": "https://x.com/bamblewood8",
+    "status": "LIKELY",
+    "note": "The public @bamblewood8 profile exists, while FomoLens and Provadata expose the matching Bamblewood8 trader with verified Solana and Robinhood wallets. The X bio is generic, so the handle-to-wallet link stays explicitly cautious.",
+    "sourceUrls": ["https://x.com/bamblewood8", "https://fomolens.app/trader/bamblewood8", "https://provadata.com/traders/bamblewood8", "https://fomo.family/profile/bamblewood8"],
+    "thesisMatches": [{"token": "CASHCAT / AI / OPENAI", "evidenceUrl": "https://fomolens.app/trader/bamblewood8", "thesis": "FomoLens records CASHCAT as a repeated-correction chart thesis, alongside AI and OPENAI calls. This is captured FOMO thesis context and does not prove that the generic X profile authored or controls the linked wallet.", "sourceUrls": ["https://fomolens.app/trader/bamblewood8", "https://x.com/bamblewood8"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
   }
 }

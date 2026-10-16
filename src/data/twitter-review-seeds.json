@@ -154,5 +154,41 @@
     "sourceUrls": ["https://w.twstalker.com/SolSwizzle", "https://provadata.com/traders/solswizzle", "https://fomoradar.app/trader/SolSwizzle"],
     "thesisMatches": [{"token": "KNOTS", "evidenceUrl": "https://fade.ac/thesis/132567", "thesis": "A public thesis mirror attributes a KNOTS thesis to @SolSwizzle; FomoRadar also records KNOTS as a major open position. Verify the original X post before treating it as direct evidence.", "sourceUrls": ["https://fade.ac/thesis/132567", "https://fomoradar.app/trader/SolSwizzle"], "updatedAt": "2026-10-17"}],
     "updatedAt": "2026-10-17"
+  },
+  "motiyawerey": {
+    "xHandle": "motiyawerey",
+    "xUrl": "https://x.com/motiyawerey",
+    "status": "LIKELY",
+    "note": "Provadata reports two verified wallets for @motiyawerey and public FOMO analytics identify the same trader record. The exact X profile still needs a direct mirror or disclosure before confirmation.",
+    "sourceUrls": ["https://provadata.com/traders/motiyawerey", "https://fomoradar.app/trader/motiyawerey", "https://fomo.family/profile/motiyawerey"],
+    "thesisMatches": [{"token": "ZCAT / PURR", "evidenceUrl": "https://fomoradar.app/trader/motiyawerey", "thesis": "FomoRadar describes ZCAT as the dominant open position and PURR as a secondary winner for the profile. This is on-chain thesis evidence, not a direct X post.", "sourceUrls": ["https://fomoradar.app/trader/motiyawerey", "https://provadata.com/traders/motiyawerey"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "TheOnlyOMP": {
+    "xHandle": "TheOnlyOMP",
+    "xUrl": "https://x.com/TheOnlyOMP",
+    "status": "LIKELY",
+    "note": "Public FOMO trader directories and the Dexstock spotlight identify TheOnlyOMP as the same high-conviction profile. The X handle is retained as likely until an account-owned disclosure is found.",
+    "sourceUrls": ["https://n3wyorkers.com/h/theonlyomp", "https://tradefoma.family/traders", "https://m.twstalker.com/Jasminko_K", "https://fomo.family/profile/TheOnlyOMP"],
+    "thesisMatches": [{"token": "STONKEX / STONKINU / IQ", "evidenceUrl": "https://m.twstalker.com/Jasminko_K", "thesis": "A public Dexstock spotlight credits @TheOnlyOMP with concentrated, delayed entries and lists STONKEX, STONKINU, and IQ among the best trades. This is an indirect citation; review the original post before treating it as direct evidence.", "sourceUrls": ["https://m.twstalker.com/Jasminko_K", "https://tradefoma.family/traders"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "kv4rl": {
+    "xHandle": "kv4rl",
+    "xUrl": "https://x.com/kv4rl",
+    "status": "LIKELY",
+    "note": "The public @kv4rl profile discusses FOMO, Zcash, ZCAT, and STONK narratives, while FomoMarket and the tracked wallet record identify the same k4rl trader. Wallet ownership remains separate evidence.",
+    "sourceUrls": ["https://www.sotwe.com/kv4rl?lang=tr", "https://www.sotwe.com/kv4rl?lang=id", "https://fomomarket.live/traders/kv4rl", "https://fomo.family/profile/kv4rl"],
+    "thesisMatches": [{"token": "ZEC / ZCAT / STONK", "evidenceUrl": "https://www.sotwe.com/kv4rl?lang=tr", "thesis": "Public posts connect ZEC’s privacy narrative with ZCAT pairing and the STONK ecosystem. Record this as a captured thesis map, not a recommendation.", "sourceUrls": ["https://www.sotwe.com/kv4rl?lang=tr", "https://www.sotwe.com/kv4rl?lang=id"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "inyourwalls": {
+    "xHandle": "inyourwalls",
+    "xUrl": "https://x.com/inyourwalls",
+    "status": "LIKELY",
+    "note": "The exact handle is used by the FOMO profile and its public wallet research pages. No account-owned X mirror was found in this pass, so the handle remains a cautious likely match.",
+    "sourceUrls": ["https://www.fomp.app/kol/0339343d-cb6c-5223-bfd7-721203a5f024", "https://www.copyfomo.com/traders/inyourwalls", "https://fomoradar.app/trader/inyourwalls", "https://fomo.family/profile/inyourwalls"],
+    "thesisMatches": [{"token": "JEANPHIL / MUSEBOOK / BATON", "evidenceUrl": "https://www.copyfomo.com/traders/inyourwalls", "thesis": "Public wallet research identifies JEANPHIL, musebook, and baton as the largest recent buys for the FOMO profile. This is on-chain thesis evidence, not a direct X post.", "sourceUrls": ["https://www.copyfomo.com/traders/inyourwalls", "https://fomoradar.app/trader/inyourwalls"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
   }
 }

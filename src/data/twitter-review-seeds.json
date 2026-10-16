@@ -838,5 +838,32 @@
     "sourceUrls": ["https://x.com/wenaltseason", "https://fomolens.app/trader/wenaltseason", "https://fomolens.app/token/solana/HuAXPyDWDaMYFKuwQHpqL1oPnj93zdzWmtvFGzCeCUa7", "https://fomo.family/profile/wenaltseason"],
     "thesisMatches": [{"token": "DIG / MASK", "evidenceUrl": "https://fomolens.app/trader/wenaltseason", "thesis": "FomoLens records a DIG virality thesis and a MASK privacy-play call with a $100M framing. Preserve these as captured thesis context, not recommendations or proof of wallet ownership.", "sourceUrls": ["https://fomolens.app/trader/wenaltseason", "https://x.com/wenaltseason"], "updatedAt": "2026-10-17"}],
     "updatedAt": "2026-10-17"
+  },
+  "bigbabba": {
+    "xHandle": "BigBabba",
+    "xUrl": "https://x.com/BigBabba",
+    "status": "LIKELY",
+    "note": "The public @BigBabba profile resolves to the same normalized handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. No Provadata record is present, so the social-to-wallet mapping remains likely.",
+    "sourceUrls": ["https://x.com/BigBabba", "https://fomolens.app/trader/bigbabba", "https://fomolens.app/token/robinhood/0x48d343cae84ab737c46ce63cb74c926609eb03bb", "https://fomo.family/profile/bigbabba"],
+    "thesisMatches": [{"token": "MUT8 / WF / Wheel Smith / FLYWHEEL", "evidenceUrl": "https://fomolens.app/trader/bigbabba", "thesis": "FomoLens records recent Robinhood Chain calls for MUT8, WF, Wheel Smith, and FLYWHEEL with short speculative notes. Preserve these as captured call context, not recommendations; the source page contains an additional offensive token symbol that is omitted from this display label.", "sourceUrls": ["https://fomolens.app/trader/bigbabba", "https://fomolens.app/token/robinhood/0x48d343cae84ab737c46ce63cb74c926609eb03bb", "https://x.com/BigBabba"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "looc": {
+    "xHandle": "LooC",
+    "xUrl": "https://x.com/LooC",
+    "status": "LIKELY",
+    "note": "The public @LooC profile resolves to the same normalized handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. No Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/LooC", "https://fomolens.app/trader/looc", "https://fomolens.app/token/robinhood/0x3ba500f1ababbcf0f0247d06d1c56fd7e6c4c09d", "https://fomo.family/profile/looc"],
+    "thesisMatches": [{"token": "WORM", "evidenceUrl": "https://fomolens.app/trader/looc", "thesis": "FomoLens records a Robinhood Chain WORM call framing it as an AI-agent launchpad. Preserve this as captured thesis context, not a recommendation or independent proof of wallet ownership.", "sourceUrls": ["https://fomolens.app/trader/looc", "https://fomolens.app/token/robinhood/0x3ba500f1ababbcf0f0247d06d1c56fd7e6c4c09d", "https://x.com/LooC"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "NotARandomUser": {
+    "xHandle": "notarandomuser",
+    "xUrl": "https://x.com/notarandomuser",
+    "status": "LIKELY",
+    "note": "The public @notarandomuser profile resolves to the same normalized handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. No Provadata record is present, so the social-to-wallet mapping remains likely.",
+    "sourceUrls": ["https://x.com/notarandomuser", "https://fomolens.app/trader/notarandomuser", "https://fomolens.app/token/robinhood/0x15f3385625d7e364c5a6216fbbceadf10fa90e7d", "https://fomo.family/profile/NotARandomUser"],
+    "thesisMatches": [{"token": "ABYSS / WOLFPACK", "evidenceUrl": "https://fomolens.app/trader/notarandomuser", "thesis": "FomoLens records repeated Robinhood Chain ABYSS calls around a renewed RH season and a thesis that innovative tokens on Robinhood can reprice, plus a WOLFPACK call. Preserve this as captured thesis context, not a recommendation.", "sourceUrls": ["https://fomolens.app/trader/notarandomuser", "https://fomolens.app/token/robinhood/0x15f3385625d7e364c5a6216fbbceadf10fa90e7d", "https://x.com/notarandomuser"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
   }
 }

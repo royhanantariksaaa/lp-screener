@@ -25,7 +25,7 @@ The persisted wallet snapshots are generated with `npm run scan:solana` and `npm
 
 `npm run analyze:wallets` joins those snapshots into `api/wallet-graph.json` and the KOL Radar's related-wallet graph. It reports direct counterparties, repeated links, counterparties shared by multiple tracked wallets, same-address reuse across EVM chains, tracked-wallet matches, and candidate graph clusters. High-fanout addresses are separated as infrastructure-like so a router, token contract, or exchange hub is not presented as a person-controlled wallet. The graph is exposed through `/api/market?kind=wallet-graph` and remains research evidence rather than proof of common ownership.
 
-The `brrrgrrrz`/`notanicecat69` grouping above represents two separate seed rows. After the ranked tranches below, the review seed file contains ninety-four profile entries.
+The `brrrgrrrz`/`notanicecat69` grouping above represents two separate seed rows. After the ranked tranches below, the review seed file contains ninety-seven profile entries.
 
 The next review tranche adds eight more cautious candidates (`koy`, `jotagezin`, `MoneyLord`, `OhMyJack`, `starcatcher444`, `RugDalio`, `artthatfucks`, and `SolSwizzle`). Their seed records preserve the public source trail and add a token thesis lead where a public X mirror or on-chain activity index exposes one. Indirect FOMO analytics are labeled as such and still need original-post review.
 
@@ -75,7 +75,7 @@ The next evidence pass adds `AwareFinePrawn`, `prometheusx91`, `bystevenr`, and 
 
 The following pass adds `Bayc364`, `Altcoinist`, and `mrfernando88`, preserving their public crypto identities, token calls, and resolver or verified wallet context.
 
-The next pass adds `montyMole44`, `eyezenhour`, and `wenaltseason`, preserving their public trading identities, FomoLens calls, and resolver-backed source trails.
+The next pass adds `montyMole44`, `eyezenhour`, and `wenaltseason`, preserving their public trading identities, FomoLens calls, and resolver-backed source trails. The follow-up adds `bigbabba`, `looc`, and `NotARandomUser`, each with same-handle X evidence, readable FomoLens theses, and explicit likely-mapping caveats.
 
 ## Production
 

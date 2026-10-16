@@ -262,5 +262,41 @@
     "sourceUrls": ["https://provadata.com/traders/cryptoalbus", "https://fomoradar.app/trader/cryptoalbus", "https://tradefoma.family/trader/cryptoalbus", "https://fomo.family/profile/cryptoalbus"],
     "thesisMatches": [{"token": "ZCAT / MEME / NUDES", "evidenceUrl": "https://fomoradar.app/trader/cryptoalbus", "thesis": "FomoRadar attributes the profile’s recent book to ZCAT, MEME, and NUDES, while Foma records the same token positions and realized results. Treat this as wallet-backed thesis context, not a recommendation or direct X proof.", "sourceUrls": ["https://fomoradar.app/trader/cryptoalbus", "https://tradefoma.family/trader/cryptoalbus", "https://provadata.com/traders/cryptoalbus"], "updatedAt": "2026-10-17"}],
     "updatedAt": "2026-10-17"
+  },
+  "zeri_term": {
+    "xHandle": "zeri_terminal",
+    "xUrl": "https://x.com/zeri_terminal",
+    "status": "LIKELY",
+    "note": "The captured FOMO profile is zeri_term, while the active public mirror identifies @zeri_terminal and a secondary @zeri_term account has no posts. The active mirror links directly to FOMO and publishes token context; the wallet-to-social link remains likely until an account-owned wallet disclosure is found.",
+    "sourceUrls": ["https://www.sotwe.com/zeri_terminal", "https://www.sotwe.com/zeri_term?lang=id", "https://useback.app/kol/zeri_term", "https://fomo.family/profile/zeri_term"],
+    "thesisMatches": [{"token": "PAIDDOG / ZCAT / ZEC", "evidenceUrl": "https://www.sotwe.com/zeri_terminal", "thesis": "The active @zeri_terminal mirror promotes PAIDDOG on FOMO and amplifies ZCAT/ZEC distribution and privacy context. Treat this as captured social thesis evidence, not proof that the linked wallet authored every repost.", "sourceUrls": ["https://www.sotwe.com/zeri_terminal", "https://useback.app/kol/zeri_term"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "TheDazzleNovak": {
+    "xHandle": "TheDazzleNovak",
+    "xUrl": "https://x.com/TheDazzleNovak",
+    "status": "LIKELY",
+    "note": "StarsArena, New Yorkers, and public X mirrors identify @TheDazzleNovak as Dazzle Novak, while the FOMO analytics pages expose the same trader record and verified wallet links. No account-owned wallet disclosure was found in this pass.",
+    "sourceUrls": ["https://www.fomp.app/kol/824a1161-c212-507a-9881-0d9d5fe63c5e", "https://provadata.com/traders/thedazzlenovak", "https://fomoradar.app/trader/TheDazzleNovak", "https://n3wyorkers.com/h/thedazzlenovak"],
+    "thesisMatches": [{"token": "STONK / BUTTHOLE / MANLET / OTC", "evidenceUrl": "https://www.fomp.app/kol/824a1161-c212-507a-9881-0d9d5fe63c5e", "thesis": "The public FOMO activity page records 14 thesis entries and the profile’s active book around STONK, BUTTHOLE, MANLET, and OTC. This is wallet-backed profile evidence, not a direct X post or recommendation.", "sourceUrls": ["https://www.fomp.app/kol/824a1161-c212-507a-9881-0d9d5fe63c5e", "https://fomoradar.app/trader/TheDazzleNovak"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "Mazinotrenches": {
+    "xHandle": "Mazinotrenches",
+    "xUrl": "https://x.com/Mazinotrenches",
+    "status": "LIKELY",
+    "note": "Public X mirrors identify Mazino as @Mazinotrenches and repeatedly reference FOMO positions; Provadata independently links two verified Solana and Robinhood wallets to the same FOMO handle. Wallet ownership is retained as separate provider evidence.",
+    "sourceUrls": ["https://provadata.com/traders/mazinotrenches", "https://mobile.twstalker.com/Mazinotrenches", "https://www.sotwe.com/Mazinotrenches?lang=en", "https://fomo.family/profile/Mazinotrenches"],
+    "thesisMatches": [{"token": "ZEAL / HOOKR / PONS / AI", "evidenceUrl": "https://mobile.twstalker.com/Mazinotrenches", "thesis": "Public mirrors show Mazino posting conviction around ZEAL and HOOKR on Robinhood Chain, while earlier posts discuss PONS and AI. Preserve this as the author’s recorded thesis context, not a recommendation or proof of ownership.", "sourceUrls": ["https://mobile.twstalker.com/Mazinotrenches", "https://www.sotwe.com/Mazinotrenches?lang=en", "https://provadata.com/traders/mazinotrenches"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "lordarbiter": {
+    "xHandle": "lordarbiter",
+    "xUrl": "https://x.com/lordarbiter",
+    "status": "LIKELY",
+    "note": "Public FOMO research pages consistently use the exact lordarbiter handle and describe verified Solana and Robinhood wallet matches. No independent account-owned X profile or wallet disclosure was found in this pass, so the social match remains cautious.",
+    "sourceUrls": ["https://www.copyfomo.com/traders/lordarbiter", "https://fomoradar.app/trader/lordarbiter", "https://degendraft.com/trader/lordarbiter", "https://fomo.family/profile/lordarbiter"],
+    "thesisMatches": [{"token": "PONS / BUN / KUDO / ROBIT / SCAN", "evidenceUrl": "https://fomoradar.app/trader/lordarbiter", "thesis": "Public on-chain mirrors show PONS and BUN as the anchor positions, with KUDO, ROBIT, and SCAN among the recent buys. This is a record of wallet activity and thesis context, not a direct X post or trade recommendation.", "sourceUrls": ["https://fomoradar.app/trader/lordarbiter", "https://www.copyfomo.com/traders/lordarbiter"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
   }
 }

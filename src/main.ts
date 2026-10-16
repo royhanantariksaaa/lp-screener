@@ -210,11 +210,11 @@ function poolEvidence() {
   const trackedWalletLabel = pool.trackedWalletHits ? ` · ${pool.trackedWalletHits} tracked profile${pool.trackedWalletHits === 1 ? "" : "s"}` : "";
   const walletLabel = pool.walletIntelligence === "UNAVAILABLE" ? "Unavailable" : `${pool.smartMoneyLabels?.length ? `${pool.smartWallets ?? 0} smart-money holders` : `${pool.smartWallets ?? 0} recent traders`}${trackedWalletLabel}`;
   const trackedWalletDetail = pool.trackedWalletHandles?.length ? ` · matched ${pool.trackedWalletHandles.slice(0, 3).join(", ")}${pool.trackedWalletHandles.length > 3 ? ` +${pool.trackedWalletHandles.length - 3}` : ""} (${(pool.trackedWalletConfidence ?? "resolver").toUpperCase()})` : " · no captured wallet-map match in this recent sample";
-  const walletDetail = pool.walletIntelligence === "UNAVAILABLE" ? "Waiting for on-chain pool transaction analysis." : `${pool.walletFlow ?? "MIXED"} · ${pool.walletSource ?? "observed in the current snapshot"}${pool.smartMoneyLabels?.length ? " · " + pool.smartMoneyLabels.join(", ") : " · RPC signers are recent-trader evidence, not a smart-money label"}${trackedWalletDetail}`;
+  const walletDetail = pool.walletIntelligence === "UNAVAILABLE" ? (pool.walletSource ?? "Waiting for on-chain pool transaction analysis.") : `${pool.walletFlow ?? "MIXED"} · ${pool.walletSource ?? "observed in the current snapshot"}${pool.smartMoneyLabels?.length ? " · " + pool.smartMoneyLabels.join(", ") : " · RPC signers are recent-trader evidence, not a smart-money label"}${trackedWalletDetail}`;
   const publicLabel = (pool.publicLinks ?? 0) > 0 ? `${pool.publicLinks} public links` : "No profile links";
   const publicDetail = pool.oculaStatus === "LIVE" ? `Ocula discovery · ${pool.oculaHolders ? pool.oculaHolders.toLocaleString() : "—"} holders · ${pool.oculaVolume1h ? money(pool.oculaVolume1h) : "—"} 1h volume` : pool.profileUrl ? "Profile data from Dexscreener" : "Attention context only; not KOL confirmation";
   const kolLabel = pool.kolIntelligence === "UNAVAILABLE" ? "Provider required" : `${pool.kolMentions ?? 0} public mentions · ${pool.kolCreators ?? pool.kolMentions ?? 0} creators`;
-  const kolDetail = pool.kolIntelligence === "UNAVAILABLE" ? "Connect LunarCrush, Nansen, or an existing intelligence endpoint." : `${pool.kolSource ?? "Provider-backed activity"} · latest ${pool.kolRecency ?? "—"} ago`;
+  const kolDetail = pool.kolIntelligence === "UNAVAILABLE" ? (pool.kolSource && !pool.kolSource.includes("Provider key required") ? pool.kolSource : "Connect LunarCrush, Nansen, or an existing intelligence endpoint.") : `${pool.kolSource ?? "Provider-backed activity"} · latest ${pool.kolRecency ?? "—"} ago`;
   const breakdown = scoreBreakdown(pool);
   const score = scoreFor(pool);
   const signal = pool.primaryPlaybook;
@@ -743,10 +743,20 @@ async function enrichSelectedPool(key: string) {
     }
     const responses = await Promise.allSettled(requests.map((request) => request.promise));
     responses.forEach((response, index) => {
-      if (response.status !== "fulfilled") return;
       const request = requests[index];
+      if (response.status !== "fulfilled") {
+        if (request.kind === "wallet") patchPool(key, { walletSource: "Solana RPC unavailable · retry refresh" });
+        if (request.kind === "token") patchPool(key, { tokenSource: "Solana RPC safety check unavailable · retry refresh" });
+        if (request.kind === "kol") patchPool(key, { kolSource: "KOL provider unavailable · optional evidence" });
+        return;
+      }
       const payload = response.value as Record<string, unknown>;
-      if (payload.status !== "LIVE") return;
+      if (payload.status !== "LIVE") {
+        if (request.kind === "wallet") patchPool(key, { walletSource: "Solana RPC returned no live sample · retry refresh" });
+        if (request.kind === "token") patchPool(key, { tokenSource: "Solana RPC returned no safety sample · retry refresh" });
+        if (request.kind === "kol") patchPool(key, { kolSource: "KOL provider returned no live attention sample" });
+        return;
+      }
       if (request.kind === "wallet") {
         const walletAddresses = Array.isArray(payload.walletAddresses) ? payload.walletAddresses.map(String) : [];
         const tracked = trackedWalletMatches(walletAddresses);

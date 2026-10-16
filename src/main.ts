@@ -61,6 +61,11 @@ const trackedWalletMatches = (addresses?: string[]) => {
   return { hits: rows.length, handles: rows.map((row) => `@${row.handle}`), confidence: rows[0]?.confidence };
 };
 const tokenImageUrl = (address?: string) => address ? `https://dd.dexscreener.com/ds-data/tokens/solana/${encodeURIComponent(address)}.png` : undefined;
+const tokenInitials = (pool: Pick<Pool, "name" | "symbol">) => {
+  const words = `${pool.symbol || pool.name || "TK"}`.replace(/[^a-z0-9]+/gi, " ").trim().split(/\s+/).filter(Boolean);
+  const initials = words.length > 1 ? `${words[0][0]}${words[1][0]}` : (words[0] ?? "TK").slice(0, 2);
+  return initials.toUpperCase();
+};
 
 const demoPools: Pool[] = [
   { name: "SOL / USDC", symbol: "SOL-USDC", dex: "Meteora DLMM", address: "7xKX...9mQp", price: 184.22, liquidity: 1250000, volume24h: 3180000, ageDays: 84, fee: 0.04, tvl: 8.2, change24h: 6.4, risk: "LOW" },
@@ -288,7 +293,9 @@ function poolRow(p: Pool) {
   const launch = p.launch && p.launch.status !== "UNAVAILABLE" ? `<span class="stack-badge launch-badge">◎ ${p.launch.status} ${p.launch.score}</span><small class="recency">${p.launch.sightings} sighting${p.launch.sightings === 1 ? "" : "s"}</small>` : "";
   const eligibilitySignal = `<span class="status-pill ${eligibilityClass(eligibility)}">${eligibilityLabel(eligibility)}</span>`;
   const safety = p.tokenSafety === "PASS" ? `<span class="stack-badge public-badge">✓ SAFETY</span>` : p.tokenSafety === "WARN" ? `<span class="stack-badge unavailable">SAFETY WARN</span>` : "";
-  const tokenAvatar = `<span class="token-avatar"><img src="${p.imageUrl ?? tokenImageUrl(p.tokenAddress) ?? ""}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.hidden=true"/><b>${(p.symbol.split("-")[0] || "TK").slice(0, 2)}</b></span>`;
+  const initials = tokenInitials(p);
+  const tokenImage = p.imageUrl?.trim() || tokenImageUrl(p.tokenAddress);
+  const tokenAvatar = `<span class="token-avatar" aria-label="${escapeHtml(p.name)} token"><b>${initials}</b>${tokenImage ? `<img src="${escapeHtml(tokenImage)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"/>` : ""}</span>`;
   const contract = p.tokenAddress ? `<button class="copy-ca" data-copy-ca="${p.tokenAddress}" title="Copy token contract address">CA ${shortAddress(p.tokenAddress)}</button>` : `<span class="ca-missing">CA unavailable</span>`;
   return `<tr class="pool-row" data-pool="${key}"><td data-label="POOL"><div class="pool-name">${tokenAvatar}<strong>${p.name}</strong><button class="row-watch ${state.watchlist.includes(key) ? "active" : ""}" data-watch="${key}" title="Toggle watchlist">${state.watchlist.includes(key) ? "★" : "☆"}</button><button class="row-compare ${state.compareList.includes(key) ? "active" : ""}" data-compare="${key}" title="Compare candidate">${state.compareList.includes(key) ? "✓" : "+"}</button></div><small>${p.symbol} · pair ${p.address}</small><div class="pool-contract">${contract}</div></td><td data-label="VENUE">${p.dex}</td><td data-label="PRICE">$${formatPrice(p.price)}</td><td data-label="LIQUIDITY">${money(p.liquidity)}</td><td data-label="24H VOLUME">${money(p.volume24h)}</td><td data-label="AGE">${p.ageDays}d</td><td data-label="15M SETUP"><div class="signal-stack">${technical}${eligibilitySignal}<span class="status-pill ${statusClass(signal?.status)}">${statusLabel(signal?.status)}</span></div></td><td data-label="SIGNALS"><div class="signal-stack">${wallets}${trackedWallets}${kol}${safety}${publicSignal}${launch}</div></td><td data-label="CHART"><div class="pool-chart-cell">${poolSparkline(p)}</div></td><td data-label="SCORE"><span class="screen-score ${scoreFor(p) >= 75 ? "high" : scoreFor(p) >= 55 ? "mid" : "low"}">${scoreFor(p)}</span></td></tr>`;
 }

@@ -892,5 +892,32 @@
     "sourceUrls": ["https://x.com/ImBrentJames", "https://fomolens.app/trader/ImBrentJames", "https://provadata.com/traders/ImBrentJames", "https://fomo.family/profile/ImBrentJames"],
     "thesisMatches": [{"token": "STONK / ZCAT / NEARKAT", "evidenceUrl": "https://fomolens.app/trader/ImBrentJames", "thesis": "FomoLens records repeated STONK revenue/burn conviction and a comparison to ZCAT and NEARKAT ecosystem exposure. Preserve this as captured thesis context, not a recommendation or proof that the X account controls the verified wallet.", "sourceUrls": ["https://fomolens.app/trader/ImBrentJames", "https://fomolens.app/token/solana/6GmAFSYs4gk3FDao5FzzySQpPZaWsa4rUJHacpMpUNgx", "https://provadata.com/traders/ImBrentJames", "https://x.com/ImBrentJames"], "updatedAt": "2026-10-17"}],
     "updatedAt": "2026-10-17"
+  },
+  "Washedupke3d": {
+    "xHandle": "Washedupke3d",
+    "xUrl": "https://x.com/Washedupke3d",
+    "status": "LIKELY",
+    "note": "The public @Washedupke3d profile says X is its journal and resolves to the same handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. No Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/Washedupke3d", "https://fomolens.app/trader/Washedupke3d", "https://fomolens.app/token/solana/4tf5GEXU1dt7Vfj21oCu4P96ZEKEm3zMYqpzZsoCDeer", "https://fomo.family/profile/Washedupke3d"],
+    "thesisMatches": [{"token": "DEER / KAYLUB / EVERYTHING", "evidenceUrl": "https://fomolens.app/trader/Washedupke3d", "thesis": "FomoLens records a DEER virality thesis tied to a widely viewed video, a smaller KAYLUB position framed as uncertain sizing, and an EVERYTHING moon-or-dust bag. Preserve these as captured call context, not recommendations.", "sourceUrls": ["https://fomolens.app/trader/Washedupke3d", "https://fomolens.app/token/solana/4tf5GEXU1dt7Vfj21oCu4P96ZEKEm3zMYqpzZsoCDeer", "https://x.com/Washedupke3d"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "spartee": {
+    "xHandle": "spartee",
+    "xUrl": "https://x.com/spartee",
+    "status": "LIKELY",
+    "note": "The public @spartee profile resolves to the same handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. No Provadata record is present, so the social-to-wallet mapping remains likely.",
+    "sourceUrls": ["https://x.com/spartee", "https://fomolens.app/trader/spartee", "https://fomolens.app/token/solana/HuAXPyDWDaMYFKuwQHpqL1oPnj93zdzWmtvFGzCeCUa7", "https://fomo.family/profile/spartee"],
+    "thesisMatches": [{"token": "MASK", "evidenceUrl": "https://fomolens.app/trader/spartee", "thesis": "FomoLens records repeated Solana MASK calls focused on protocol potential, app volume, buybacks, and a higher-price thesis. Preserve this as captured thesis context, not a recommendation.", "sourceUrls": ["https://fomolens.app/trader/spartee", "https://fomolens.app/token/solana/HuAXPyDWDaMYFKuwQHpqL1oPnj93zdzWmtvFGzCeCUa7", "https://x.com/spartee"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "Hifive_07": {
+    "xHandle": "Hifive_07",
+    "xUrl": "https://x.com/Hifive_07",
+    "status": "LIKELY",
+    "note": "The public @Hifive_07 profile discusses selling tokens and resolves to the same handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. No Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/Hifive_07", "https://fomolens.app/trader/Hifive_07", "https://fomolens.app/token/bsc/0x14f6a94909c407854390aa2d2462a3095d317777", "https://fomo.family/profile/Hifive_07"],
+    "thesisMatches": [{"token": "旺柴", "evidenceUrl": "https://fomolens.app/trader/Hifive_07", "thesis": "FomoLens records BNB Chain 旺柴 calls built around the prosperous-dog pun, the 7777 framing, and a prosperity narrative. Preserve this as captured thesis context, not a recommendation.", "sourceUrls": ["https://fomolens.app/trader/Hifive_07", "https://fomolens.app/token/bsc/0x14f6a94909c407854390aa2d2462a3095d317777", "https://x.com/Hifive_07"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
   }
 }

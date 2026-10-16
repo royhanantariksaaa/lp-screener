@@ -89,6 +89,24 @@ nav a.active, nav a:hover { color: var(--taste-accent-soft); }
 .mini-chart.empty p { margin: 0; color: var(--taste-muted); font: 10px/1.5 'DM Mono', monospace; }
 .chart-loading-line { display: block; height: 68px; border: 1px dashed var(--taste-line); border-radius: 6px; background: #0d100e; }
 
+/* Actual 15m OHLC candles: bodies, wicks, volume, and optional Supertrend. */
+.candlestick-chart { display: block; width: 100%; height: 148px; margin-top: 9px; border-top: 1px solid var(--taste-line-soft); border-bottom: 1px solid var(--taste-line-soft); background: #0d100e; }
+.candlestick-chart .candle-grid line { stroke: var(--taste-line-soft); stroke-width: .45; stroke-dasharray: 1.5 2; vector-effect: non-scaling-stroke; }
+.candlestick-chart .candle-wick { stroke: #a1b0a3; stroke-width: .8; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.candlestick-chart .candle-body { stroke-width: .55; vector-effect: non-scaling-stroke; }
+.candlestick-chart .candle.up .candle-body { fill: #b8cf9f; stroke: #d6e7bd; }
+.candlestick-chart .candle.down .candle-body { fill: #d58f78; stroke: #f0b19a; }
+.candlestick-chart .candle-volume { opacity: .34; }
+.candlestick-chart .candle-volume.up { fill: #b8cf9f; }
+.candlestick-chart .candle-volume.down { fill: #d58f78; }
+.candlestick-chart .supertrend-line { stroke: #b7a2ff; stroke-width: 1; stroke-dasharray: 3 2; vector-effect: non-scaling-stroke; }
+.pool-chart-visual .candlestick-chart.pool-sparkline { width: 100%; min-width: 84px; height: 44px; padding: 4px; margin-top: 0; border: 1px solid var(--taste-line); border-radius: 4px; background: #0d100e; }
+.mini-chart .candlestick-chart { background: #0d100e; }
+.candle-key { display: inline-block; width: 9px; height: 9px; margin-right: 5px; vertical-align: -1px; border: 1px solid; border-radius: 1px; }
+.candle-key.up { background: #b8cf9f; border-color: #d6e7bd; }
+.candle-key.down { background: #d58f78; border-color: #f0b19a; }
+.mini-chart-legend .st-key { height: 2px; background: #b7a2ff; }
+
 .page-home .hero, .liquidity-lab, .home-cards article, .playbook-grid article, .kol-hero, .academy-progress, .academy-nav, .lesson-card { background: var(--taste-surface); background-image: none; border-color: var(--taste-line); box-shadow: none; }
 .page-home .hero h1, .playbooks-page h1, .academy-intro h1, .kol-hero h1 { color: var(--taste-ink-strong); letter-spacing: -.05em; }
 .page-home .hero em, .academy-intro h1 em, .kol-hero h1 em { color: var(--taste-accent); }

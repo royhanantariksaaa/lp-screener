@@ -196,27 +196,48 @@ const gateCount = (status: EligibilityAnalysis["status"]) => state.pools.filter(
 const gateSummary = () => `<div class="gate-summary"><span><i class="gate-dot open"></i><b>${gateCount("OPEN_NOW")}</b> OPEN NOW</span><span><i class="gate-dot wait"></i><b>${gateCount("ELIGIBLE_WAIT")}</b> ELIGIBLE · WAIT</span><span><i class="gate-dot screening"></i><b>${gateCount("PENDING")}</b> SCREENING</span><span><i class="gate-dot rejected"></i><b>${gateCount("REJECTED")}</b> REJECTED</span><small>Hard gates: liquidity · volume · 15m history · wallet evidence · attention evidence · token safety</small></div>`;
 function listNav() { return `<aside class="list-sidebar"><p class="eyebrow">MARKET VIEWS</p><button class="list-link ${state.list === "eligible" ? "selected" : ""}" data-list="eligible"><span>✓</span>Eligible setups <b>${listCount("eligible")}</b></button><button class="list-link ${state.list === "open" ? "selected" : ""}" data-list="open"><span>↗</span>Open now <b>${listCount("open")}</b></button><button class="list-link ${state.list === "all" ? "selected" : ""}" data-list="all"><span>◎</span>All pools <b>${listCount("all")}</b></button><button class="list-link ${state.list === "trending" ? "selected" : ""}" data-list="trending"><span>↗</span>Trending <b>${listCount("trending")}</b></button><button class="list-link ${state.list === "new" ? "selected" : ""}" data-list="new"><span>✦</span>New pools <b>${listCount("new")}</b></button><button class="list-link ${state.list === "liquidity" ? "selected" : ""}" data-list="liquidity"><span>◉</span>High liquidity <b>${listCount("liquidity")}</b></button><button class="list-link ${state.list === "smart" ? "selected" : ""}" data-list="smart"><span>♢</span>Smart wallets <b>${listCount("smart")}</b></button><button class="list-link ${state.list === "kol" ? "selected" : ""}" data-list="kol"><span>✧</span>KOL flow <b>${listCount("kol")}</b></button><button class="list-link ${state.list === "watchlist" ? "selected" : ""}" data-list="watchlist"><span>☆</span>Watchlist <b>${listCount("watchlist")}</b></button><div class="chain-block"><p class="eyebrow">CHAINS</p><div class="chain selected"><span class="chain-dot"></span>Solana <b>${formatTvl(state.chainTvl.Solana)}</b></div><div class="chain muted-row"><span class="chain-dot eth"></span>Ethereum <b>${formatTvl(state.chainTvl.Ethereum)}</b></div><div class="chain muted-row"><span class="chain-dot base"></span>Base <b>${formatTvl(state.chainTvl.Base)}</b></div></div></aside>`; }
 function comparePanel() { const pools = state.compareList.map((key) => poolByKey(key)).filter(Boolean) as Pool[]; if (!pools.length) return ""; return `<div class="compare-panel"><div class="compare-head"><div><p class="eyebrow">CANDIDATE COMPARISON</p><b>${pools.length} selected</b></div><button class="evidence-close" data-clear-compare>×</button></div><div class="compare-grid">${pools.map((pool) => { const breakdown = scoreBreakdown(pool); return `<div class="compare-card"><div class="compare-title"><strong>${pool.name}</strong><button class="row-compare active" data-compare="${poolKey(pool)}">✓</button></div><small>${pool.dex} · ${pool.risk} risk</small><div><span>Score <b>${scoreFor(pool)}</b></span><span>Liquidity <b>${money(pool.liquidity)}</b></span><span>15m <b>${pool.technical?.trend ?? "—"}</b></span><span>Wallets <b>${pool.walletIntelligence === "UNAVAILABLE" ? "?" : pool.smartWallets ?? 0}</b></span><span>Tracked <b>${pool.trackedWalletHits ?? 0}</b></span><span>KOL <b>${pool.kolIntelligence === "UNAVAILABLE" ? "?" : pool.kolMentions ?? 0}</b></span></div><i class="compare-bar"><em style="width:${scoreFor(pool)}%"></em></i></div>`; }).join("")}</div></div>`; }
+function candleChartSvg(candles: Candle[], label: string, supertrendValue?: number, compact = false) {
+  const highs = candles.map((candle) => candle.high);
+  const lows = candles.map((candle) => candle.low);
+  const max = Math.max(...highs);
+  const min = Math.min(...lows);
+  const span = max - min || Math.max(Math.abs(max) * 0.01, 1);
+  const priceTop = 4;
+  const priceBottom = 78;
+  const volumeTop = 82;
+  const volumeBottom = 98;
+  const yFor = (value: number) => priceTop + ((max - value) / span) * (priceBottom - priceTop);
+  const maxVolume = Math.max(...candles.map((candle) => Math.max(0, candle.volume)), 1);
+  const step = 100 / candles.length;
+  const bodyWidth = Math.max(0.8, Math.min(3.6, step * 0.62));
+  const bars = candles.map((candle, index) => {
+    const center = (index + 0.5) * step;
+    const highY = yFor(candle.high);
+    const lowY = yFor(candle.low);
+    const openY = yFor(candle.open);
+    const closeY = yFor(candle.close);
+    const bullish = candle.close >= candle.open;
+    const bodyY = Math.min(openY, closeY);
+    const bodyHeight = Math.max(0.9, Math.abs(openY - closeY));
+    const volumeHeight = Math.max(0.8, (Math.max(0, candle.volume) / maxVolume) * (volumeBottom - volumeTop));
+    const volumeY = volumeBottom - volumeHeight;
+    const direction = bullish ? "up" : "down";
+    return `<g class="candle ${direction}"><line class="candle-wick" x1="${center.toFixed(3)}" x2="${center.toFixed(3)}" y1="${highY.toFixed(3)}" y2="${lowY.toFixed(3)}"/><rect class="candle-body" x="${(center - bodyWidth / 2).toFixed(3)}" y="${bodyY.toFixed(3)}" width="${bodyWidth.toFixed(3)}" height="${bodyHeight.toFixed(3)}" rx=".35"/></g><rect class="candle-volume ${direction}" x="${(center - bodyWidth / 2).toFixed(3)}" y="${volumeY.toFixed(3)}" width="${bodyWidth.toFixed(3)}" height="${volumeHeight.toFixed(3)}" rx=".25"/>`;
+  }).join("");
+  const supertrendY = typeof supertrendValue === "number" && Number.isFinite(supertrendValue) ? Math.max(priceTop, Math.min(priceBottom, yFor(supertrendValue))) : undefined;
+  const grid = `<g class="candle-grid"><line x1="0" x2="100" y1="${priceTop}" y2="${priceTop}"/><line x1="0" x2="100" y1="${(priceTop + priceBottom) / 2}" y2="${(priceTop + priceBottom) / 2}"/><line x1="0" x2="100" y1="${priceBottom}" y2="${priceBottom}"/><line x1="0" x2="100" y1="${volumeTop - 1}" y2="${volumeTop - 1}"/></g>`;
+  return `<svg class="candlestick-chart${compact ? " pool-sparkline" : ""}" viewBox="0 0 100 100" preserveAspectRatio="none" role="img" aria-label="15 minute candlestick chart for ${escapeHtml(label)}">${grid}${bars}${supertrendY === undefined ? "" : `<line class="supertrend-line" x1="0" x2="100" y1="${supertrendY.toFixed(3)}" y2="${supertrendY.toFixed(3)}"/>`}</svg>`;
+}
+
 function miniChart(pool: Pool) {
   const candles = (pool.candles ?? []).slice(-48);
   if (candles.length < 2) return `<div class="mini-chart empty"><span class="chart-loading-line"></span><div class="mini-chart-head"><span>15M CANDLES</span><span>Loading live history</span></div><p>Waiting for the GeckoTerminal 15m feed. No proxy is shown.</p></div>`;
-  const values = candles.map((candle) => candle.close);
-  const min = Math.min(...values);
-  const max = Math.max(...values);
-  const span = max - min || Math.max(max * 0.01, 1);
-  const points = values.map((value, index) => `${(index / (values.length - 1)) * 100},${96 - ((value - min) / span) * 78}`).join(" ");
-  const st = pool.technical?.supertrend;
-  const stY = st === undefined ? undefined : 96 - ((st - min) / span) * 78;
-  return `<div class="mini-chart"><div class="mini-chart-head"><span>15M CLOSE</span><span>${candles.length} candles · ${timeAgo(pool.technical?.latestTimestamp)}</span></div><svg viewBox="0 0 100 100" preserveAspectRatio="none" role="img" aria-label="15 minute close and Supertrend for ${pool.name}"><polyline points="${points}" class="close-line"/>${stY === undefined || stY < 0 || stY > 100 ? "" : `<line x1="0" x2="100" y1="${stY}" y2="${stY}" class="supertrend-line"/>`}</svg><div class="mini-chart-legend"><span><i class="close-key"></i>Close</span><span><i class="st-key"></i>Supertrend</span></div></div>`;
+  return `<div class="mini-chart"><div class="mini-chart-head"><span>15M CANDLES · OHLC</span><span>${candles.length} candles · ${timeAgo(pool.technical?.latestTimestamp)}</span></div>${candleChartSvg(candles, pool.name, pool.technical?.supertrend)}<div class="mini-chart-legend"><span><i class="candle-key up"></i>Up candle</span><span><i class="candle-key down"></i>Down candle</span><span><i class="st-key"></i>Supertrend</span></div></div>`;
 }
 function poolSparkline(pool: Pool) {
   const candles = (pool.candles ?? []).slice(-24);
   if (candles.length < 2) return `<div class="pool-chart-visual is-pending"><span class="chart-pending">15m loading</span></div>`;
-  const values = candles.map((candle) => candle.close);
-  const min = Math.min(...values);
-  const max = Math.max(...values);
-  const span = max - min || Math.max(Math.abs(max) * 0.01, 1);
-  const points = values.map((value, index) => `${(index / Math.max(1, values.length - 1)) * 100},${27 - ((value - min) / span) * 22}`).join(" ");
-  return `<div class="pool-chart-visual is-actual"><svg class="pool-sparkline" viewBox="0 0 100 30" preserveAspectRatio="none" role="img" aria-label="15 minute price chart for ${pool.name}"><polyline points="${points}"/></svg><small class="chart-state">15m · ${candles.length} candles</small></div>`;
+  return `<div class="pool-chart-visual is-actual">${candleChartSvg(candles, pool.name, undefined, true)}<small class="chart-state">15m · ${candles.length} candles</small></div>`;
 }
 
 function poolEvidence() {

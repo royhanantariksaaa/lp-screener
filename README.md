@@ -25,7 +25,7 @@ The persisted wallet snapshots are generated with `npm run scan:solana` and `npm
 
 `npm run analyze:wallets` joins those snapshots into `api/wallet-graph.json` and the KOL Radar's related-wallet graph. It reports direct counterparties, repeated links, counterparties shared by multiple tracked wallets, same-address reuse across EVM chains, tracked-wallet matches, and candidate graph clusters. High-fanout addresses are separated as infrastructure-like so a router, token contract, or exchange hub is not presented as a person-controlled wallet. The graph is exposed through `/api/market?kind=wallet-graph` and remains research evidence rather than proof of common ownership.
 
-The `brrrgrrrz`/`notanicecat69` grouping above represents two separate seed rows. After the ranked tranches below, the review seed file contains forty-one profile entries.
+The `brrrgrrrz`/`notanicecat69` grouping above represents two separate seed rows. After the ranked tranches below, the review seed file contains forty-four profile entries.
 
 The next review tranche adds eight more cautious candidates (`koy`, `jotagezin`, `MoneyLord`, `OhMyJack`, `starcatcher444`, `RugDalio`, `artthatfucks`, and `SolSwizzle`). Their seed records preserve the public source trail and add a token thesis lead where a public X mirror or on-chain activity index exposes one. Indirect FOMO analytics are labeled as such and still need original-post review.
 
@@ -40,6 +40,8 @@ The next score-band tranche adds `zeri_term` (public mirror `zeri_terminal`), `T
 The following tranche adds `igniteBTW`, `the_nutgod`, `opensecret`, and `m0f0`. Their source trails include public X mirrors, Provadata, FomoLens, Fomp, Foma, or FomoRadar as available. `tvmx` remains queued because its X account is suspended and no reliable public thesis record was found.
 
 The next evidence pass adds `dtrainz`, `vvvvvvvvvv`, and `dylansdegens`. `dtrainz` has no live X profile and is kept as a cautious mapping; the other two have public thesis records and wallet/profile corroboration. `brokeSzn` remains queued because its current public sources expose no reliable token thesis.
+
+The following pass adds `LP1111`, `Pyro` (public X mirror `PyroNFT`), and `BTCdayu`. Their rows preserve FomoLens or public X thesis calls alongside the wallet/profile source trail; `brokeSzn` remains queued pending a usable token thesis record.
 
 ## Production
 

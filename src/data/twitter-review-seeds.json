@@ -739,5 +739,14 @@
     "sourceUrls": ["https://x.com/0xsneakky", "https://fomolens.app/trader/0xsneakky", "https://fomolens.app/token/robinhood/0x72fffb21d64c1177e29e9e2de532efb038d8061b", "https://fomo.family/profile/0xsneakky"],
     "thesisMatches": [{"token": "50 / FLYWHEEL / AUDIPURRE / ROOFUS", "evidenceUrl": "https://fomolens.app/trader/0xsneakky", "thesis": "FomoLens records a referral-oriented 50 call, FLYWHEEL as the first non-test coin, an Audipurre game reference, and a ROOFUS meme call. Treat these as captured call context, not recommendations or account-owned wallet proof.", "sourceUrls": ["https://fomolens.app/trader/0xsneakky", "https://x.com/0xsneakky"], "updatedAt": "2026-10-17"}],
     "updatedAt": "2026-10-17"
+  },
+  "RareDualJay": {
+    "xHandle": "RareDualJay",
+    "xUrl": "https://x.com/RareDualJay",
+    "status": "LIKELY",
+    "note": "The public @RareDualJay profile is live but has almost no identity detail. FomoLens and the FOMO profile expose the matching resolver-backed trader; no Provadata record is present, so this is an explicitly weak social-to-wallet mapping.",
+    "sourceUrls": ["https://x.com/RareDualJay", "https://fomolens.app/trader/RareDualJay", "https://fomolens.app/token/robinhood/0xaa07a0e9209e16ac99708c3ec70159c6ef3128a3", "https://fomo.family/profile/RareDualJay"],
+    "thesisMatches": [{"token": "ORBIO", "evidenceUrl": "https://fomolens.app/trader/RareDualJay", "thesis": "FomoLens records an ORBIO call quoting a public podcast announcement about tokenized inference. The account identity and authorship link are weak, so preserve this only as indirect thesis context.", "sourceUrls": ["https://fomolens.app/trader/RareDualJay", "https://x.com/0x_aster/status/2110716266088673603", "https://x.com/RareDualJay"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
   }
 }

@@ -235,6 +235,11 @@ footer { padding: 22px 0 32px; border-top-color: rgba(127, 166, 137, .16); color
 
 /* Mobile pool cards use one readable scan line per metric. The previous two-column row grid made the right-side values feel clipped. */
 @media (max-width: 800px) {
+  .workspace-page .workspace, .workspace-page .workspace-layout, .workspace-page .table-wrap, .workspace-page table, .workspace-page tbody, .workspace-page tr.pool-row, .workspace-page tr.pool-row td { min-width: 0; }
+  .workspace-page .table-wrap { width: 100%; max-width: 100%; overflow: visible; border: 0; box-shadow: none; }
+  .workspace-page table { width: 100%; min-width: 0; display: block; border-spacing: 0; padding: 0; }
+  .workspace-page thead { display: none; }
+  .workspace-page tbody { width: 100%; }
   .workspace-page tbody tr.pool-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0; }
   .workspace-page tr.pool-row td { grid-column: 1 / -1 !important; display: grid; grid-template-columns: 94px minmax(0, 1fr); align-items: start; gap: 9px; min-width: 0; padding: 13px 14px; white-space: normal; overflow-wrap: anywhere; }
   .workspace-page tr.pool-row td::before { display: block; padding-top: 2px; color: #71857a; font-size: 8px; letter-spacing: .75px; }

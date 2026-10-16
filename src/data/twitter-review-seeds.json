@@ -505,5 +505,32 @@
     "sourceUrls": ["https://x.com/justdeeds26", "https://fomolens.app/trader/justdeeds26", "https://provadata.com/traders/justdeeds26", "https://fomo.family/profile/justdeeds26"],
     "thesisMatches": [{"token": "MASK / AVICI / DOPE / SI", "evidenceUrl": "https://fomolens.app/trader/justdeeds26", "thesis": "FomoLens records MASK and SI conviction calls, an AVICI self-custodial neobank thesis, and a DOPE narrative about finding a durable multi-cycle meme. Preserve these as captured thesis context, not a recommendation or wallet-ownership proof.", "sourceUrls": ["https://fomolens.app/trader/justdeeds26", "https://x.com/justdeeds26"], "updatedAt": "2026-10-17"}],
     "updatedAt": "2026-10-17"
+  },
+  "heat": {
+    "xHandle": "heat",
+    "xUrl": "https://x.com/heat",
+    "status": "LIKELY",
+    "note": "The public @heat profile explicitly references Fomo, while FomoLens and Provadata expose the matching heat trader and verified wallet records. This supports the social-to-FOMO mapping; wallet ownership remains separate evidence.",
+    "sourceUrls": ["https://x.com/heat", "https://fomolens.app/trader/heat", "https://provadata.com/traders/heat", "https://fomo.family/profile/heat"],
+    "thesisMatches": [{"token": "MASK / 旺柴", "evidenceUrl": "https://fomolens.app/trader/heat", "thesis": "FomoLens records a MASK call centered on valuation, a BTC rebound, and a possible $100M outcome, plus a 旺柴 call where the trader says they were introduced through others’ due diligence. Treat this as captured thesis context, not a recommendation.", "sourceUrls": ["https://fomolens.app/trader/heat", "https://x.com/heat"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "CrudeStillGuan": {
+    "xHandle": "CrudeStillGuan",
+    "xUrl": "https://x.com/CrudeStillGuan",
+    "status": "LIKELY",
+    "note": "The public @CrudeStillGuan profile presents as an active crypto participant, while FomoLens and Provadata expose the matching wallet-backed trader. FomoLens calls cite other public posts, so the token authorship link remains indirect.",
+    "sourceUrls": ["https://x.com/CrudeStillGuan", "https://fomolens.app/trader/CrudeStillGuan", "https://provadata.com/traders/CrudeStillGuan", "https://fomo.family/profile/CrudeStillGuan"],
+    "thesisMatches": [{"token": "OMNI / HADES / SAPLING", "evidenceUrl": "https://fomolens.app/trader/CrudeStillGuan", "thesis": "FomoLens records OMNI and HADES calls that quote public posts about project potential and Robinhood privacy, plus a SAPLING call. These are indirect call-context records, not proof that the linked X account authored or controls each token.", "sourceUrls": ["https://fomolens.app/trader/CrudeStillGuan", "https://x.com/riskconviction/status/2110192477265146309?s=20", "https://x.com/shlok_dm/status/2109629060737646975?s=20", "https://x.com/saplingdotcash/status/2110202892812771437?s=20"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "earn168": {
+    "xHandle": "earn168",
+    "xUrl": "https://x.com/earn168",
+    "status": "LIKELY",
+    "note": "The public @earn168 profile resolves, while FomoLens and Provadata expose the matching earn168 trader and verified wallet records. The X bio is sparse, so this remains a cautious social mapping.",
+    "sourceUrls": ["https://x.com/earn168", "https://fomolens.app/trader/earn168", "https://provadata.com/traders/earn168", "https://fomo.family/profile/earn168"],
+    "thesisMatches": [{"token": "TORCH / STONK / ROUTE / REPLY", "evidenceUrl": "https://fomolens.app/trader/earn168", "thesis": "FomoLens records a TORCH thesis around trading-terminal economics, STONK revenue and buybacks, a ROUTE buyback update, and a REPLY social-trading gamble. Preserve these as recorded thesis evidence, not recommendations or wallet-control proof.", "sourceUrls": ["https://fomolens.app/trader/earn168", "https://stonkfun.xyz/revenue", "https://x.com/earn168"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
   }
 }

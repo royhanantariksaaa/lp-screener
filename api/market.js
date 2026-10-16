@@ -83,7 +83,7 @@ const walletSignal = async (pool, baseMint, limit) => {
   }
   const totals = [...wallets.values()].reduce((summary, wallet) => ({ inflow: summary.inflow + wallet.inflow, outflow: summary.outflow + wallet.outflow, events: summary.events + wallet.events }), { inflow: 0, outflow: 0, events: 0 });
   const walletFlow = totals.inflow > totals.outflow ? "INFLOW" : totals.outflow > totals.inflow ? "OUTFLOW" : "MIXED";
-  return { status: "LIVE", source: "Solana RPC · recent pool traders", smartWallets: wallets.size, walletFlow, walletEvents: totals.events, walletAddresses: [...wallets.entries()].sort((a, b) => b[1].events - a[1].events).slice(0, 3).map(([address]) => address) };
+  return { status: "LIVE", source: "Solana RPC · recent pool traders", smartWallets: wallets.size, walletFlow, walletEvents: totals.events, walletAddresses: [...wallets.entries()].sort((a, b) => b[1].events - a[1].events).slice(0, 8).map(([address]) => address) };
 };
 
 const lunarTopic = (value) => String(value ?? "").toLowerCase().trim().replace(/[^a-z0-9#$ ]/g, " ").replace(/\s+/g, " ").slice(0, 48);

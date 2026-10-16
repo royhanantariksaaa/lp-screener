@@ -334,5 +334,32 @@
     "sourceUrls": ["https://x.com/m0f0", "https://provadata.com/traders/m0f0", "https://www.fomp.app/kol/672ff962-23db-5cc4-acbd-4326eb7bbf3b", "https://tradefoma.family/trader/m0f0"],
     "thesisMatches": [{"token": "AI / STONK / ZCAT / CATGPT", "evidenceUrl": "https://fomoradar.app/trader/m0f0", "thesis": "FomoRadar records six-figure AI and STONK entries alongside ZCAT and CATGPT positions; Foma corroborates the same wallet’s token activity across chains. This is wallet-backed thesis context, not an X-authored post or recommendation.", "sourceUrls": ["https://fomoradar.app/trader/m0f0", "https://tradefoma.family/trader/m0f0", "https://provadata.com/traders/m0f0"], "updatedAt": "2026-10-17"}],
     "updatedAt": "2026-10-17"
+  },
+  "dtrainz": {
+    "xHandle": "dtrainz",
+    "xUrl": "https://x.com/dtrainz",
+    "status": "LIKELY",
+    "note": "Provadata links verified Solana and Base wallets to @dtrainz, while FomoLens identifies the same dtrains profile and describes a Zcash-focused bio. The exact X URL currently has no live profile, so this remains a cautious handle mapping.",
+    "sourceUrls": ["https://x.com/dtrainz", "https://fomolens.app/trader/dtrainz", "https://provadata.com/traders/dtrainz", "https://fomo.glass/"],
+    "thesisMatches": [{"token": "ZEC / ZCASH", "evidenceUrl": "https://fomolens.app/trader/dtrainz", "thesis": "FomoLens records the profile bio as a Zcash-focused collection thesis, while FomoGlass and Provadata corroborate the wallet-backed dtrainz trader. No public X post is available to attribute the thesis directly.", "sourceUrls": ["https://fomolens.app/trader/dtrainz", "https://fomo.glass/", "https://provadata.com/traders/dtrainz"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "vvvvvvvvvv": {
+    "xHandle": "vvvvvvvvvv",
+    "xUrl": "https://x.com/vvvvvvvvvv",
+    "status": "LIKELY",
+    "note": "The exact @vvvvvvvvvv X profile exists, and FomoLens records two recent FOMO theses for the same handle. Provadata independently verifies Solana and Ethereum wallet links; ownership of those wallets is still separate evidence.",
+    "sourceUrls": ["https://x.com/vvvvvvvvvv", "https://fomolens.app/trader/vvvvvvvvvv", "https://provadata.com/traders/vvvvvvvvvv", "https://fomo.family/profile/vvvvvvvvvv"],
+    "thesisMatches": [{"token": "DACITY", "evidenceUrl": "https://fomolens.app/trader/vvvvvvvvvv", "thesis": "FomoLens records two Dacity theses: a design-team/social proof comment and a plan to trim hard before buying back lower. The attached position and realized PnL are Fomo-reported context, not a recommendation.", "sourceUrls": ["https://fomolens.app/trader/vvvvvvvvvv", "https://provadata.com/traders/vvvvvvvvvv"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "dylansdegens": {
+    "xHandle": "dylansdegens",
+    "xUrl": "https://x.com/dylansdegens",
+    "status": "LIKELY",
+    "note": "Public X mirrors identify Dylan.Eth as @dylansdegens and explicitly link the account to FOMO; FomoRadar and the captured wallet record corroborate the same trader. No account-owned wallet disclosure was found in this pass.",
+    "sourceUrls": ["https://mobile.twstalker.com/dylansdegens", "https://fomoradar.app/trader/dylansdegens", "https://provadata.com/traders/dylansdegens", "https://fomo.family/profile/dylansdegens"],
+    "thesisMatches": [{"token": "CATE / UBIK / CLAW / YOLO", "evidenceUrl": "https://mobile.twstalker.com/dylansdegens", "thesis": "Dylan’s public posts describe CATE as a large conviction position built around holder growth, community resilience, and repeated deep pullbacks; FomoRadar shows CATE, UBIK, CLAW, and YOLO in the wallet-backed book. Preserve this as thesis evidence, not a recommendation.", "sourceUrls": ["https://mobile.twstalker.com/dylansdegens", "https://fomoradar.app/trader/dylansdegens"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
   }
 }

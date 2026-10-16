@@ -298,5 +298,41 @@
     "sourceUrls": ["https://www.copyfomo.com/traders/lordarbiter", "https://fomoradar.app/trader/lordarbiter", "https://degendraft.com/trader/lordarbiter", "https://fomo.family/profile/lordarbiter"],
     "thesisMatches": [{"token": "PONS / BUN / KUDO / ROBIT / SCAN", "evidenceUrl": "https://fomoradar.app/trader/lordarbiter", "thesis": "Public on-chain mirrors show PONS and BUN as the anchor positions, with KUDO, ROBIT, and SCAN among the recent buys. This is a record of wallet activity and thesis context, not a direct X post or trade recommendation.", "sourceUrls": ["https://fomoradar.app/trader/lordarbiter", "https://www.copyfomo.com/traders/lordarbiter"], "updatedAt": "2026-10-17"}],
     "updatedAt": "2026-10-17"
+  },
+  "igniteBTW": {
+    "xHandle": "igniteBTW",
+    "xUrl": "https://x.com/igniteBTW",
+    "status": "LIKELY",
+    "note": "The public @igniteBTW mirror is an active trading account, and Provadata links one verified Solana wallet to the matching FOMO handle. The social-to-wallet link remains likely because no account-owned wallet disclosure was found.",
+    "sourceUrls": ["https://www.sotwe.com/igniteBTW?lang=en", "https://provadata.com/traders/igniteBTW", "https://fomo.family/profile/igniteBTW", "https://www.sotwe.com/igniteBTW?lang=tr"],
+    "thesisMatches": [{"token": "STRC / MARLIN", "evidenceUrl": "https://www.sotwe.com/igniteBTW?lang=en", "thesis": "Public posts discuss an on-chain STRC representation and whether it is paired on Robinhood, followed by comments about MARLIN holder fee flows and deeper liquidity. Preserve this as recorded market thesis context, not a recommendation.", "sourceUrls": ["https://www.sotwe.com/igniteBTW?lang=en", "https://provadata.com/traders/igniteBTW"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "the_nutgod": {
+    "xHandle": "the_nutgod",
+    "xUrl": "https://x.com/the_nutgod",
+    "status": "LIKELY",
+    "note": "The public @the_nutgod mirror publishes the same ZCAT/ZEC and FOMO trading context as the wallet-backed profile. Provadata links verified Solana and Robinhood wallets, but no account-owned wallet disclosure was found.",
+    "sourceUrls": ["https://x.twstalker.com/the_nutgod", "https://fomoradar.app/trader/the_nutgod", "https://provadata.com/traders/the_nutgod", "https://fomo.family/profile/the_nutgod"],
+    "thesisMatches": [{"token": "ZCAT / ZEC / AI / 牛来", "evidenceUrl": "https://x.twstalker.com/the_nutgod", "thesis": "Public posts describe ZCAT earning ZEC through the dip, while the wallet-backed book also carries ZEC, AI, and 牛来 exposure. Treat this as an author thesis lead paired with on-chain context, not a recommendation.", "sourceUrls": ["https://x.twstalker.com/the_nutgod", "https://fomoradar.app/trader/the_nutgod"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "opensecret": {
+    "xHandle": "opensecret",
+    "xUrl": "https://x.com/opensecret",
+    "status": "LIKELY",
+    "note": "The exact X handle exists but currently has no public posts. FomoLens, Provadata, and the FOMO profile independently identify the same trader record and verified wallets; the social link therefore remains explicitly unconfirmed.",
+    "sourceUrls": ["https://x.com/opensecret", "https://fomolens.app/trader/opensecret", "https://provadata.com/traders/opensecret", "https://fomo.family/profile/opensecret"],
+    "thesisMatches": [{"token": "ZCAT / ZEC", "evidenceUrl": "https://fomolens.app/trader/opensecret", "thesis": "FomoLens records two recent FOMO theses on ZCAT: seller exhaustion during a sell-off and the short note “fc zec 4h.” This is authenticated FOMO thesis data, but there is no public X post to attribute it to the X account.", "sourceUrls": ["https://fomolens.app/trader/opensecret", "https://provadata.com/traders/opensecret"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "m0f0": {
+    "xHandle": "m0f0",
+    "xUrl": "https://x.com/m0f0",
+    "status": "LIKELY",
+    "note": "The exact @m0f0 X account currently has no public posts. Provadata, Fomp, Foma, and FomoRadar independently expose the same wallet-backed trader record, so the handle is retained as a cautious research link.",
+    "sourceUrls": ["https://x.com/m0f0", "https://provadata.com/traders/m0f0", "https://www.fomp.app/kol/672ff962-23db-5cc4-acbd-4326eb7bbf3b", "https://tradefoma.family/trader/m0f0"],
+    "thesisMatches": [{"token": "AI / STONK / ZCAT / CATGPT", "evidenceUrl": "https://fomoradar.app/trader/m0f0", "thesis": "FomoRadar records six-figure AI and STONK entries alongside ZCAT and CATGPT positions; Foma corroborates the same wallet’s token activity across chains. This is wallet-backed thesis context, not an X-authored post or recommendation.", "sourceUrls": ["https://fomoradar.app/trader/m0f0", "https://tradefoma.family/trader/m0f0", "https://provadata.com/traders/m0f0"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
   }
 }

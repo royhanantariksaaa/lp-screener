@@ -37,6 +37,8 @@ The following tranche adds `BertLuvv`, `valueandtime`, `zakum`, and `cryptoalbus
 
 The next score-band tranche adds `zeri_term` (public mirror `zeri_terminal`), `TheDazzleNovak`, `Mazinotrenches`, and `lordarbiter`. Each row keeps the public handle, wallet/profile source trail, and a token thesis lead in the review panel; all remain `LIKELY` because the evidence does not prove account-owned wallet control. `tvmx` remains queued for review because no reliable public thesis trail was found in this pass.
 
+The following tranche adds `igniteBTW`, `the_nutgod`, `opensecret`, and `m0f0`. Their source trails include public X mirrors, Provadata, FomoLens, Fomp, Foma, or FomoRadar as available. `tvmx` remains queued because its X account is suspended and no reliable public thesis record was found.
+
 ## Production
 
 `main` deploys to GitHub Pages through `.github/workflows/deploy-pages.yml`.

@@ -721,5 +721,23 @@
     "sourceUrls": ["https://x.com/soby0x", "https://fomolens.app/trader/soby0x", "https://fomolens.app/token/robinhood/0x947ac56bb8e722ddef0d58303b1113847781e240", "https://fomo.family/profile/soby0x"],
     "thesisMatches": [{"token": "BALLS", "evidenceUrl": "https://fomolens.app/trader/soby0x", "thesis": "FomoLens records a concise BALLS call from the wallet-backed profile. Treat this as a public thesis lead, not a recommendation or independent proof of wallet ownership.", "sourceUrls": ["https://fomolens.app/trader/soby0x", "https://x.com/soby0x"], "updatedAt": "2026-10-17"}],
     "updatedAt": "2026-10-17"
+  },
+  "sadcrissy": {
+    "xHandle": "sadcrissy",
+    "xUrl": "https://x.com/sadcrissy",
+    "status": "LIKELY",
+    "note": "The public @sadcrissy profile is live, while FomoLens and the FOMO profile expose the matching resolver-backed trader. The X bio is sparse and no Provadata record is present, so the mapping remains cautious.",
+    "sourceUrls": ["https://x.com/sadcrissy", "https://fomolens.app/trader/sadcrissy", "https://fomolens.app/token/solana/8E8JGHugAoZTaYNQLcVzyy6oKbh2BFx2YoFhd31pump", "https://fomo.family/profile/sadcrissy"],
+    "thesisMatches": [{"token": "APEONDUO / DUO / KWIF", "evidenceUrl": "https://fomolens.app/trader/sadcrissy", "thesis": "FomoLens records repeated APEONDUO/APEONFONE calls, DUO pairing context, and a KWIF call quoting an external Alon post. Preserve the calls as indirect thesis context, not a recommendation.", "sourceUrls": ["https://fomolens.app/trader/sadcrissy", "https://x.com/a1lon9/status/2110876217591177396?s=46&t=2HJG9AhDA4UbSCEVfLY_ew", "https://x.com/sadcrissy"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "0xsneakky": {
+    "xHandle": "0xsneakky",
+    "xUrl": "https://x.com/0xsneakky",
+    "status": "LIKELY",
+    "note": "The public @0xsneakky profile is live, while FomoLens and the FOMO profile expose the matching resolver-backed trader. The public bio is informal and no Provadata record is present, so the social-to-wallet mapping remains explicitly cautious.",
+    "sourceUrls": ["https://x.com/0xsneakky", "https://fomolens.app/trader/0xsneakky", "https://fomolens.app/token/robinhood/0x72fffb21d64c1177e29e9e2de532efb038d8061b", "https://fomo.family/profile/0xsneakky"],
+    "thesisMatches": [{"token": "50 / FLYWHEEL / AUDIPURRE / ROOFUS", "evidenceUrl": "https://fomolens.app/trader/0xsneakky", "thesis": "FomoLens records a referral-oriented 50 call, FLYWHEEL as the first non-test coin, an Audipurre game reference, and a ROOFUS meme call. Treat these as captured call context, not recommendations or account-owned wallet proof.", "sourceUrls": ["https://fomolens.app/trader/0xsneakky", "https://x.com/0xsneakky"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
   }
 }

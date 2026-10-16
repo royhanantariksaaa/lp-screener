@@ -1,0 +1,94 @@
+/*
+ * Dark editorial product pass.
+ *
+ * The linked Taste guidance is aimed at intentional hierarchy, restrained
+ * surfaces, one accent, and an audit-first redesign. This keeps the screener's
+ * dark research-desk identity while removing the neon/gradient/card noise from
+ * the previous overhaul.
+ */
+:root {
+  --taste-canvas: #0b0d0c;
+  --taste-surface: #101311;
+  --taste-raised: #141814;
+  --taste-ink: #e6ebe0;
+  --taste-ink-strong: #f4f6ed;
+  --taste-muted: #9aa497;
+  --taste-quiet: #707a70;
+  --taste-line: #2a332b;
+  --taste-accent: #b8cf9f;
+  --taste-accent-soft: #d8e5c6;
+  --taste-accent-wash: #182118;
+}
+
+html { scroll-behavior: smooth; }
+body { background: var(--taste-canvas); color: var(--taste-ink); }
+button, input, select, textarea { font: inherit; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--taste-accent); outline-offset: 3px; }
+button:active, .primary:active { transform: scale(.985); }
+
+.shell { max-width: 1440px; }
+.topbar { background: rgba(11, 13, 12, .94); border-color: var(--taste-line); box-shadow: none; }
+.brand-mark { background: var(--taste-accent-wash); border-color: #61715e; color: var(--taste-accent-soft); }
+.brand small, .eyebrow { color: var(--taste-quiet); }
+nav a { color: var(--taste-muted); }
+nav a.active, nav a:hover { color: var(--taste-accent-soft); }
+.badges .pill { border-color: var(--taste-line); background: var(--taste-surface); color: var(--taste-muted); box-shadow: none; }
+.badges .pill.green { border-color: #667c59; color: var(--taste-accent-soft); background: var(--taste-accent-wash); }
+
+.workspace-page { padding-top: 42px; }
+.workspace-page .workspace { background: var(--taste-surface); border: 1px solid var(--taste-line); border-radius: 12px; box-shadow: none; }
+.workspace-page .list-sidebar { background: var(--taste-surface); border-color: var(--taste-line); border-radius: 10px; box-shadow: none; }
+.workspace-page .list-link { border-radius: 5px; color: var(--taste-muted); }
+.workspace-page .list-link:hover { background: #171c17; border-color: #53634d; color: var(--taste-ink); transform: none; }
+.workspace-page .list-link.selected { background: var(--taste-accent-wash); border-color: var(--taste-accent); color: var(--taste-ink-strong); box-shadow: none; }
+.workspace-page .chain-block { border-color: var(--taste-line); }
+.workspace-page .workspace .section-head { border-color: var(--taste-line); }
+.workspace-page .workspace .section-head h2 { color: var(--taste-ink-strong); letter-spacing: -.04em; }
+.workspace-page .workspace .subhead, .workspace-page .live small { color: var(--taste-muted); max-width: 62ch; }
+.workspace-page .feed-notice, .workspace-page .gate-summary, .workspace-page .intelligence-strip > div, .workspace-page .controls, .workspace-page .search, .workspace-page .refresh { background: var(--taste-raised); background-image: none; border-color: var(--taste-line); box-shadow: none; }
+.workspace-page .feed-notice p, .workspace-page .gate-summary small, .workspace-page .intelligence-strip > p { color: var(--taste-muted); }
+.workspace-page .preset-bar { border-color: var(--taste-line); }
+.workspace-page .preset-btn { background: transparent; border-color: var(--taste-line); color: var(--taste-muted); border-radius: 5px; }
+.workspace-page .preset-btn:hover { background: var(--taste-accent-wash); border-color: #6c805e; color: var(--taste-accent-soft); transform: none; }
+.workspace-page .table-wrap { border: 0; background: transparent; box-shadow: none; }
+.workspace-page table { border-spacing: 0 7px; }
+.workspace-page thead th { border-color: var(--taste-line); color: var(--taste-quiet); }
+.workspace-page tbody tr.pool-row { background: transparent; }
+.workspace-page tbody td { background: var(--taste-raised); border-color: var(--taste-line); color: var(--taste-muted); }
+.workspace-page tbody tr.pool-row:hover td { background: #181d18; }
+.workspace-page tbody td:first-child { border-left-color: var(--taste-line); }
+.workspace-page tbody td:last-child { border-right-color: var(--taste-line); }
+.workspace-page tbody td[data-label="POOL"] { background: var(--taste-surface); background-image: none; }
+.workspace-page tbody tr.pool-row:hover td[data-label="POOL"] { background: #181d18; }
+.workspace-page .pool-name strong { color: var(--taste-ink-strong); }
+.workspace-page .pool-contract, .workspace-page .pool-row > td > small { color: var(--taste-quiet); }
+.workspace-page .copy-ca { background: transparent; border-color: #50604d; color: var(--taste-accent-soft); border-radius: 4px; }
+.workspace-page .copy-ca:hover { background: var(--taste-accent-wash); border-color: var(--taste-accent); color: var(--taste-ink-strong); }
+.workspace-page .stack-badge, .workspace-page .flow-badge, .workspace-page .status-pill { border-radius: 4px; box-shadow: none; }
+.workspace-page .stack-badge, .workspace-page .flow-badge { border: 1px solid var(--taste-line); }
+.workspace-page .trend-badge { background: #1c261c; color: var(--taste-accent-soft); }
+.workspace-page .screen-score { border: 1px solid var(--taste-line); box-shadow: none; }
+.workspace-page .screen-score.high { background: #2a3a28; color: var(--taste-accent-soft); }
+.workspace-page .screen-score.mid { background: #38351f; color: #e5d9a5; }
+.workspace-page .screen-score.low { background: #39261f; color: #e7ad93; }
+
+.pool-chart-cell, .pool-chart-visual { min-width: 0; }
+.pool-chart-visual { display: grid; gap: 4px; width: 100%; }
+.pool-chart-visual .pool-sparkline { width: 100%; min-width: 84px; height: 34px; padding: 4px; border-color: var(--taste-line); background: #0d100e; }
+.pool-chart-visual .pool-sparkline polyline { fill: none; stroke: var(--taste-accent-soft); stroke-width: 2; vector-effect: non-scaling-stroke; }
+.pool-chart-visual.is-proxy .pool-sparkline polyline { stroke: #9ba994; stroke-dasharray: 4 3; opacity: .82; }
+.chart-state { color: var(--taste-quiet); font: 8px/1 'DM Mono', monospace; letter-spacing: .45px; }
+.mini-chart { background: var(--taste-raised); background-image: none; border-color: var(--taste-line); box-shadow: none; }
+.mini-chart.is-proxy svg { background: #0d100e; }
+.mini-chart .proxy-line { fill: none; stroke: #9ba994; stroke-width: 1.7; stroke-dasharray: 4 3; vector-effect: non-scaling-stroke; }
+.mini-chart .proxy-key { display: inline-block; width: 14px; height: 2px; margin-right: 5px; vertical-align: middle; background: #9ba994; }
+
+.page-home .hero, .liquidity-lab, .home-cards article, .playbook-grid article, .kol-hero, .academy-progress, .academy-nav, .lesson-card { background: var(--taste-surface); background-image: none; border-color: var(--taste-line); box-shadow: none; }
+.page-home .hero h1, .playbooks-page h1, .academy-intro h1, .kol-hero h1 { color: var(--taste-ink-strong); letter-spacing: -.05em; }
+.primary { background: var(--taste-ink-strong); color: var(--taste-canvas); border-radius: 5px; box-shadow: none; }
+.primary:hover { background: var(--taste-accent-soft); transform: none; }
+.text-link, .research-stack a, .evidence-footer a { color: var(--taste-accent-soft); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}

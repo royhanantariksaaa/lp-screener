@@ -1,5 +1,6 @@
 import "./styles.css";
 import "./ui-overhaul.css";
+import "./taste-rework.css";
 import kolData from "./data/kol-wallets.json";
 import { analyzeCandles, derivePlaybooks, evaluateEligibility, parseOhlcv, primaryPlaybook, type Candle, type EligibilityAnalysis, type PlaybookSignal, type TechnicalAnalysis } from "./market";
 
@@ -146,7 +147,7 @@ function recordLaunchObservations(pools: Pool[]) {
 }
 const scoreBreakdown = (pool: Pool) => { const liquidity = Math.min(20, Math.round(pool.liquidity / 75000)); const volume = Math.min(15, Math.round(pool.volume24h / 200000)); const age = pool.ageDays <= 180 ? Math.max(0, 10 - Math.round(pool.ageDays / 30)) : 0; const technical = pool.technical?.available ? (pool.technical.trend === "BULLISH" ? (pool.technical.fresh ? 20 : 13) : 6) : 0; const walletBase = pool.walletIntelligence === "UNAVAILABLE" ? 0 : Math.min(12, (pool.smartWallets ?? 0) * 1.2); const trackedWalletBonus = Math.min(3, (pool.trackedWalletHits ?? 0) * 1.5); const wallets = Math.min(15, walletBase + trackedWalletBonus); const kol = pool.kolIntelligence === "UNAVAILABLE" ? 0 : Math.min(10, (pool.kolMentions ?? 0) * 2); const risk = pool.risk === "LOW" ? 10 : pool.risk === "MEDIUM" ? 6 : 2; return { liquidity, volume, age, technical, wallets, kol, risk, total: Math.round(liquidity + volume + age + technical + wallets + kol + risk) }; };
 const scoreFor = (pool: Pool) => pool.intelligence === "LIVE" && typeof pool.screenScore === "number" && pool.screenScore > 0 ? pool.screenScore : scoreBreakdown(pool).total;
-const poolKey = (pool: Pool) => pool.id ?? pool.symbol;
+const poolKey = (pool: Pool) => pool.pairAddress ?? pool.id ?? pool.symbol;
 const poolByKey = (key: string) => state.pools.find((pool) => poolKey(pool) === key);
 const statusLabel = (status?: PlaybookSignal["status"]) => status === "ENTRY_NOW" ? "ENTRY NOW" : status === "ARMED_WAIT" ? "ARMED · WAIT" : status === "UPDATING" ? "UPDATING" : status === "NOT_ELIGIBLE" ? "NOT ELIGIBLE" : "MONITOR";
 const statusClass = (status?: PlaybookSignal["status"]) => String(status ?? "MONITOR").toLowerCase().replace("_", "-");
@@ -195,9 +196,31 @@ const gateCount = (status: EligibilityAnalysis["status"]) => state.pools.filter(
 const gateSummary = () => `<div class="gate-summary"><span><i class="gate-dot open"></i><b>${gateCount("OPEN_NOW")}</b> OPEN NOW</span><span><i class="gate-dot wait"></i><b>${gateCount("ELIGIBLE_WAIT")}</b> ELIGIBLE · WAIT</span><span><i class="gate-dot screening"></i><b>${gateCount("PENDING")}</b> SCREENING</span><span><i class="gate-dot rejected"></i><b>${gateCount("REJECTED")}</b> REJECTED</span><small>Hard gates: liquidity · volume · 15m history · wallet evidence · attention evidence · token safety</small></div>`;
 function listNav() { return `<aside class="list-sidebar"><p class="eyebrow">MARKET VIEWS</p><button class="list-link ${state.list === "eligible" ? "selected" : ""}" data-list="eligible"><span>✓</span>Eligible setups <b>${listCount("eligible")}</b></button><button class="list-link ${state.list === "open" ? "selected" : ""}" data-list="open"><span>↗</span>Open now <b>${listCount("open")}</b></button><button class="list-link ${state.list === "all" ? "selected" : ""}" data-list="all"><span>◎</span>All pools <b>${listCount("all")}</b></button><button class="list-link ${state.list === "trending" ? "selected" : ""}" data-list="trending"><span>↗</span>Trending <b>${listCount("trending")}</b></button><button class="list-link ${state.list === "new" ? "selected" : ""}" data-list="new"><span>✦</span>New pools <b>${listCount("new")}</b></button><button class="list-link ${state.list === "liquidity" ? "selected" : ""}" data-list="liquidity"><span>◉</span>High liquidity <b>${listCount("liquidity")}</b></button><button class="list-link ${state.list === "smart" ? "selected" : ""}" data-list="smart"><span>♢</span>Smart wallets <b>${listCount("smart")}</b></button><button class="list-link ${state.list === "kol" ? "selected" : ""}" data-list="kol"><span>✧</span>KOL flow <b>${listCount("kol")}</b></button><button class="list-link ${state.list === "watchlist" ? "selected" : ""}" data-list="watchlist"><span>☆</span>Watchlist <b>${listCount("watchlist")}</b></button><div class="chain-block"><p class="eyebrow">CHAINS</p><div class="chain selected"><span class="chain-dot"></span>Solana <b>${formatTvl(state.chainTvl.Solana)}</b></div><div class="chain muted-row"><span class="chain-dot eth"></span>Ethereum <b>${formatTvl(state.chainTvl.Ethereum)}</b></div><div class="chain muted-row"><span class="chain-dot base"></span>Base <b>${formatTvl(state.chainTvl.Base)}</b></div></div></aside>`; }
 function comparePanel() { const pools = state.compareList.map((key) => poolByKey(key)).filter(Boolean) as Pool[]; if (!pools.length) return ""; return `<div class="compare-panel"><div class="compare-head"><div><p class="eyebrow">CANDIDATE COMPARISON</p><b>${pools.length} selected</b></div><button class="evidence-close" data-clear-compare>×</button></div><div class="compare-grid">${pools.map((pool) => { const breakdown = scoreBreakdown(pool); return `<div class="compare-card"><div class="compare-title"><strong>${pool.name}</strong><button class="row-compare active" data-compare="${poolKey(pool)}">✓</button></div><small>${pool.dex} · ${pool.risk} risk</small><div><span>Score <b>${scoreFor(pool)}</b></span><span>Liquidity <b>${money(pool.liquidity)}</b></span><span>15m <b>${pool.technical?.trend ?? "—"}</b></span><span>Wallets <b>${pool.walletIntelligence === "UNAVAILABLE" ? "?" : pool.smartWallets ?? 0}</b></span><span>Tracked <b>${pool.trackedWalletHits ?? 0}</b></span><span>KOL <b>${pool.kolIntelligence === "UNAVAILABLE" ? "?" : pool.kolMentions ?? 0}</b></span></div><i class="compare-bar"><em style="width:${scoreFor(pool)}%"></em></i></div>`; }).join("")}</div></div>`; }
+function proxyChartValues(pool: Pool, count: number) {
+  const change = Number.isFinite(pool.change24h) ? Math.max(-35, Math.min(35, pool.change24h)) / 100 : 0;
+  return Array.from({ length: count }, (_, index) => {
+    const progress = index / Math.max(1, count - 1);
+    const drift = (progress - 0.5) * change;
+    const wave = Math.sin(progress * Math.PI * 2.6) * 0.045 + Math.sin(progress * Math.PI * 6.1) * 0.018;
+    return Math.max(0.12, 1 + drift + wave);
+  });
+}
+function chartSeries(pool: Pool, limit: number) {
+  const candles = (pool.candles ?? []).slice(-limit);
+  return candles.length >= 2 ? { values: candles.map((candle) => candle.close), actual: true, candles: candles.length } : { values: proxyChartValues(pool, limit), actual: false, candles: 0 };
+}
+function chartPoints(values: number[]) {
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const span = max - min || Math.max(Math.abs(max) * 0.01, 1);
+  return values.map((value, index) => `${(index / Math.max(1, values.length - 1)) * 100},${88 - ((value - min) / span) * 72}`).join(" ");
+}
 function miniChart(pool: Pool) {
   const candles = (pool.candles ?? []).slice(-48);
-  if (candles.length < 2) return `<div class="mini-chart empty">${pool.enrichmentLoading ? "Fetching 15m candle history and live pool evidence…" : "15m candle history unavailable for this pool. Select refresh to retry."}</div>`;
+  if (candles.length < 2) {
+    const proxy = chartSeries(pool, 48);
+    return `<div class="mini-chart is-proxy"><div class="mini-chart-head"><span>24H TREND PROXY</span><span>15m feed pending</span></div><svg viewBox="0 0 100 100" preserveAspectRatio="none" role="img" aria-label="24 hour trend proxy for ${pool.name}; 15 minute candle history pending"><polyline points="${chartPoints(proxy.values)}" class="proxy-line"/></svg><div class="mini-chart-legend"><span><i class="proxy-key"></i>Market direction</span><span>awaiting 15m candles</span></div></div>`;
+  }
   const values = candles.map((candle) => candle.close);
   const min = Math.min(...values);
   const max = Math.max(...values);
@@ -208,14 +231,15 @@ function miniChart(pool: Pool) {
   return `<div class="mini-chart"><div class="mini-chart-head"><span>15M CLOSE</span><span>${candles.length} candles · ${timeAgo(pool.technical?.latestTimestamp)}</span></div><svg viewBox="0 0 100 100" preserveAspectRatio="none" role="img" aria-label="15 minute close and Supertrend for ${pool.name}"><polyline points="${points}" class="close-line"/>${stY === undefined || stY < 0 || stY > 100 ? "" : `<line x1="0" x2="100" y1="${stY}" y2="${stY}" class="supertrend-line"/>`}</svg><div class="mini-chart-legend"><span><i class="close-key"></i>Close</span><span><i class="st-key"></i>Supertrend</span></div></div>`;
 }
 function poolSparkline(pool: Pool) {
-  const candles = (pool.candles ?? []).slice(-24);
-  if (candles.length < 2) return `<span class="chart-pending">15m pending</span>`;
-  const values = candles.map((candle) => candle.close);
-  const min = Math.min(...values);
-  const max = Math.max(...values);
-  const span = max - min || Math.max(max * 0.01, 1);
-  const points = values.map((value, index) => `${(index / (values.length - 1)) * 100},${28 - ((value - min) / span) * 22}`).join(" ");
-  return `<svg class="pool-sparkline" viewBox="0 0 100 30" preserveAspectRatio="none" role="img" aria-label="15 minute price chart for ${pool.name}"><polyline points="${points}"/></svg>`;
+  const series = chartSeries(pool, 24);
+  const points = series.values.map((value, index) => {
+    const min = Math.min(...series.values);
+    const max = Math.max(...series.values);
+    const span = max - min || Math.max(Math.abs(max) * 0.01, 1);
+    return `${(index / Math.max(1, series.values.length - 1)) * 100},${27 - ((value - min) / span) * 22}`;
+  }).join(" ");
+  const label = series.actual ? `15 minute price chart for ${pool.name}` : `24 hour trend proxy for ${pool.name}; 15 minute candle history pending`;
+  return `<div class="pool-chart-visual ${series.actual ? "is-actual" : "is-proxy"}"><svg class="pool-sparkline" viewBox="0 0 100 30" preserveAspectRatio="none" role="img" aria-label="${label}"><polyline points="${points}"/></svg>${series.actual ? "" : `<small class="chart-state">24h proxy</small>`}</div>`;
 }
 
 function poolEvidence() {

@@ -676,5 +676,23 @@
     "sourceUrls": ["https://x.com/0xesprezzo", "https://fomolens.app/trader/0xesprezzo", "https://provadata.com/traders/0xesprezzo", "https://fomo.family/profile/0xesprezzo"],
     "thesisMatches": [{"token": "HOOKR", "evidenceUrl": "https://fomolens.app/trader/0xesprezzo", "thesis": "FomoLens records a HOOKR thesis centered on installed revenue meters, StonkBroker surfaces, and an expected revenue inflection. Preserve this as captured FOMO thesis context, not a recommendation.", "sourceUrls": ["https://fomolens.app/trader/0xesprezzo", "https://provadata.com/traders/0xesprezzo", "https://x.com/0xesprezzo"], "updatedAt": "2026-10-17"}],
     "updatedAt": "2026-10-17"
+  },
+  "Pasterniq": {
+    "xHandle": "Pasterniq",
+    "xUrl": "https://x.com/Pasterniq",
+    "status": "LIKELY",
+    "note": "The public @Pasterniq profile is live, while FomoLens and the FOMO profile expose the matching resolver-backed trader. No Provadata record is present and the X bio is sparse, so the social-to-wallet mapping remains cautious.",
+    "sourceUrls": ["https://x.com/Pasterniq", "https://fomolens.app/trader/Pasterniq", "https://fomolens.app/token/bsc/0x206139053c1603955b47cb306efe1d4dce5e7777", "https://fomo.family/profile/Pasterniq"],
+    "thesisMatches": [{"token": "LOULOU / CAR", "evidenceUrl": "https://fomolens.app/trader/Pasterniq", "thesis": "FomoLens records a LouLou call linked to a public weather post and repeated Car/Tslab thesis text around a normie-friendly Tesla-linked ticker and dividend/liquidity mechanics. Preserve the references as captured thesis context, not recommendations.", "sourceUrls": ["https://fomolens.app/trader/Pasterniq", "https://x.com/accuweather/status/2111105960362250689?s=46", "https://x.com/Pasterniq"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "Zapoleon": {
+    "xHandle": "Zapoleon",
+    "xUrl": "https://x.com/Zapoleon",
+    "status": "LIKELY",
+    "note": "The public @Zapoleon profile is live, while Provadata links verified Solana and Base/Robinhood wallets to the matching FOMO profile and FomoLens records repeated ZCAT calls. Wallet/social authorship is still kept separate from the provider verification.",
+    "sourceUrls": ["https://x.com/Zapoleon", "https://fomolens.app/trader/Zapoleon", "https://provadata.com/traders/Zapoleon", "https://fomo.family/profile/Zapoleon"],
+    "thesisMatches": [{"token": "ZCAT", "evidenceUrl": "https://fomolens.app/trader/Zapoleon", "thesis": "FomoLens records repeated ZCAT calls framed as holding conviction and staying on top. Treat this as recorded FOMO thesis evidence, not a recommendation.", "sourceUrls": ["https://fomolens.app/trader/Zapoleon", "https://x.com/Zapoleon", "https://provadata.com/traders/Zapoleon"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
   }
 }

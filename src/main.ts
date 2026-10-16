@@ -583,13 +583,30 @@ async function fetchJson<T>(url: string, timeoutMs = 15000): Promise<T> {
   }
 }
 
-async function fetchFeed() {
+type FeedResult = { pairs?: Array<Record<string, unknown>> };
+function normalizeFeedPairs(results: FeedResult[], oculaByToken: Map<string, OculaToken>) {
+  const unique = new Map<string, Record<string, unknown>>();
+  results.flatMap((result) => result.pairs ?? []).filter((pair) => pair.chainId === "solana").forEach((pair) => {
+    const address = String(pair.pairAddress ?? "");
+    const base = pair.baseToken as { address?: string } | undefined;
+    const ocula = base?.address ? oculaByToken.get(base.address.toLowerCase()) : undefined;
+    const enriched = ocula ? { ...pair, ocula } : pair;
+    if (address && !unique.has(address)) unique.set(address, enriched);
+  });
+  return [...unique.values()].sort((a, b) => {
+    const liquidity = (pair: Record<string, unknown>) => Number((pair.liquidity as { usd?: number } | undefined)?.usd ?? 0);
+    const volume = (pair: Record<string, unknown>) => Number((pair.volume as { h24?: number } | undefined)?.h24 ?? 0);
+    return (liquidity(b) + volume(b)) - (liquidity(a) + volume(a));
+  }).slice(0, 90);
+}
+async function fetchFeed(onBase?: (pairs: Array<Record<string, unknown>>) => void) {
   const terms = ["SOL", "USDC"];
-  const results = await Promise.all(terms.map(async (term) => {
+  const results: FeedResult[] = await Promise.all(terms.map(async (term) => {
     try { return await fetchJson<{ pairs?: Array<Record<string, unknown>> }>(liveApi("feed", { q: term })); }
     catch { return await fetchJson<{ pairs?: Array<Record<string, unknown>> }>(`https://api.dexscreener.com/latest/dex/search?q=${encodeURIComponent(term)}`); }
   }));
   const oculaByToken = new Map<string, OculaToken>();
+  onBase?.(normalizeFeedPairs(results, oculaByToken));
   try {
     const ageBuckets = ["new", "brewing", "mid", "all"];
     const payloads = await Promise.all(ageBuckets.map(async (ageBucket) => {
@@ -673,19 +690,7 @@ async function fetchFeed() {
   } catch {
     // MadeOnSol is a bounded KOL discovery expansion; the main market feed remains authoritative.
   }
-  const unique = new Map<string, Record<string, unknown>>();
-  results.flatMap((result) => result.pairs ?? []).filter((pair) => pair.chainId === "solana").forEach((pair) => {
-    const address = String(pair.pairAddress ?? "");
-    const base = pair.baseToken as { address?: string } | undefined;
-    const ocula = base?.address ? oculaByToken.get(base.address.toLowerCase()) : undefined;
-    const enriched = ocula ? { ...pair, ocula } : pair;
-    if (address && !unique.has(address)) unique.set(address, enriched);
-  });
-  return [...unique.values()].sort((a, b) => {
-    const liquidity = (pair: Record<string, unknown>) => Number((pair.liquidity as { usd?: number } | undefined)?.usd ?? 0);
-    const volume = (pair: Record<string, unknown>) => Number((pair.volume as { h24?: number } | undefined)?.h24 ?? 0);
-    return (liquidity(b) + volume(b)) - (liquidity(a) + volume(a));
-  }).slice(0, 90);
+  return normalizeFeedPairs(results, oculaByToken);
 }
 
 function mapLivePair(pair: Record<string, unknown>): Pool {
@@ -915,15 +920,27 @@ async function loadLive() {
   state.liveError = "";
   render();
   try {
-    const pairs = await fetchFeed();
+    let candleJob: Promise<void> | undefined;
+    const pairs = await fetchFeed((basePairs) => {
+      if (!basePairs.length || state.liveReady) return;
+      state.pools = recordLaunchObservations(basePairs.map(mapLivePair));
+      state.liveReady = true;
+      state.source = "LIVE · Dexscreener";
+      state.lastUpdated = Date.now();
+      state.loading = false;
+      render();
+      candleJob = enrichTechnicalData(state.pools);
+    });
     if (!pairs.length) throw new Error("No Solana pairs returned");
-    state.pools = recordLaunchObservations(pairs.map(mapLivePair));
+    const priorPools = new Map(state.pools.map((pool) => [poolKey(pool), pool]));
+    const expandedPools = recordLaunchObservations(pairs.map(mapLivePair));
+    state.pools = expandedPools.map((pool) => ({ ...priorPools.get(poolKey(pool)), ...pool }));
     state.liveReady = true;
     state.source = "LIVE · Dexscreener + Ocula discovery + local launch history";
     state.lastUpdated = Date.now();
     state.loading = false;
     render();
-    const candleJob = enrichTechnicalData(state.pools);
+    candleJob ??= enrichTechnicalData(state.pools);
     await loadTokenSafety();
     await loadPublicProfiles();
     state.pools = recordLaunchObservations(state.pools);

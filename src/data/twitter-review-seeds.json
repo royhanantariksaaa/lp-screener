@@ -532,5 +532,59 @@
     "sourceUrls": ["https://x.com/earn168", "https://fomolens.app/trader/earn168", "https://provadata.com/traders/earn168", "https://fomo.family/profile/earn168"],
     "thesisMatches": [{"token": "TORCH / STONK / ROUTE / REPLY", "evidenceUrl": "https://fomolens.app/trader/earn168", "thesis": "FomoLens records a TORCH thesis around trading-terminal economics, STONK revenue and buybacks, a ROUTE buyback update, and a REPLY social-trading gamble. Preserve these as recorded thesis evidence, not recommendations or wallet-control proof.", "sourceUrls": ["https://fomolens.app/trader/earn168", "https://stonkfun.xyz/revenue", "https://x.com/earn168"], "updatedAt": "2026-10-17"}],
     "updatedAt": "2026-10-17"
+  },
+  "0xAvast": {
+    "xHandle": "0xAvast",
+    "xUrl": "https://x.com/0xAvast",
+    "status": "LIKELY",
+    "note": "The public @0xAvast profile identifies Avast and links the same builder identity, while FomoLens and the FOMO profile expose the matching resolver-backed trader. No Provadata record is present, so the wallet/social link remains cautious.",
+    "sourceUrls": ["https://x.com/0xAvast", "https://fomolens.app/trader/0xAvast", "https://fomolens.app/token/solana/73PTbCykk1EFCqFYKum4XNMDgsnDDsWJCyWuqpyfpump", "https://fomo.family/profile/0xAvast"],
+    "thesisMatches": [{"token": "BUNI / DUO / DOTS", "evidenceUrl": "https://fomolens.app/trader/0xAvast", "thesis": "FomoLens records BUNI as a paired-pump call, plus DUO and DOTS as watchlist/gem calls. Treat these as captured FOMO thesis context, not recommendations or independent wallet-ownership proof.", "sourceUrls": ["https://fomolens.app/trader/0xAvast", "https://x.com/0xAvast"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "aki11a": {
+    "xHandle": "aki11a",
+    "xUrl": "https://x.com/aki11a",
+    "status": "LIKELY",
+    "note": "The public @aki11a profile identifies aki, while FomoLens and the FOMO profile expose the matching resolver-backed trader. No Provadata record is present, so this is a cautious social-to-wallet mapping.",
+    "sourceUrls": ["https://x.com/aki11a", "https://fomolens.app/trader/aki11a", "https://fomolens.app/token/solana/8nnaeWCw8mUypcGAgbmSuzAT85uWx4UN12adDrMhXrGF", "https://fomo.family/profile/aki11a"],
+    "thesisMatches": [{"token": "HOTBOT / NEARKAT / CLAUDIA", "evidenceUrl": "https://fomolens.app/trader/aki11a", "thesis": "FomoLens records a detailed HOTBOT flywheel thesis, a NEARKAT bottom call, and CLAUDIA AI-influencer conviction. Preserve the calls as recorded research context, not recommendations or proof of wallet control.", "sourceUrls": ["https://fomolens.app/trader/aki11a", "https://x.com/aki11a"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "bluntz_capital": {
+    "xHandle": "Bluntz_Capital",
+    "xUrl": "https://x.com/Bluntz_Capital",
+    "status": "LIKELY",
+    "note": "The public @Bluntz_Capital profile identifies Bluntz as a trader, while FomoLens and the FOMO profile expose the matching resolver-backed bluntz_capital trader. No Provadata record is present, so the wallet link remains cautious.",
+    "sourceUrls": ["https://x.com/Bluntz_Capital", "https://fomolens.app/trader/bluntz_capital", "https://fomolens.app/token/robinhood/0x0ff9072a1ead154d92c2d2fef16afba6028ce2b2", "https://fomo.family/profile/bluntz_capital"],
+    "thesisMatches": [{"token": "OPTIMUS / JTO / CATE", "evidenceUrl": "https://fomolens.app/trader/bluntz_capital", "thesis": "FomoLens records OPTIMUS social traction, a JTO high-timeframe reversal setup, and CATE rounded-bottom conviction. The OPTIMUS call quotes a public project post, so authorship is labeled indirect.", "sourceUrls": ["https://fomolens.app/trader/bluntz_capital", "https://x.com/optimus_rh/status/2111090109860946128", "https://x.com/Bluntz_Capital"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "ether_monk": {
+    "xHandle": "ether_monk",
+    "xUrl": "https://x.com/ether_monk",
+    "status": "LIKELY",
+    "note": "The public @ether_monk profile presents as a crypto trader, while FomoLens and the FOMO profile expose the matching resolver-backed trader. No Provadata record is present, so the wallet/social link remains a likely mapping.",
+    "sourceUrls": ["https://x.com/ether_monk", "https://fomolens.app/trader/ether_monk", "https://fomolens.app/token/robinhood/0x7c0495053f47ec52eb4b678c4ad8f572df745bfe", "https://fomo.family/profile/ether_monk"],
+    "thesisMatches": [{"token": "AGEM / VEIL / GENIE", "evidenceUrl": "https://fomolens.app/trader/ether_monk", "thesis": "FomoLens records an AGEM market-maker use-case thesis, VEIL private-DCA commentary, and GENIE shipping/holding conviction. Some calls quote other public builders’ posts, so attribution stays cautious.", "sourceUrls": ["https://fomolens.app/trader/ether_monk", "https://x.com/veilzk/status/2111132152666759486?s=46&t=5kWrRhDGgAMei70p6xBx3Q", "https://x.com/geniebuildAI/status/2111128396499480719?s=20", "https://x.com/ether_monk"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "The__Solstice": {
+    "xHandle": "The__Solstice",
+    "xUrl": "https://x.com/The__Solstice",
+    "status": "LIKELY",
+    "note": "The public @The__Solstice profile explicitly links trading on Fomo, while FomoLens and the FOMO profile expose the matching resolver-backed trader. No Provadata record is present, so the wallet link remains likely rather than confirmed.",
+    "sourceUrls": ["https://x.com/The__Solstice", "https://fomolens.app/trader/The__Solstice", "https://fomo.family/profile/The__Solstice", "https://x.com/The__Solstice/status/2111235677513826418"],
+    "thesisMatches": [{"token": "Wheel Smith / TEST / STONKINU", "evidenceUrl": "https://fomolens.app/trader/The__Solstice", "thesis": "FomoLens records direct The__Solstice X posts for Wheel Smith and TEST, plus a STONKINU ecosystem-strength call. These are public thesis leads, not recommendations or independent proof of wallet control.", "sourceUrls": ["https://fomolens.app/trader/The__Solstice", "https://x.com/The__Solstice/status/2111235677513826418", "https://x.com/The__Solstice/status/2111199541118881948", "https://x.com/The__Solstice"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "ThePumponomics": {
+    "xHandle": "ThePumponomics",
+    "xUrl": "https://x.com/ThePumponomics",
+    "status": "LIKELY",
+    "note": "The public @ThePumponomics profile identifies a crypto trader documenting the cycle, while Provadata, FomoLens, and the FOMO profile expose matching verified wallet records. This connects the social profile to the trader record without claiming control of unrelated addresses.",
+    "sourceUrls": ["https://x.com/ThePumponomics", "https://fomolens.app/trader/ThePumponomics", "https://provadata.com/traders/ThePumponomics", "https://fomo.family/profile/ThePumponomics"],
+    "thesisMatches": [{"token": "SWOLF / PURR / KNOTS / ZCAT", "evidenceUrl": "https://fomolens.app/trader/ThePumponomics", "thesis": "FomoLens records SWOLF chart optimism, PURR reflection-meme recovery speculation, KNOTS timing commentary, and a ZCAT bottoming formation. Preserve as captured thesis context, not a recommendation.", "sourceUrls": ["https://fomolens.app/trader/ThePumponomics", "https://x.com/ThePumponomics", "https://provadata.com/traders/ThePumponomics"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
   }
 }

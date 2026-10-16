@@ -631,5 +631,23 @@
     "sourceUrls": ["https://x.com/boosteryting", "https://fomolens.app/trader/boosteryting", "https://fomo.family/profile/boosteryting", "https://x.com/boosteryting/status/2111108982391664870?s=46"],
     "thesisMatches": [{"token": "PUMPGU / BUL / VWHALE / CATE / FLORK", "evidenceUrl": "https://fomolens.app/trader/boosteryting", "thesis": "FomoLens records PUMPGU, BUL, and VWHALE dip calls, plus direct boosteryting X posts for CATE and FLORK. These are public thesis leads, not recommendations or independent wallet-control proof.", "sourceUrls": ["https://fomolens.app/trader/boosteryting", "https://x.com/boosteryting/status/2111108982391664870?s=46", "https://x.com/boosteryting/status/2111098859502063624?s=46", "https://x.com/boosteryting"], "updatedAt": "2026-10-17"}],
     "updatedAt": "2026-10-17"
+  },
+  "Tekkerrss": {
+    "xHandle": "Tekkerrss",
+    "xUrl": "https://x.com/Tekkerrss",
+    "status": "LIKELY",
+    "note": "The public @Tekkerrss profile resolves, while FomoLens and the FOMO profile expose the matching resolver-backed trader. No Provadata record is present, so the social-to-wallet mapping remains likely.",
+    "sourceUrls": ["https://x.com/Tekkerrss", "https://fomolens.app/trader/Tekkerrss", "https://fomo.family/profile/Tekkerrss", "https://x.com/Jupdotfun/status/2108923293353070917?s=20"],
+    "thesisMatches": [{"token": "Brian / JUF / LOOM", "evidenceUrl": "https://fomolens.app/trader/Tekkerrss", "thesis": "FomoLens records Brian as an Anthropic-site cat call, JUF as a Jupiter launchpad thesis with staking and burn context, and LOOM as an internet-meme trend platform. The quoted builder posts are indirect context.", "sourceUrls": ["https://fomolens.app/trader/Tekkerrss", "https://x.com/Jupdotfun/status/2108923293353070917?s=20", "https://x.com/loomwiki/status/2110994143883526367?s=20", "https://x.com/Tekkerrss"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "Samisa_btc": {
+    "xHandle": "samisa_btc",
+    "xUrl": "https://x.com/samisa_btc",
+    "status": "LIKELY",
+    "note": "The public @samisa_btc profile identifies samisa as a crypto growth operator, while FomoLens and the FOMO profile expose the matching resolver-backed trader. No Provadata record is present, so wallet ownership is not upgraded beyond likely.",
+    "sourceUrls": ["https://x.com/samisa_btc", "https://fomolens.app/trader/Samisa_btc", "https://fomolens.app/token/solana/6XhzSy3VTTkwqMUSQsStM3ncGy6ozcPnzLVmv4HZ64cC", "https://fomo.family/profile/Samisa_btc"],
+    "thesisMatches": [{"token": "特斯拉能飞 / FTR / DEEPTHROAT", "evidenceUrl": "https://fomolens.app/trader/Samisa_btc", "thesis": "FomoLens records a China-mode call, an FTR conviction call around the StonkFun ecosystem, and a DEEPTHROAT meme call. Preserve these as captured thesis context, not recommendations or account-owned wallet proof.", "sourceUrls": ["https://fomolens.app/trader/Samisa_btc", "https://x.com/samisa_btc"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
   }
 }

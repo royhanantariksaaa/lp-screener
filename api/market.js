@@ -499,7 +499,7 @@ const persistedWalletCluster = (address, chain) => {
   const normalized = String(address ?? "").toLowerCase();
   const snapshot = chain === "solana" ? solanaWalletClusters : evmWalletClusters;
   const record = (snapshot.records ?? []).find((item) => String(item.address ?? "").toLowerCase() === normalized && (chain === "solana" || item.chain === chain));
-  if (record) return { ...record, status: record.status === "LIVE" ? "LIVE" : record.status };
+  if (record) return { ...record, status: record.status === "LIVE" ? "LIVE" : record.status, snapshotCapturedAt: snapshot.capturedAt };
   if (chain === "bnb") return { status: "KEY_REQUIRED", source: "BNB Chain indexed history needs a BscScan/BSCTrace key", address, chain, relatedWallets: [], note: "No public BNB Blockscout index is configured." };
   return { status: "UNAVAILABLE", source: "No persisted indexed wallet snapshot", address, chain, relatedWallets: [], note: "Run the corresponding resumable scanner before using this evidence panel." };
 };

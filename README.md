@@ -25,7 +25,7 @@ The persisted wallet snapshots are generated with `npm run scan:solana` and `npm
 
 `npm run analyze:wallets` joins those snapshots into `api/wallet-graph.json` and the KOL Radar's related-wallet graph. It reports direct counterparties, repeated links, counterparties shared by multiple tracked wallets, same-address reuse across EVM chains, tracked-wallet matches, and candidate graph clusters. High-fanout addresses are separated as infrastructure-like so a router, token contract, or exchange hub is not presented as a person-controlled wallet. The graph is exposed through `/api/market?kind=wallet-graph` and remains research evidence rather than proof of common ownership.
 
-The `brrrgrrrz`/`notanicecat69` grouping above represents two separate seed rows. After the ranked tranches below, the review seed file contains fifty-four profile entries.
+The `brrrgrrrz`/`notanicecat69` grouping above represents two separate seed rows. After the ranked tranches below, the review seed file contains fifty-seven profile entries.
 
 The next review tranche adds eight more cautious candidates (`koy`, `jotagezin`, `MoneyLord`, `OhMyJack`, `starcatcher444`, `RugDalio`, `artthatfucks`, and `SolSwizzle`). Their seed records preserve the public source trail and add a token thesis lead where a public X mirror or on-chain activity index exposes one. Indirect FOMO analytics are labeled as such and still need original-post review.
 
@@ -46,6 +46,8 @@ The following pass adds `LP1111`, `Pyro` (public X mirror `PyroNFT`), and `BTCda
 The next evidence pass adds the highest-ranked profiles with current thesis records: `tvmx`, `000000` (public call mirror `lesabrefomo`), `Chubbi230`, `DONBAGS` (X canonical handle `Donbags`), and `pianches`. Their rows preserve the FomoLens call text, token context, wallet/profile sources, and explicit caveats; `0xBEC001`, `0xesprezzo`, `SweetPriorCod`, `exitliqexe`, `GL_AW_AT_PARAGON`, and `xbtDLN` remain queued until a usable token thesis trail is available. `tvmx` is marked cautiously because its X account is currently suspended.
 
 The following tranche adds `Kale_Abe`, `CryptoTalkMan`, `SpicyPeruvian_`, `TMtheOG`, and `bamblewood8`. Their rows capture the next score-band FomoLens theses and public X identities, including direct TMtheOG post links where available; all remain `LIKELY` because wallet ownership and social authorship are separate evidence layers. `brokeSzn`, `0xBEC001`, `0xesprezzo`, `SweetPriorCod`, `exitliqexe`, `GL_AW_AT_PARAGON`, and `xbtDLN` remain queued without a usable token thesis record.
+
+The next score-band pass adds `0xscripting`, `BTCwolf`, and `justdeeds26`. Their rows preserve the FomoLens token calls, public X handles, wallet/profile sources, and cautious attribution notes; all remain `LIKELY` pending stronger account-owned wallet evidence.
 
 ## Production
 

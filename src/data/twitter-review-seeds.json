@@ -478,5 +478,32 @@
     "sourceUrls": ["https://x.com/bamblewood8", "https://fomolens.app/trader/bamblewood8", "https://provadata.com/traders/bamblewood8", "https://fomo.family/profile/bamblewood8"],
     "thesisMatches": [{"token": "CASHCAT / AI / OPENAI", "evidenceUrl": "https://fomolens.app/trader/bamblewood8", "thesis": "FomoLens records CASHCAT as a repeated-correction chart thesis, alongside AI and OPENAI calls. This is captured FOMO thesis context and does not prove that the generic X profile authored or controls the linked wallet.", "sourceUrls": ["https://fomolens.app/trader/bamblewood8", "https://x.com/bamblewood8"], "updatedAt": "2026-10-17"}],
     "updatedAt": "2026-10-17"
+  },
+  "0xscripting": {
+    "xHandle": "0xscripting",
+    "xUrl": "https://x.com/0xscripting",
+    "status": "LIKELY",
+    "note": "The public @0xscripting profile exists, while FomoLens and Provadata expose the matching scripting trader with verified Solana and BNB/Robinhood wallet records. The public X bio is sparse, so social authorship and wallet control remain separate evidence layers.",
+    "sourceUrls": ["https://x.com/0xscripting", "https://fomolens.app/trader/0xscripting", "https://provadata.com/traders/0xscripting", "https://fomo.family/profile/0xscripting"],
+    "thesisMatches": [{"token": "BACKED / CATTO", "evidenceUrl": "https://fomolens.app/trader/0xscripting", "thesis": "FomoLens records a BACKED call focused on orderbook liquidity and technology, plus a short CATTO/Binance call. Preserve this as captured thesis context, not a recommendation or proof of X authorship.", "sourceUrls": ["https://fomolens.app/trader/0xscripting", "https://x.com/0xscripting"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "BTCwolf": {
+    "xHandle": "BTCwolf",
+    "xUrl": "https://x.com/BTCwolf",
+    "status": "LIKELY",
+    "note": "The public @BTCwolf profile identifies a crypto market participant, while FomoLens records the same BTCwolf FOMO trader and Provadata links a verified wallet record. The resolver is not present for this row, so the social-to-wallet link stays cautious.",
+    "sourceUrls": ["https://x.com/BTCwolf", "https://fomolens.app/trader/BTCwolf", "https://provadata.com/traders/BTCwolf", "https://fomo.family/profile/BTCwolf"],
+    "thesisMatches": [{"token": "EMBER / SI", "evidenceUrl": "https://fomolens.app/trader/BTCwolf", "thesis": "FomoLens records an EMBER thesis around aggressive price discovery and project quality, plus an SI thesis about retracement, holder strength, and a potential next leg. Treat this as recorded FOMO thesis evidence, not a recommendation.", "sourceUrls": ["https://fomolens.app/trader/BTCwolf", "https://x.com/BTCwolf"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "justdeeds26": {
+    "xHandle": "justdeeds26",
+    "xUrl": "https://x.com/justdeeds26",
+    "status": "LIKELY",
+    "note": "The public @justdeeds26 profile resolves, while FomoLens and Provadata expose the matching justdeeds trader with a verified wallet record. The X profile has limited public identity detail, so this remains a likely mapping.",
+    "sourceUrls": ["https://x.com/justdeeds26", "https://fomolens.app/trader/justdeeds26", "https://provadata.com/traders/justdeeds26", "https://fomo.family/profile/justdeeds26"],
+    "thesisMatches": [{"token": "MASK / AVICI / DOPE / SI", "evidenceUrl": "https://fomolens.app/trader/justdeeds26", "thesis": "FomoLens records MASK and SI conviction calls, an AVICI self-custodial neobank thesis, and a DOPE narrative about finding a durable multi-cycle meme. Preserve these as captured thesis context, not a recommendation or wallet-ownership proof.", "sourceUrls": ["https://fomolens.app/trader/justdeeds26", "https://x.com/justdeeds26"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
   }
 }

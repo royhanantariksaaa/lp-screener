@@ -226,5 +226,41 @@
     "sourceUrls": ["https://linktr.ee/cryptocurb", "https://t.me/s/CurbCalls", "https://fomoradar.app/trader/CryptoCurb", "https://fomo.family/profile/CryptoCurb"],
     "thesisMatches": [{"token": "ANSEM / iCOIN / CURB", "evidenceUrl": "https://t.me/s/CurbCalls", "thesis": "Public Curb Calls posts describe the ANSEM bet, an AAPL-paired iCOIN thesis on Robinhood Chain, and CURB as the creator token. Preserve this as captured thesis evidence rather than a recommendation.", "sourceUrls": ["https://t.me/s/CurbCalls", "https://newsletter.fomo.family/p/is-ansem-heading-to-1-billion-plus-new-ai-meme-gamefi-picks", "https://linktr.ee/cryptocurb"], "updatedAt": "2026-10-17"}],
     "updatedAt": "2026-10-17"
+  },
+  "BertLuvv": {
+    "xHandle": "BertLuvv",
+    "xUrl": "https://x.com/BertLuvv",
+    "status": "LIKELY",
+    "note": "Public thesis mirrors use @BertLuvv and the captured FOMO profile has two verified wallet links. The social-wallet match remains likely because no explicit account-owned wallet disclosure was found.",
+    "sourceUrls": ["https://fade.ac/author/eaac0bb0-e6e1-52e9-9cce-25af0ccd969a?before=1788596538905000_32576", "https://fade.ac/thesis/22752", "https://fomoradar.app/trader/BertLuvv", "https://fomo.family/profile/BertLuvv"],
+    "thesisMatches": [{"token": "SPRING / PROLOGUE / iCOIN", "evidenceUrl": "https://fade.ac/thesis/22752", "thesis": "A public thesis mirror records BertLuvv’s SPRING view around tokenized stocks and supply burn; the same profile archive lists PROLOGUE and iCOIN as active thesis positions. This is mirror evidence, not a direct wallet disclosure.", "sourceUrls": ["https://fade.ac/thesis/22752", "https://fade.ac/author/eaac0bb0-e6e1-52e9-9cce-25af0ccd969a?before=1788596538905000_32576"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "valueandtime": {
+    "xHandle": "valueandtime",
+    "xUrl": "https://x.com/valueandtime",
+    "status": "LIKELY",
+    "note": "TokenRadar, X mirrors, and the FOMO profile all use @valueandtime. The captured wallet record is separate provider evidence, so the handle remains likely until ownership is explicitly disclosed.",
+    "sourceUrls": ["https://tokenradar.ai/social/authors/valueandtime", "https://ww.twstalker.com/valueandtime", "https://www.xo2.com/twitter/twitter_user/valueandtime/prices", "https://fomo.family/profile/valueandtime"],
+    "thesisMatches": [{"token": "ZCAT / ZEC", "evidenceUrl": "https://ww.twstalker.com/valueandtime", "thesis": "Public posts connect ZCAT to ZEC rewards and the privacy narrative, including the claim that holding ZCAT generates ZEC. Preserve this as the author’s recorded thesis, not a recommendation.", "sourceUrls": ["https://ww.twstalker.com/valueandtime", "https://tokenradar.ai/social/authors/valueandtime", "https://thebagstayson.com/"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "zakum": {
+    "xHandle": "zakum",
+    "xUrl": "https://x.com/zakum",
+    "status": "LIKELY",
+    "note": "FomoRadar, Fomp, and FomoGlass consistently identify the same zakum trader record and its verified wallet evidence. No account-owned X wallet disclosure was found in this pass.",
+    "sourceUrls": ["https://fomoradar.app/trader/zakum", "https://fomp-production.up.railway.app/kol/ce39fa23-d8b4-5ebc-b2fb-4aaff8f92b21", "https://fomo.glass/", "https://fomo.family/profile/zakum"],
+    "thesisMatches": [{"token": "ZCAT / PURR / ZEC", "evidenceUrl": "https://fomoradar.app/trader/zakum", "thesis": "FomoRadar records ZCAT as the dominant open position with PURR and ZEC also held; Fomp shows the same profile’s PURR/ZCAT activity and thesis count. This is on-chain/profile evidence, not a direct X post.", "sourceUrls": ["https://fomoradar.app/trader/zakum", "https://fomp-production.up.railway.app/kol/ce39fa23-d8b4-5ebc-b2fb-4aaff8f92b21", "https://fomo.glass/"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "cryptoalbus": {
+    "xHandle": "cryptoalbus",
+    "xUrl": "https://x.com/cryptoalbus",
+    "status": "LIKELY",
+    "note": "Provadata links two verified wallets to @cryptoalbus, while FomoRadar and Foma expose the same trader identity and token record. The handle remains likely until public account-owned wallet proof is available.",
+    "sourceUrls": ["https://provadata.com/traders/cryptoalbus", "https://fomoradar.app/trader/cryptoalbus", "https://tradefoma.family/trader/cryptoalbus", "https://fomo.family/profile/cryptoalbus"],
+    "thesisMatches": [{"token": "ZCAT / MEME / NUDES", "evidenceUrl": "https://fomoradar.app/trader/cryptoalbus", "thesis": "FomoRadar attributes the profile’s recent book to ZCAT, MEME, and NUDES, while Foma records the same token positions and realized results. Treat this as wallet-backed thesis context, not a recommendation or direct X proof.", "sourceUrls": ["https://fomoradar.app/trader/cryptoalbus", "https://tradefoma.family/trader/cryptoalbus", "https://provadata.com/traders/cryptoalbus"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
   }
 }

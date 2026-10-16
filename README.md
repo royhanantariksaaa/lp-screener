@@ -33,6 +33,8 @@ The following tranche adds four more (`motiyawerey`, `TheOnlyOMP`, `kv4rl`, and 
 
 The next ranked tranche adds four more (`pointfarmcap`, `NachSOL`, `RZDxbt`, and `CryptoCurb`). Each row carries a source trail and a thesis lead; the public evidence is still indirect where it does not include an account-owned wallet disclosure, so all four remain `LIKELY`.
 
+The following tranche adds `BertLuvv`, `valueandtime`, `zakum`, and `cryptoalbus` from the next score band. Their rows preserve public thesis mirrors or wallet-backed token records and remain `LIKELY` until direct ownership evidence is available.
+
 ## Production
 
 `main` deploys to GitHub Pages through `.github/workflows/deploy-pages.yml`.

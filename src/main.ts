@@ -365,12 +365,14 @@ function refreshEligibility() {
   render();
 }
 
-type WalletPayload = { status?: string; source?: string; smartWallets?: number; walletFlow?: Pool["walletFlow"]; walletEvents?: number; walletAddresses?: string[] };
+type WalletPayload = { status?: string; source?: string; smartWallets?: number; walletFlow?: Pool["walletFlow"]; walletEvents?: number; walletAddresses?: string[]; trackedWalletHits?: number; trackedWalletHandles?: string[]; trackedWalletConfidence?: KolWallet["confidence"]; trackedWalletAddresses?: string[] };
 const walletCache = new Map<string, { payload: WalletPayload; fetchedAt: number }>();
 const applyWalletPayload = (key: string, payload: WalletPayload) => {
   const walletAddresses = payload.walletAddresses ?? [];
   const tracked = trackedWalletMatches(walletAddresses);
-  state.pools = state.pools.map((pool) => poolKey(pool) === key ? { ...pool, smartWallets: Number(payload.smartWallets ?? 0), walletFlow: payload.walletFlow ?? "MIXED", walletEvents: Number(payload.walletEvents ?? 0), walletAddresses, trackedWalletHits: tracked.hits, trackedWalletHandles: tracked.handles, trackedWalletConfidence: tracked.confidence, walletIntelligence: "LIVE", walletSource: payload.source ?? "Solana RPC · recent pool traders", intelligence: "LIVE" } : pool);
+  const handles = [...new Set([...(payload.trackedWalletHandles ?? []), ...tracked.handles])];
+  const hits = Math.max(Number(payload.trackedWalletHits ?? 0), tracked.hits);
+  state.pools = state.pools.map((pool) => poolKey(pool) === key ? { ...pool, smartWallets: Number(payload.smartWallets ?? 0), walletFlow: payload.walletFlow ?? "MIXED", walletEvents: Number(payload.walletEvents ?? 0), walletAddresses, trackedWalletHits: hits, trackedWalletHandles: handles, trackedWalletConfidence: payload.trackedWalletConfidence ?? tracked.confidence, walletIntelligence: "LIVE", walletSource: payload.source ?? "Solana RPC · captured wallet map scan", intelligence: "LIVE" } : pool);
 };
 async function loadWalletIntelligence() {
   const targets = state.pools.filter((pool) => pool.pairAddress && pool.tokenAddress);
@@ -384,7 +386,7 @@ async function loadWalletIntelligence() {
   render();
   await mapConcurrent(pending, 4, async (pool) => {
     try {
-      const payload = await fetchJson<WalletPayload>(liveApi("wallets", { pool: pool.pairAddress!, base: pool.tokenAddress!, limit: "12" }), 20000);
+      const payload = await fetchJson<WalletPayload>(liveApi("wallets", { pool: pool.pairAddress!, base: pool.tokenAddress!, limit: "12", scan: "50" }), 20000);
       if (payload.status === "LIVE") { walletCache.set(poolKey(pool), { payload, fetchedAt: Date.now() }); applyWalletPayload(poolKey(pool), payload); }
     } catch (error) {
       console.warn("wallet activity request failed", pool.pairAddress, error);
@@ -760,7 +762,7 @@ async function enrichSelectedPool(key: string) {
     }
     const current = poolByKey(key) ?? initial;
     const requests: Array<{ kind: "wallet" | "token" | "kol"; promise: Promise<unknown> }> = [];
-    if (needsWallet) requests.push({ kind: "wallet", promise: fetchJson(liveApi("wallets", { pool: current.pairAddress!, base: current.tokenAddress!, limit: "12" }), 20000) });
+    if (needsWallet) requests.push({ kind: "wallet", promise: fetchJson(liveApi("wallets", { pool: current.pairAddress!, base: current.tokenAddress!, limit: "12", scan: "50" }), 20000) });
     if (needsSafety) requests.push({ kind: "token", promise: fetchJson(liveApi("token", { mint: current.tokenAddress! }), 20000) });
     if (needsKol) {
       const params: Record<string, string> = { symbol: current.symbol.split("-")[0].trim() };

@@ -1,3 +1,5 @@
+import trackedWalletMap from "./wallet-map.json" with { type: "json" };
+
 const GECKO_OHLCV = "https://api.geckoterminal.com/api/v2/networks/solana/pools";
 const SOLANA_RPCS = [process.env.SOLANA_RPC_URL, "https://solana-rpc.publicnode.com", "https://api.mainnet-beta.solana.com"].filter(Boolean);
 const LUNARCRUSH_API = "https://lunarcrush.com/api4";
@@ -13,6 +15,8 @@ const MADEONSOL_DEMO_KEY = "msk_demo_try_the_solana_api_2026";
 
 let madeOnSolFeedCache = { fetchedAt: 0, trades: [], delaySeconds: 0, asOf: undefined };
 let madeOnSolFeedPromise;
+const trackedWalletIndex = new Map((Array.isArray(trackedWalletMap) ? trackedWalletMap : []).map((row) => [String(row.address ?? "").toLowerCase(), Array.isArray(row.matches) ? row.matches : []]));
+const confidenceRank = (confidence) => confidence === "verified" ? 3 : confidence === "likely" ? 2 : 1;
 
 const withTimeout = async (url, init = {}, timeoutMs = 12000) => {
   const controller = new AbortController();
@@ -44,8 +48,8 @@ const rpc = async (method, params, id = 1) => {
   throw lastError ?? new Error("solana rpc unavailable");
 };
 
-const walletSignal = async (pool, baseMint, limit) => {
-  const signatures = await rpc("getSignaturesForAddress", [pool, { limit }]);
+const walletSignal = async (pool, baseMint, limit, scanLimit = 50) => {
+  const signatures = await rpc("getSignaturesForAddress", [pool, { limit: scanLimit }]);
   const usable = (signatures ?? []).filter((item) => !item.err && item.signature);
   if (!usable.length) return { status: "LIVE", source: "Solana RPC · no recent swaps", smartWallets: 0, walletFlow: "MIXED", walletEvents: 0 };
   const transactions = await Promise.all(usable.map((item, index) => rpc("getTransaction", [item.signature, { encoding: "jsonParsed", maxSupportedTransactionVersion: 1 }], index + 1)));
@@ -83,7 +87,15 @@ const walletSignal = async (pool, baseMint, limit) => {
   }
   const totals = [...wallets.values()].reduce((summary, wallet) => ({ inflow: summary.inflow + wallet.inflow, outflow: summary.outflow + wallet.outflow, events: summary.events + wallet.events }), { inflow: 0, outflow: 0, events: 0 });
   const walletFlow = totals.inflow > totals.outflow ? "INFLOW" : totals.outflow > totals.inflow ? "OUTFLOW" : "MIXED";
-  return { status: "LIVE", source: `Solana RPC · ${limit} recent pool transactions`, smartWallets: wallets.size, walletFlow, walletEvents: totals.events, walletAddresses: [...wallets.keys()] };
+  const tracked = new Map();
+  for (const address of wallets.keys()) {
+    for (const match of trackedWalletIndex.get(String(address).toLowerCase()) ?? []) {
+      const prior = tracked.get(match.handle);
+      if (!prior || confidenceRank(match.confidence) > confidenceRank(prior.confidence)) tracked.set(match.handle, match);
+    }
+  }
+  const trackedRows = [...tracked.values()].sort((a, b) => confidenceRank(b.confidence) - confidenceRank(a.confidence) || a.handle.localeCompare(b.handle));
+  return { status: "LIVE", source: `Solana RPC · ${scanLimit} transaction history scan + captured wallet map`, smartWallets: wallets.size, walletFlow, walletEvents: totals.events, walletAddresses: [...wallets.keys()], trackedWalletHits: trackedRows.length, trackedWalletHandles: trackedRows.map((row) => `@${row.handle}`), trackedWalletConfidence: trackedRows[0]?.confidence, trackedWalletAddresses: trackedRows.flatMap((row) => [...trackedWalletIndex.entries()].filter(([, matches]) => matches.some((match) => match.handle === row.handle)).map(([address]) => address)) };
 };
 
 const lunarTopic = (value) => String(value ?? "").toLowerCase().trim().replace(/[^a-z0-9#$ ]/g, " ").replace(/\s+/g, " ").slice(0, 48);
@@ -394,8 +406,9 @@ export default async function handler(req, res) {
       const pool = String(req.query?.pool ?? "");
       const baseMint = String(req.query?.base ?? "");
       const limit = Math.max(3, Math.min(20, Number(req.query?.limit ?? 12)));
+      const scanLimit = Math.max(limit, Math.min(100, Number(req.query?.scan ?? 50)));
       if (!/^[1-9A-HJ-NP-Za-km-z]{32,50}$/.test(pool) || !/^[1-9A-HJ-NP-Za-km-z]{32,50}$/.test(baseMint)) return res.status(400).json({ error: "invalid_pool_or_mint" });
-      return res.status(200).json(await walletSignal(pool, baseMint, limit));
+      return res.status(200).json(await walletSignal(pool, baseMint, limit, scanLimit));
     }
     if (kind === "nansen") {
       const mint = String(req.query?.mint ?? "");

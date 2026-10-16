@@ -18,6 +18,7 @@
   --taste-accent: #b8cf9f;
   --taste-accent-soft: #d8e5c6;
   --taste-accent-wash: #182118;
+  --lime: var(--taste-accent);
 }
 
 html { scroll-behavior: smooth; }
@@ -90,6 +91,9 @@ nav a.active, nav a:hover { color: var(--taste-accent-soft); }
 
 .page-home .hero, .liquidity-lab, .home-cards article, .playbook-grid article, .kol-hero, .academy-progress, .academy-nav, .lesson-card { background: var(--taste-surface); background-image: none; border-color: var(--taste-line); box-shadow: none; }
 .page-home .hero h1, .playbooks-page h1, .academy-intro h1, .kol-hero h1 { color: var(--taste-ink-strong); letter-spacing: -.05em; }
+.page-home .hero em, .academy-intro h1 em, .kol-hero h1 em { color: var(--taste-accent); }
+.page-home .hero .primary { background: var(--taste-ink-strong); color: var(--taste-canvas); }
+.page-home .hero:after { opacity: .16; }
 .primary { background: var(--taste-ink-strong); color: var(--taste-canvas); border-radius: 5px; box-shadow: none; }
 .primary:hover { background: var(--taste-accent-soft); transform: none; }
 .text-link, .research-stack a, .evidence-footer a { color: var(--taste-accent-soft); }
@@ -101,6 +105,7 @@ nav a.active, nav a:hover { color: var(--taste-accent-soft); }
 .playbooks-page .playbook-grid article:first-child { background: var(--taste-surface); }
 .playbooks-page .playbook-grid article:hover { transform: none; background: var(--taste-raised); border-color: #66765e; }
 .playbooks-page .playbook-num { color: var(--taste-accent); }
+.playbooks-page .playbook-grid a { color: var(--taste-accent-soft); }
 .playbooks-page .playbook-grid p, .kol-results-head p, .academy-intro .lede { color: var(--taste-muted); }
 .kol-page .kol-hero { border-radius: 12px; background: var(--taste-surface); background-image: none; box-shadow: none; }
 .kol-page .kol-summary > div, .kol-page .kol-filters, .kol-page .kol-card, .kol-page .kol-detail, .kol-page .kol-method, .kol-page .kol-gap-card, .kol-page .kol-chain-card { background: var(--taste-surface); background-image: none; border-color: var(--taste-line); box-shadow: none; }

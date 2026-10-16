@@ -186,6 +186,29 @@ footer { padding: 22px 0 32px; border-top-color: rgba(127, 166, 137, .16); color
   .hero { padding: 28px 19px; }.hero h1 { font-size: 48px; }.orbital { height: 175px; margin-top: 18px; transform: scale(.82) rotate(-8deg); }.liquidity-lab { padding: 21px 15px; }.lab-nav { grid-template-columns: repeat(3, minmax(0, 1fr)); }.lab-nav .eyebrow,.lab-note { grid-column: 1 / -1; }.lab-tab { grid-template-columns: 1fr; text-align: center; padding: 10px 3px; }.lab-tab i,.lab-tab small { display: none; }.tab-icon { margin: auto; }.lab-footer { gap: 8px; flex-wrap: wrap; }
   .workspace-page .workspace { padding: 18px 12px; }.workspace-page .list-sidebar { grid-template-columns: 1fr; }.workspace-page .list-sidebar .eyebrow,.workspace-page .chain-block { grid-column: auto; }.workspace-page .chain-block { grid-column: 1 / -1; }.controls { grid-template-columns: 1fr; }.controls label:last-child { grid-column: auto; }.workspace-page tr.pool-row { grid-template-columns: 1fr; }.workspace-page tr.pool-row td { grid-column: 1 / -1; }.workspace-page .compare-grid,.workspace-page .evidence-grid,.workspace-page .evidence-bars { grid-template-columns: 1fr; }.workspace-page .evidence-score { grid-column: auto; }.evidence-head { display: block; }.evidence-actions { margin-top: 12px; }.evidence-footer { display: block; }.evidence-footer a { display: inline-block; margin-top: 8px; }.workspace-page .toolbar .refresh { flex: 1 1 100%; }.count { margin-left: 0; }.playbooks-page h1,.academy-intro h1,.kol-hero h1 { font-size: 42px; letter-spacing: -2px; }
 }
+
+/* Tablet widths still need card mode: the workspace rail leaves too little room for a 1,160px table. */
+@media (min-width: 801px) and (max-width: 1200px) {
+  .workspace-page .table-wrap { width: 100%; max-width: 100%; min-width: 0; overflow: visible; border: 0; box-shadow: none; }
+  .workspace-page table { width: 100%; min-width: 0; display: block; border-spacing: 0; padding: 0; }
+  .workspace-page thead { display: none; }
+  .workspace-page tbody { display: grid; gap: 12px; width: 100%; }
+  .workspace-page tr.pool-row { display: grid; grid-template-columns: minmax(0, 1fr); width: 100%; min-width: 0; border: 1px solid #294333; border-radius: 12px; background: #0a1510; overflow: hidden; box-shadow: 0 10px 24px rgba(0, 0, 0, .12); }
+  .workspace-page tr.pool-row td { grid-column: 1 / -1 !important; display: grid; grid-template-columns: 96px minmax(0, 1fr); align-items: start; gap: 9px; min-width: 0; padding: 13px 15px; border-top: 1px solid #1f3427; background: #0a1510; white-space: normal; overflow-wrap: anywhere; }
+  .workspace-page tr.pool-row td::before { display: block; padding-top: 2px; color: #71857a; font-size: 8px; letter-spacing: .75px; }
+  .workspace-page tr.pool-row td[data-label="POOL"], .workspace-page tr.pool-row td[data-label="15M SETUP"], .workspace-page tr.pool-row td[data-label="SIGNALS"] { display: block; }
+  .workspace-page tr.pool-row td[data-label="POOL"] { padding: 17px 15px 15px; background: linear-gradient(135deg, #102016, #0a1510); border-top: 0; }
+  .workspace-page tr.pool-row td[data-label="15M SETUP"]::before, .workspace-page tr.pool-row td[data-label="SIGNALS"]::before { display: block; margin-bottom: 9px; }
+  .workspace-page tr.pool-row td[data-label="CHART"] { align-items: center; }
+  .workspace-page tr.pool-row td[data-label="CHART"] .pool-chart-cell { width: min(100%, 190px); }
+  .workspace-page tr.pool-row td[data-label="SCORE"] { display: flex; align-items: center; justify-content: space-between; }
+  .workspace-page tr.pool-row td[data-label="SCORE"]::before { flex: 1 1 auto; }
+  .workspace-page tr.pool-row .pool-name { min-width: 0; gap: 9px; }
+  .workspace-page tr.pool-row .pool-name strong { min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
+  .workspace-page tr.pool-row .pool-contract { max-width: 100%; }
+  .workspace-page tr.pool-row .copy-ca { max-width: min(100%, 260px); }
+  .workspace-page tr.pool-row .signal-stack { min-width: 0; }
+}
 @media (prefers-reduced-motion: reduce) { *, *:before, *:after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; } }
 
 /* Mobile pool cards use one readable scan line per metric. The previous two-column row grid made the right-side values feel clipped. */

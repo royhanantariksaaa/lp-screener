@@ -811,5 +811,32 @@
     "sourceUrls": ["https://x.com/mrfernando88", "https://fomolens.app/trader/mrfernando88", "https://fomolens.app/token/solana/HKJa4Y8actmpGvHpgL6DBWjsUjVt8r6bmvPaV33fpump", "https://fomo.family/profile/mrfernando88"],
     "thesisMatches": [{"token": "CATNIP / HIRE", "evidenceUrl": "https://fomolens.app/trader/mrfernando88", "thesis": "FomoLens records Catnip and HIRE calls as short speculative theses from the wallet-backed profile. Treat these as captured call context, not recommendations or independent wallet-control proof.", "sourceUrls": ["https://fomolens.app/trader/mrfernando88", "https://x.com/mrfernando88"], "updatedAt": "2026-10-17"}],
     "updatedAt": "2026-10-17"
+  },
+  "montyMole44": {
+    "xHandle": "montyMole44",
+    "xUrl": "https://x.com/montyMole44",
+    "status": "LIKELY",
+    "note": "The public @montyMole44 profile explicitly says to run it on Fomo, while FomoLens and the FOMO profile expose the matching resolver-backed trader. No Provadata record is present, so the wallet mapping remains likely.",
+    "sourceUrls": ["https://x.com/montyMole44", "https://fomolens.app/trader/montyMole44", "https://fomolens.app/token/robinhood/0x98096d17e191b3da1d5f99a6d7b3584351b11e18", "https://fomo.family/profile/montyMole44"],
+    "thesisMatches": [{"token": "BONER / BEANS", "evidenceUrl": "https://fomolens.app/trader/montyMole44", "thesis": "FomoLens records BONER and BEANS calls as short meme-position theses from the wallet-backed profile. Treat these as recorded call context, not recommendations.", "sourceUrls": ["https://fomolens.app/trader/montyMole44", "https://x.com/montyMole44"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "eyezenhour": {
+    "xHandle": "eyezenhour",
+    "xUrl": "https://x.com/eyezenhour",
+    "status": "LIKELY",
+    "note": "The public @eyezenhour profile identifies a builder/trader/writer, while FomoLens and the FOMO profile expose the matching resolver-backed trader. No Provadata record is present, so social authorship and wallet control remain separate evidence layers.",
+    "sourceUrls": ["https://x.com/eyezenhour", "https://fomolens.app/trader/eyezenhour", "https://fomolens.app/token/ethereum/0x8de39b057cc6522230ab19c0205080a8663331ef", "https://fomo.family/profile/eyezenhour"],
+    "thesisMatches": [{"token": "UNIPCS / WOJAK / 旺柴", "evidenceUrl": "https://fomolens.app/trader/eyezenhour", "thesis": "FomoLens records a UNIPCS fee-claim call, a WOJAK Ethereum thesis about market heating, and a 旺柴 thesis around holder shakeout and narrative strength. Preserve these as captured thesis context, not recommendations.", "sourceUrls": ["https://fomolens.app/trader/eyezenhour", "https://x.com/eyezenhour"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "wenaltseason": {
+    "xHandle": "wenaltseason",
+    "xUrl": "https://x.com/wenaltseason",
+    "status": "LIKELY",
+    "note": "The public @wenaltseason profile identifies WenAltSeason Labs and viral-alt work, while FomoLens and the FOMO profile expose the matching resolver-backed trader. No Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/wenaltseason", "https://fomolens.app/trader/wenaltseason", "https://fomolens.app/token/solana/HuAXPyDWDaMYFKuwQHpqL1oPnj93zdzWmtvFGzCeCUa7", "https://fomo.family/profile/wenaltseason"],
+    "thesisMatches": [{"token": "DIG / MASK", "evidenceUrl": "https://fomolens.app/trader/wenaltseason", "thesis": "FomoLens records a DIG virality thesis and a MASK privacy-play call with a $100M framing. Preserve these as captured thesis context, not recommendations or proof of wallet ownership.", "sourceUrls": ["https://fomolens.app/trader/wenaltseason", "https://x.com/wenaltseason"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
   }
 }

@@ -25,7 +25,7 @@ The persisted wallet snapshots are generated with `npm run scan:solana` and `npm
 
 `npm run analyze:wallets` joins those snapshots into `api/wallet-graph.json` and the KOL Radar's related-wallet graph. It reports direct counterparties, repeated links, counterparties shared by multiple tracked wallets, same-address reuse across EVM chains, tracked-wallet matches, and candidate graph clusters. High-fanout addresses are separated as infrastructure-like so a router, token contract, or exchange hub is not presented as a person-controlled wallet. The graph is exposed through `/api/market?kind=wallet-graph` and remains research evidence rather than proof of common ownership.
 
-The `brrrgrrrz`/`notanicecat69` grouping above represents two separate seed rows. After the ranked tranches below, the review seed file contains sixty-six profile entries.
+The `brrrgrrrz`/`notanicecat69` grouping above represents two separate seed rows. After the ranked tranches below, the review seed file contains sixty-eight profile entries.
 
 The next review tranche adds eight more cautious candidates (`koy`, `jotagezin`, `MoneyLord`, `OhMyJack`, `starcatcher444`, `RugDalio`, `artthatfucks`, and `SolSwizzle`). Their seed records preserve the public source trail and add a token thesis lead where a public X mirror or on-chain activity index exposes one. Indirect FOMO analytics are labeled as such and still need original-post review.
 
@@ -52,6 +52,8 @@ The next score-band pass adds `0xscripting`, `BTCwolf`, and `justdeeds26`. Their
 The following pass adds `heat`, `CrudeStillGuan`, and `earn168`. Their rows capture the next available FomoLens calls and X/source trails; indirect quoted-post evidence is labeled explicitly where it applies.
 
 The next score-band pass adds `0xAvast`, `aki11a`, `bluntz_capital`, `ether_monk`, `The__Solstice`, and `ThePumponomics`. Their rows preserve public X identities, FomoLens token calls, and resolver or verified wallet context, with indirect call attribution labeled where needed.
+
+The following pass adds `moonshyne` and `excesscapital`. Both have current FomoLens thesis records and X/source trails; `excesscapital` is explicitly marked weak because its public X account is sparse and the call quotes another account.
 
 ## Production
 

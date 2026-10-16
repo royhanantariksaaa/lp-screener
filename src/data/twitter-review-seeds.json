@@ -586,5 +586,23 @@
     "sourceUrls": ["https://x.com/ThePumponomics", "https://fomolens.app/trader/ThePumponomics", "https://provadata.com/traders/ThePumponomics", "https://fomo.family/profile/ThePumponomics"],
     "thesisMatches": [{"token": "SWOLF / PURR / KNOTS / ZCAT", "evidenceUrl": "https://fomolens.app/trader/ThePumponomics", "thesis": "FomoLens records SWOLF chart optimism, PURR reflection-meme recovery speculation, KNOTS timing commentary, and a ZCAT bottoming formation. Preserve as captured thesis context, not a recommendation.", "sourceUrls": ["https://fomolens.app/trader/ThePumponomics", "https://x.com/ThePumponomics", "https://provadata.com/traders/ThePumponomics"], "updatedAt": "2026-10-17"}],
     "updatedAt": "2026-10-17"
+  },
+  "moonshyne": {
+    "xHandle": "MoonShyne",
+    "xUrl": "https://x.com/MoonShyne",
+    "status": "LIKELY",
+    "note": "The public @MoonShyne profile resolves, while FomoLens and the FOMO profile expose the matching resolver-backed moonshyne trader. The X account has little public identity detail, so the mapping remains cautious and no account-owned wallet proof is claimed.",
+    "sourceUrls": ["https://x.com/MoonShyne", "https://fomolens.app/trader/moonshyne", "https://fomolens.app/token/solana/8t5C4AWDg4CroMChxdo7rG2e8nJM31QG2GG7Czx9X7x2", "https://fomo.family/profile/moonshyne"],
+    "thesisMatches": [{"token": "SNDK", "evidenceUrl": "https://fomolens.app/trader/moonshyne", "thesis": "FomoLens records an SNDK thesis centered on resilient holders, supply distribution, and a reflexive rewards/meme loop. Preserve this as recorded FOMO thesis context, not a recommendation.", "sourceUrls": ["https://fomolens.app/trader/moonshyne", "https://x.com/MoonShyne"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "excesscapital": {
+    "xHandle": "Excesscapital",
+    "xUrl": "https://x.com/Excesscapital",
+    "status": "LIKELY",
+    "note": "FomoLens and the FOMO profile expose the matching excesscapital resolver-backed trader, while @Excesscapital is a live but very sparse X profile. The handle mapping is therefore explicitly weak and does not prove wallet ownership.",
+    "sourceUrls": ["https://x.com/Excesscapital", "https://fomolens.app/trader/excesscapital", "https://fomolens.app/token/robinhood/0x020bfc650a365f8bb26819deaabf3e21291018b4", "https://fomo.family/profile/excesscapital"],
+    "thesisMatches": [{"token": "CASHCAT / AI", "evidenceUrl": "https://fomolens.app/trader/excesscapital", "thesis": "FomoLens records a CASHCAT thesis about capitulation and a Robinhood Chain rebound, plus an AI board-sit call. The CASHCAT text quotes another public X post, so the attribution is indirect.", "sourceUrls": ["https://fomolens.app/trader/excesscapital", "https://x.com/insomniacxbt/status/2110484370587078765?s=20", "https://x.com/Excesscapital"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
   }
 }

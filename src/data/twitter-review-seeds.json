@@ -667,5 +667,14 @@
     "sourceUrls": ["https://x.com/yeon__", "https://fomolens.app/trader/yeon__", "https://fomolens.app/token/ethereum/0x12419a0427c2a27a61c1cb4a49f5fad24fd4e671", "https://fomo.family/profile/yeon__"],
     "thesisMatches": [{"token": "DUO / FROGGIE / STARMAN / PILL", "evidenceUrl": "https://fomolens.app/trader/yeon__", "thesis": "FomoLens records DUO and Froggie pair narratives, a STARMAN thesis tied to Roadster/SPCX filings, and a PILL/PUMP pairing thesis. External Elon/SEC references are quoted context, not proof of endorsement or wallet control.", "sourceUrls": ["https://fomolens.app/trader/yeon__", "https://x.com/elonmusk/status/2110947164512038931", "https://www.sec.gov/Archives/edgar/data/1181412/000162828026036936/spaceexplorationtech", "https://x.com/yeon__"], "updatedAt": "2026-10-17"}],
     "updatedAt": "2026-10-17"
+  },
+  "0xesprezzo": {
+    "xHandle": "0xesprezzo",
+    "xUrl": "https://x.com/0xesprezzo",
+    "status": "LIKELY",
+    "note": "The public @0xesprezzo profile uses the same trading identity, while FomoLens, Provadata, and the FOMO profile expose matching verified Solana and Robinhood wallets. The social-to-wallet link remains likely because no account-owned wallet disclosure was captured.",
+    "sourceUrls": ["https://x.com/0xesprezzo", "https://fomolens.app/trader/0xesprezzo", "https://provadata.com/traders/0xesprezzo", "https://fomo.family/profile/0xesprezzo"],
+    "thesisMatches": [{"token": "HOOKR", "evidenceUrl": "https://fomolens.app/trader/0xesprezzo", "thesis": "FomoLens records a HOOKR thesis centered on installed revenue meters, StonkBroker surfaces, and an expected revenue inflection. Preserve this as captured FOMO thesis context, not a recommendation.", "sourceUrls": ["https://fomolens.app/trader/0xesprezzo", "https://provadata.com/traders/0xesprezzo", "https://x.com/0xesprezzo"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
   }
 }

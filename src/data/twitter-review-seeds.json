@@ -604,5 +604,32 @@
     "sourceUrls": ["https://x.com/Excesscapital", "https://fomolens.app/trader/excesscapital", "https://fomolens.app/token/robinhood/0x020bfc650a365f8bb26819deaabf3e21291018b4", "https://fomo.family/profile/excesscapital"],
     "thesisMatches": [{"token": "CASHCAT / AI", "evidenceUrl": "https://fomolens.app/trader/excesscapital", "thesis": "FomoLens records a CASHCAT thesis about capitulation and a Robinhood Chain rebound, plus an AI board-sit call. The CASHCAT text quotes another public X post, so the attribution is indirect.", "sourceUrls": ["https://fomolens.app/trader/excesscapital", "https://x.com/insomniacxbt/status/2110484370587078765?s=20", "https://x.com/Excesscapital"], "updatedAt": "2026-10-17"}],
     "updatedAt": "2026-10-17"
+  },
+  "Bull_Path": {
+    "xHandle": "Bull_Path",
+    "xUrl": "https://x.com/Bull_Path",
+    "status": "LIKELY",
+    "note": "The public @Bull_Path profile explicitly says it clicks buttons on Fomo, while FomoLens and the FOMO profile expose the matching resolver-backed trader. No Provadata record is present, so this remains a likely social-to-wallet mapping.",
+    "sourceUrls": ["https://x.com/Bull_Path", "https://fomolens.app/trader/Bull_Path", "https://fomolens.app/token/solana/Ai66LHZG9MCzg1WKdawwqduVAXpNDUuV8M3uyq5ppump", "https://fomo.family/profile/Bull_Path"],
+    "thesisMatches": [{"token": "CATE", "evidenceUrl": "https://fomolens.app/trader/Bull_Path", "thesis": "FomoLens records Bull.Path’s concise CATE conviction call. Preserve it as a public thesis lead, not a recommendation or independent proof of wallet control.", "sourceUrls": ["https://fomolens.app/trader/Bull_Path", "https://x.com/Bull_Path"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "cryptochi3f_": {
+    "xHandle": "cryptochi3f_",
+    "xUrl": "https://x.com/cryptochi3f_",
+    "status": "LIKELY",
+    "note": "The public @cryptochi3f_ profile identifies CryptoChief as a meme-coin trader, while FomoLens and the FOMO profile expose the matching resolver-backed trader. No Provadata record is present, so the wallet link remains cautious.",
+    "sourceUrls": ["https://x.com/cryptochi3f_", "https://fomolens.app/trader/cryptochi3f_", "https://fomolens.app/token/robinhood/0x2e8c31162b855a2ffa90f6f8634643ad6f111e18", "https://fomo.family/profile/cryptochi3f_"],
+    "thesisMatches": [{"token": "FLORK / OPEN / AI", "evidenceUrl": "https://fomolens.app/trader/cryptochi3f_", "thesis": "FomoLens records FLORK in response to a Binance post, OPEN as an AI-adjacent call, and a longer AI conviction thesis about surviving the drawdown. The Binance reference is indirect attribution.", "sourceUrls": ["https://fomolens.app/trader/cryptochi3f_", "https://x.com/binance/status/2111094963756769509?s=46", "https://x.com/cryptochi3f_"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "boosteryting": {
+    "xHandle": "boosteryting",
+    "xUrl": "https://x.com/boosteryting",
+    "status": "LIKELY",
+    "note": "The public @boosteryting profile links to a trading community, while FomoLens and the FOMO profile expose the matching resolver-backed trader. No Provadata record is present, so the mapping remains likely rather than confirmed.",
+    "sourceUrls": ["https://x.com/boosteryting", "https://fomolens.app/trader/boosteryting", "https://fomo.family/profile/boosteryting", "https://x.com/boosteryting/status/2111108982391664870?s=46"],
+    "thesisMatches": [{"token": "PUMPGU / BUL / VWHALE / CATE / FLORK", "evidenceUrl": "https://fomolens.app/trader/boosteryting", "thesis": "FomoLens records PUMPGU, BUL, and VWHALE dip calls, plus direct boosteryting X posts for CATE and FLORK. These are public thesis leads, not recommendations or independent wallet-control proof.", "sourceUrls": ["https://fomolens.app/trader/boosteryting", "https://x.com/boosteryting/status/2111108982391664870?s=46", "https://x.com/boosteryting/status/2111098859502063624?s=46", "https://x.com/boosteryting"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
   }
 }

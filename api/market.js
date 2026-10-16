@@ -65,6 +65,121 @@ const rpc = async (method, params, id = 1) => {
   throw lastError ?? new Error("solana rpc unavailable");
 };
 
+const isSolanaAddress = (value) => /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(String(value ?? ""));
+const rpcMap = async (items, worker, concurrency = 4) => {
+  const output = [];
+  let cursor = 0;
+  const run = async () => {
+    while (cursor < items.length) {
+      const index = cursor++;
+      const value = await worker(items[index], index);
+      if (value !== undefined) output.push(value);
+    }
+  };
+  await Promise.all(Array.from({ length: Math.min(concurrency, items.length) }, run));
+  return output;
+};
+
+const walletCluster = async (address, scanLimit = 60) => {
+  const signatures = await rpc("getSignaturesForAddress", [address, { limit: scanLimit }]);
+  const usable = (signatures ?? []).filter((item) => !item.err && item.signature);
+  if (!usable.length) {
+    return {
+      status: "LIVE",
+      source: "Solana RPC · no recent transaction history",
+      address,
+      scannedSignatures: 0,
+      scannedTransactions: 0,
+      relatedWallets: [],
+      note: "No recent finalized signatures were returned for this address.",
+    };
+  }
+  const transactions = await rpcMap(usable, async (item, index) => {
+    try {
+      return { item, transaction: await rpc("getTransaction", [item.signature, { encoding: "jsonParsed", maxSupportedTransactionVersion: 1 }], index + 1) };
+    } catch {
+      return undefined;
+    }
+  }, 4);
+  const candidates = new Map();
+  const addCandidate = (wallet, evidence, signature, slot, blockTime, direction, mint) => {
+    if (!wallet || wallet === address || !isSolanaAddress(wallet)) return;
+    const row = candidates.get(wallet) ?? { address: wallet, hits: 0, signatures: new Set(), evidence: new Set(), directions: new Set(), mints: new Set(), firstSlot: slot, lastSlot: slot, lastSeen: blockTime };
+    row.hits += 1;
+    if (signature) row.signatures.add(signature);
+    if (evidence) row.evidence.add(evidence);
+    if (direction) row.directions.add(direction);
+    if (mint) row.mints.add(mint);
+    if (Number.isFinite(slot)) {
+      row.firstSlot = Math.min(row.firstSlot ?? slot, slot);
+      row.lastSlot = Math.max(row.lastSlot ?? slot, slot);
+    }
+    if (Number.isFinite(blockTime)) row.lastSeen = Math.max(row.lastSeen ?? blockTime, blockTime);
+    candidates.set(wallet, row);
+  };
+  for (const row of transactions) {
+    const transaction = row.transaction;
+    if (!transaction?.meta || transaction.meta.err) continue;
+    const signature = row.item?.signature;
+    const slot = row.item?.slot;
+    const blockTime = row.item?.blockTime;
+    const message = transaction.transaction?.message ?? {};
+    const accountKeys = (message.accountKeys ?? []).map((key) => typeof key === "string" ? { pubkey: key, signer: false } : key).filter((key) => key?.pubkey);
+    const signers = accountKeys.filter((key) => key.signer).map((key) => key.pubkey).filter((key) => key !== address);
+    signers.forEach((signer) => addCandidate(signer, "co-signed transaction", signature, slot, blockTime, "co-signed"));
+    const tokenOwners = new Map();
+    for (const balance of [...(transaction.meta.preTokenBalances ?? []), ...(transaction.meta.postTokenBalances ?? [])]) {
+      const tokenAccount = accountKeys[Number(balance.accountIndex)]?.pubkey;
+      if (tokenAccount && balance.owner && isSolanaAddress(balance.owner)) tokenOwners.set(tokenAccount, balance.owner);
+    }
+    const instructions = [
+      ...(message.instructions ?? []),
+      ...(transaction.meta.innerInstructions ?? []).flatMap((group) => group.instructions ?? []),
+    ];
+    for (const instruction of instructions) {
+      const parsed = instruction?.parsed;
+      const info = parsed?.info;
+      if (!info || typeof info !== "object") continue;
+      if (instruction.program === "system" && parsed.type === "transfer") {
+        if (info.source === address && info.destination) addCandidate(info.destination, "direct SOL transfer", signature, slot, blockTime, "outbound");
+        if (info.destination === address && info.source) addCandidate(info.source, "direct SOL transfer", signature, slot, blockTime, "inbound");
+        continue;
+      }
+      if ((instruction.program === "spl-token" || instruction.program === "spl-token-2022") && ["transfer", "transferChecked"].includes(parsed.type)) {
+        const sourceOwner = tokenOwners.get(info.source) ?? (info.authority === address ? address : undefined);
+        const destinationOwner = tokenOwners.get(info.destination);
+        const mint = info.mint;
+        if (sourceOwner === address && destinationOwner) addCandidate(destinationOwner, "SPL token transfer", signature, slot, blockTime, "outbound", mint);
+        if (destinationOwner === address && sourceOwner) addCandidate(sourceOwner, "SPL token transfer", signature, slot, blockTime, "inbound", mint);
+      }
+    }
+  }
+  const relatedWallets = [...candidates.values()]
+    .sort((a, b) => b.hits - a.hits || b.signatures.size - a.signatures.size || String(a.address).localeCompare(String(b.address)))
+    .slice(0, 50)
+    .map((row) => ({
+      address: row.address,
+      hits: row.hits,
+      signatures: row.signatures.size,
+      evidence: [...row.evidence],
+      directions: [...row.directions],
+      mints: row.mints.size,
+      confidence: row.hits >= 3 ? "REPEATED" : row.hits >= 2 ? "OBSERVED" : "SINGLE",
+      firstSlot: row.firstSlot,
+      lastSlot: row.lastSlot,
+      lastSeen: row.lastSeen,
+    }));
+  return {
+    status: "LIVE",
+    source: `Solana RPC · ${scanLimit} recent signatures + transfer graph`,
+    address,
+    scannedSignatures: usable.length,
+    scannedTransactions: transactions.filter(Boolean).length,
+    relatedWallets,
+    note: "These are repeated on-chain counterparties or co-signers, not proof of common ownership. Token-account owners are resolved from transaction balance metadata.",
+  };
+};
+
 const walletSignal = async (pool, baseMint, limit, scanLimit = 50) => {
   const signatures = await rpc("getSignaturesForAddress", [pool, { limit: scanLimit }]);
   const usable = (signatures ?? []).filter((item) => !item.err && item.signature);
@@ -360,7 +475,7 @@ const providerHealth = () => {
       { key: "dexscreener", label: "Dexscreener", status: "LIVE", mode: "PUBLIC", source: "Live pair discovery + token profiles" },
       { key: "dexpaprika", label: "DexPaprika", status: configured("DEXPAPRIKA_API_KEY") ? "LIVE" : "KEY_REQUIRED", mode: "15M_OHLCV", source: configured("DEXPAPRIKA_API_KEY") ? "Pool-specific 15m OHLCV · primary" : "Pool-specific 15m OHLCV · server key required" },
       { key: "geckoterminal", label: "GeckoTerminal", status: "LIVE", mode: "FALLBACK", source: "15m OHLCV fallback · public rate limited" },
-      { key: "solana-rpc", label: "Solana RPC", status: "LIVE", mode: "PUBLIC", source: "Wallet activity + mint/freeze/holder checks" },
+      { key: "solana-rpc", label: "Solana RPC", status: "LIVE", mode: "PUBLIC", source: "Wallet activity + token safety + on-demand related-wallet scans" },
       { key: "defillama", label: "DeFiLlama", status: "LIVE", mode: "PUBLIC", source: "Chain TVL context" },
       { key: "lunarcrush", label: "LunarCrush", status: configured("LUNARCRUSH_API_KEY") ? "LIVE" : "KEY_REQUIRED", mode: "KOL", source: "Topic mentions + creators" },
       { key: "birdeye", label: "Birdeye", status: configured("BIRDEYE_API_KEY") ? "LIVE" : "KEY_REQUIRED", mode: "HOLDER_PROFILE", source: "Holder behavior enrichment" },
@@ -450,6 +565,14 @@ export default async function handler(req, res) {
         return res.status(200).json(cached.body);
       }
       return res.status(upstream.status).send(body);
+    }
+    if (kind === "wallet-cluster") {
+      const address = String(req.query?.address ?? "").trim();
+      const chain = String(req.query?.chain ?? "solana").trim().toLowerCase();
+      const scanLimit = Math.max(10, Math.min(100, Number(req.query?.limit ?? 60)));
+      if (chain !== "solana") return res.status(200).json({ status: "UNAVAILABLE", source: "Public RPC history scan is currently Solana-only", address, chain, relatedWallets: [], note: "EVM and Robinhood links require indexed Transfer logs or trace history; same-address chain reuse remains visible in the KOL evidence file." });
+      if (!isSolanaAddress(address)) return res.status(400).json({ error: "invalid_solana_address" });
+      return res.status(200).json(await walletCluster(address, scanLimit));
     }
     if (kind === "wallets") {
       const pool = String(req.query?.pool ?? "");

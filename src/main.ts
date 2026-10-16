@@ -1,4 +1,5 @@
 import "./styles.css";
+import "./ui-overhaul.css";
 import kolData from "./data/kol-wallets.json";
 import { analyzeCandles, derivePlaybooks, evaluateEligibility, parseOhlcv, primaryPlaybook, type Candle, type EligibilityAnalysis, type PlaybookSignal, type TechnicalAnalysis } from "./market";
 

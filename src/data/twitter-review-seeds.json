@@ -4,10 +4,7 @@
     "xUrl": "https://x.com/0xdetweiler",
     "status": "LIKELY",
     "note": "The public X profile uses the exact 0xdetweiler handle and public posts refer to FOMO activity. This supports a FOMO-profile-to-social-handle match; it is not independent proof that every linked wallet is controlled by the X account.",
-    "sourceUrls": [
-      "https://boldnet.twstalker.com/0xdetweiler",
-      "https://fomo.family/profile/0xdetweiler"
-    ],
+    "sourceUrls": ["https://boldnet.twstalker.com/0xdetweiler", "https://fomo.family/profile/0xdetweiler"],
     "updatedAt": "2026-10-17"
   },
   "unipcs": {
@@ -15,10 +12,75 @@
     "xUrl": "https://x.com/theunipcs",
     "status": "LIKELY",
     "note": "The public X profile identifies as Unipcs and repeatedly references the FOMO profile and its FOMO wallet. This supports the social-handle-to-FOMO-profile match; it is not independent proof that every linked wallet is controlled by the X account.",
-    "sourceUrls": [
-      "https://www.sotwe.com/theunipcs?lang=en",
-      "https://fomo.family/profile/unipcs"
-    ],
+    "sourceUrls": ["https://www.sotwe.com/theunipcs?lang=en", "https://fomo.family/profile/unipcs"],
+    "updatedAt": "2026-10-17"
+  },
+  "ogle": {
+    "xHandle": "_cryptogle",
+    "xUrl": "https://x.com/_cryptogle",
+    "status": "LIKELY",
+    "note": "The X profile presents as ogle Trades and repeatedly references FOMO activity. The handle differs from the FOMO profile name, so this remains a likely match pending a direct profile disclosure.",
+    "sourceUrls": ["https://www.sotwe.com/_cryptogle?lang=en", "https://www.copyfomo.com/traders/ogle"],
+    "thesisMatches": [{"token": "PONS", "evidenceUrl": "https://www.sotwe.com/_cryptogle?lang=en", "thesis": "Public posts describe PONS as a Robinhood Chain launchpad and cycle trade. Treat this as a thesis lead until the original X post is reviewed directly.", "sourceUrls": ["https://www.sotwe.com/_cryptogle?lang=en"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "DumbCrayonEater": {
+    "xHandle": "DumbCrayonEater",
+    "xUrl": "https://x.com/DumbCrayonEater",
+    "status": "LIKELY",
+    "note": "The public X profile uses the exact FOMO handle and publishes trading commentary. The handle match is strong, but it does not independently prove control of every linked wallet.",
+    "sourceUrls": ["https://www.sotwe.com/DumbCrayonEater?lang=en", "https://www.cashed.money/fomo/DumbCrayonEater", "https://fomo.family/profile/DumbCrayonEater"],
+    "updatedAt": "2026-10-17"
+  },
+  "Aurelius0121": {
+    "xHandle": "Aurelius0121",
+    "xUrl": "https://x.com/Aurelius0121",
+    "status": "LIKELY",
+    "note": "Public profile directories identify @Aurelius0121 and connect the name to the FOMO trader identity. Keep the social match separate from wallet-control proof.",
+    "sourceUrls": ["https://twitterscore.io/twitter/Aurelius0121/", "https://www.preview.pump.fun/profile/9BMzTpSo4URse1oN666pmexhdjpU1vA5p7LtroCFQdLU"],
+    "updatedAt": "2026-10-17"
+  },
+  "Salem1299534": {
+    "xHandle": "Salem1299534",
+    "xUrl": "https://x.com/Salem1299534",
+    "status": "LIKELY",
+    "note": "A public FOMO-linked profile publishes the exact X URL for @Salem1299534. This is a strong social-to-FOMO match; wallet attribution remains separate evidence.",
+    "sourceUrls": ["https://maincharacter.family/kol/Salem1299534", "https://www.tradefoma.family/trader/Salem1299534"],
+    "updatedAt": "2026-10-17"
+  },
+  "Natan_benish": {
+    "xHandle": "Natan_benish",
+    "xUrl": "https://x.com/Natan_benish",
+    "status": "LIKELY",
+    "note": "Public indexed FOMO pages use @natan_benish as the trader identity and link verified Solana and Robinhood wallets. This preserves the exact social handle while keeping wallet-control proof separate.",
+    "sourceUrls": ["https://provadata.com/traders/natan_benish", "https://www.usefollowpad.fun/"],
+    "thesisMatches": [{"token": "LONG", "evidenceUrl": "https://www.sotwe.com/fizzco_?lang=tr", "thesis": "A public market discussion quotes Nate discussing trust, vision, and LONG. This is an indirect citation and should be upgraded only after the original X post is reviewed.", "sourceUrls": ["https://www.sotwe.com/fizzco_?lang=tr"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "AvgJoesCrypto": {
+    "xHandle": "AvgJoesCrypto",
+    "xUrl": "https://x.com/AvgJoesCrypto",
+    "status": "LIKELY",
+    "note": "Public creator and FOMO research pages identify @AvgJoesCrypto and describe the same trading identity. The handle match is strong; wallet-control evidence remains the separate provider record.",
+    "sourceUrls": ["https://www.creatorsea.com/creators/0x1a7d4e930a3c18a558b92f6017878dd31a9c2faf", "https://fomoradar.app/trader/AvgJoesCrypto"],
+    "thesisMatches": [{"token": "PONS", "evidenceUrl": "https://www.sotwe.com/chewadoteth", "thesis": "A public post credits @AvgJoesCrypto with publishing a PONS thesis early. This is an indirect citation; verify the original X post before treating it as direct evidence.", "sourceUrls": ["https://www.sotwe.com/chewadoteth", "https://fomoradar.app/trader/AvgJoesCrypto"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "brrrgrrrz": {
+    "xHandle": "brrrgrrrz",
+    "xUrl": "https://x.com/brrrgrrrz",
+    "status": "LIKELY",
+    "note": "Public X mirrors identify Burgz as @brrrgrrrz and show FOMO-linked trading commentary. This supports the social-to-FOMO match without proving wallet ownership.",
+    "sourceUrls": ["https://twiscan.com/en/x/brrrgrrrz", "https://www.twitterscore.io/twitter/brrrgrrrz/", "https://www.copyfomo.com/traders/brrrgrrrz"],
+    "thesisMatches": [{"token": "AI / LONG", "evidenceUrl": "https://twiscan.com/en/x/brrrgrrrz", "thesis": "Public posts discuss AI, tokenized-stock/RWA flows, and the LONG ecosystem. Record this as a thesis map, not a recommendation or proof of future performance.", "sourceUrls": ["https://twiscan.com/en/x/brrrgrrrz"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "notanicecat69": {
+    "xHandle": "notanicecat69",
+    "xUrl": "https://x.com/notanicecat69",
+    "status": "LIKELY",
+    "note": "The public X profile uses the exact FOMO handle and discusses trading on FOMO. This is a likely social-to-FOMO match; wallet ownership remains separate evidence.",
+    "sourceUrls": ["https://mobile.twstalker.com/notanicecat69", "https://fomoradar.app/trader/notanicecat69"],
     "updatedAt": "2026-10-17"
   }
 }

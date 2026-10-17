@@ -595,59 +595,11 @@ const xSnapshotFeed = async (handles) => {
 };
 
 const xRecentFeed = async (handles) => {
-  const apiKey = String(process.env.X_BEARER_TOKEN ?? "").trim();
   const normalizedHandles = [...new Set(handles.map(safeXHandle).filter(isSafeXHandle))].slice(0, 10);
-  if (!apiKey) {
-    const snapshot = await xSnapshotFeed(normalizedHandles);
-    if (snapshot) return snapshot;
-    return { status: "KEY_REQUIRED", source: "X API v2 · bearer token required", profiles: {}, posts: [], fetchedAt: new Date().toISOString(), note: "Set X_BEARER_TOKEN on the server, or configure X_FEED_SNAPSHOT_URL for an authorized private snapshot bridge." };
-  }
-  if (!normalizedHandles.length) return { status: "LIVE", source: "X API v2 · recent search", profiles: {}, posts: [], fetchedAt: new Date().toISOString() };
-  const cacheKey = normalizedHandles.map((handle) => handle.toLowerCase()).sort().join(",");
-  const cached = xFeedCache.get(cacheKey);
-  if (cached && Date.now() - cached.fetchedAt < 5 * 60_000) return cached.payload;
-  const inFlight = xFeedInFlight.get(cacheKey);
-  if (inFlight) return inFlight;
-  const request = (async () => {
-    const query = `(${normalizedHandles.map((handle) => `from:${handle}`).join(" OR ")}) -is:retweet`;
-    const params = new URLSearchParams({
-      query,
-      max_results: "100",
-      "tweet.fields": "created_at,author_id,conversation_id,in_reply_to_user_id,public_metrics,referenced_tweets,entities",
-      expansions: "author_id",
-      "user.fields": "username,name,profile_image_url,public_metrics",
-    });
-    try {
-      const payload = await xJson(`${X_API}/tweets/search/recent?${params.toString()}`, apiKey);
-      const usersById = new Map((Array.isArray(payload?.includes?.users) ? payload.includes.users : []).map((user) => [String(user.id), user]));
-      const posts = (Array.isArray(payload?.data) ? payload.data : []).map((tweet) => xPostEvidence(tweet, usersById)).filter(Boolean);
-      const profiles = Object.fromEntries(normalizedHandles.map((handle) => [handle.toLowerCase(), { xHandle: handle, posts: [], summary: { postCount: 0, replyCount: 0, contractCount: 0, engagement: 0, latestAt: undefined } }]));
-      posts.forEach((post) => {
-        const key = post.xHandle.toLowerCase();
-        const profile = profiles[key] ?? { xHandle: post.xHandle, posts: [], summary: { postCount: 0, replyCount: 0, contractCount: 0, engagement: 0, latestAt: undefined } };
-        profile.posts.push(post);
-        profile.summary.postCount += 1;
-        profile.summary.replyCount += post.isReply ? 1 : 0;
-        profile.summary.contractCount += post.contractAddresses.length;
-        profile.summary.engagement += post.publicMetrics.replies + post.publicMetrics.likes + post.publicMetrics.reposts + post.publicMetrics.quotes;
-        if (!profile.summary.latestAt || String(post.createdAt ?? "") > String(profile.summary.latestAt)) profile.summary.latestAt = post.createdAt;
-        profiles[key] = profile;
-      });
-      Object.values(profiles).forEach((profile) => profile.posts.sort((a, b) => String(b.createdAt ?? "").localeCompare(String(a.createdAt ?? ""))));
-      const result = { status: "LIVE", source: "X API v2 · recent posts + replies", profiles, posts, fetchedAt: new Date().toISOString(), window: "7d", nextToken: payload?.meta?.next_token };
-      xFeedCache.set(cacheKey, { fetchedAt: Date.now(), payload: result });
-      return result;
-    } catch (error) {
-      if (cached?.payload) return { ...cached.payload, status: "LIVE", source: `${cached.payload.source} · stale cache`, stale: true, note: error instanceof Error ? error.message : "X API refresh failed" };
-      const snapshot = await xSnapshotFeed(normalizedHandles);
-      if (snapshot) return { ...snapshot, note: `Official X API unavailable: ${error instanceof Error ? error.message : "X API refresh failed"}` };
-      return { status: error?.status === 429 ? "RATE_LIMITED" : "UNAVAILABLE", source: "X API v2 · recent posts", profiles: {}, posts: [], fetchedAt: new Date().toISOString(), note: error instanceof Error ? error.message : "X API unavailable" };
-    } finally {
-      xFeedInFlight.delete(cacheKey);
-    }
-  })();
-  xFeedInFlight.set(cacheKey, request);
-  return request;
+  const snapshot = await xSnapshotFeed(normalizedHandles);
+  if (snapshot) return snapshot;
+  if (!normalizedHandles.length) return { status: "LIVE", source: "Private X web-session snapshot", profiles: {}, posts: [], fetchedAt: new Date().toISOString() };
+  return { status: "UNAVAILABLE", source: "Private X web-session snapshot", profiles: {}, posts: [], fetchedAt: new Date().toISOString(), note: "Run the local TypeScript cookie worker to publish a fresh X snapshot." };
 };
 
 const kaitoCall = async (name, args, apiKey) => {

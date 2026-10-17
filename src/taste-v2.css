@@ -868,6 +868,10 @@ footer b { color: var(--ui-muted) !important; }
 .workspace-page {
   overflow-anchor: none !important;
 }
+.workspace-page.has-selection {
+  animation: none !important;
+  transform: none !important;
+}
 .workspace-page .table-scroll-viewport {
   overflow-anchor: none !important;
 }

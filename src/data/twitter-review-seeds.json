@@ -1315,5 +1315,32 @@
     "sourceUrls": ["https://x.com/plugc", "https://fomolens.app/trader/PlugC", "https://fomolens.app/token/solana/B32ocrADBEo1XHsGVnxqP81SaK2NiZkQmmAoTnmT8Ybu", "https://fomo.family/profile/PlugC"],
     "thesisMatches": [{"token": "BANKROLL", "evidenceUrl": "https://fomolens.app/trader/PlugC", "thesis": "FomoLens records a Solana BANKROLL call framed as a digital-asset recommendation to share with friends and family. Preserve this as captured thesis context, not a recommendation.", "sourceUrls": ["https://fomolens.app/trader/PlugC", "https://fomolens.app/token/solana/B32ocrADBEo1XHsGVnxqP81SaK2NiZkQmmAoTnmT8Ybu", "https://x.com/plugc"], "updatedAt": "2026-10-17"}],
     "updatedAt": "2026-10-17"
+  },
+  "4evertrader_": {
+    "xHandle": "4evertrader_",
+    "xUrl": "https://x.com/4evertrader_",
+    "status": "LIKELY",
+    "note": "The public @4evertrader_ profile explicitly identifies a crypto investor/high-conviction trader and uses the same handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. No Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/4evertrader_", "https://fomolens.app/trader/4evertrader_", "https://fomolens.app/token/solana/Ai66LHZG9MCzg1WKdawwqduVAXpNDUuV8M3uyq5ppump", "https://fomo.family/profile/4evertrader_"],
+    "thesisMatches": [{"token": "CATE", "evidenceUrl": "https://fomolens.app/trader/4evertrader_", "thesis": "FomoLens records repeated Solana CATE calls focused on holder count, community strength, and resilience through a market bleed. Preserve this as captured thesis context, not a recommendation.", "sourceUrls": ["https://fomolens.app/trader/4evertrader_", "https://fomolens.app/token/solana/Ai66LHZG9MCzg1WKdawwqduVAXpNDUuV8M3uyq5ppump", "https://x.com/4evertrader_"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "peep_trades": {
+    "xHandle": "peep_trades",
+    "xUrl": "https://x.com/peep_trades",
+    "status": "LIKELY",
+    "note": "The public @peep_trades profile identifies itself around profit and uses the same handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. No Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/peep_trades", "https://fomolens.app/trader/peep_trades", "https://fomolens.app/token/bsc/0x409f0bcdc9a70565a71af56cb50b2a6688cb7777", "https://fomo.family/profile/peep_trades"],
+    "thesisMatches": [{"token": "BIBI", "evidenceUrl": "https://fomolens.app/trader/peep_trades", "thesis": "FomoLens records repeated BNB Chain BIBI calls around Binance ecosystem marketing, a CZ reference, and a clear narrative thesis. Preserve this as captured thesis context, not a recommendation.", "sourceUrls": ["https://fomolens.app/trader/peep_trades", "https://fomolens.app/token/bsc/0x409f0bcdc9a70565a71af56cb50b2a6688cb7777", "https://x.com/cz_binance/status/2110951278868312160", "https://x.com/peep_trades"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "that1618guy": {
+    "xHandle": "that1618guy",
+    "xUrl": "https://x.com/that1618guy",
+    "status": "LIKELY",
+    "note": "The public @that1618guy profile identifies Markets at Delphi Digital and founder work, while FomoLens and the FOMO profile expose the matching resolver-backed trader. No Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/that1618guy", "https://fomolens.app/trader/that1618guy", "https://fomolens.app/token/robinhood/0xedbf91223639800bcd5756815caf908df3b890be", "https://fomo.family/profile/that1618guy"],
+    "thesisMatches": [{"token": "PRIORS", "evidenceUrl": "https://fomolens.app/trader/that1618guy", "thesis": "FomoLens records a detailed Robinhood Chain PRIORS thesis around team activity, product usefulness, capital efficiency, and the Pendle/USDG example. Preserve this as captured thesis context, not a recommendation.", "sourceUrls": ["https://fomolens.app/trader/that1618guy", "https://fomolens.app/token/robinhood/0xedbf91223639800bcd5756815caf908df3b890be", "https://x.com/that1618guy"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
   }
 }

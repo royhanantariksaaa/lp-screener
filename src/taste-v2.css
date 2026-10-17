@@ -407,8 +407,11 @@ body.has-modal-selection .evidence-panel,
 .score-track { background: var(--ui-line) !important; border-radius: 2px !important; }
 .score-track i,
 .evidence-bars i { background: var(--ui-accent) !important; border-radius: 0 !important; }
-.indicator-grid > div { border-radius: 0 !important; border-color: var(--ui-line) !important; background: var(--ui-surface-2) !important; }
-.indicator-grid b { color: var(--ui-ink) !important; }
+.indicator-grid > div,
+.workspace-page .indicator-grid > div { border-radius: 0 !important; border-color: var(--ui-line) !important; background: var(--ui-surface-2) !important; color: var(--ui-muted) !important; }
+.workspace-page .indicator-grid span { color: var(--ui-muted) !important; }
+.indicator-grid b,
+.workspace-page .indicator-grid b { color: var(--ui-ink) !important; }
 .evidence-bars span,
 .evidence-bars span b { color: var(--ui-muted) !important; font-family: var(--ui-data) !important; }
 
@@ -560,6 +563,164 @@ footer b { color: var(--ui-muted) !important; }
   .playbook-grid article { grid-template-columns: 48px 1fr; gap: 14px; }
   .playbook-grid article a { grid-column: 2; }
   .lesson-card { padding: 24px !important; }
+}
+
+/* Mobile workspace density pass: keep the navigation, controls, table, and
+   evidence hierarchy readable without making the user wade through stacked
+   chrome before reaching the pool data. */
+@media (max-width: 680px) {
+  .shell { padding: 54px 12px 0 !important; }
+  .topbar { height: 54px !important; padding: 0 12px !important; border-top-width: 2px !important; }
+  .brand a { gap: 7px; }
+  .brand-mark { width: 25px; height: 25px; font-size: 15px; }
+  .brand { font-size: 11px; }
+  .menu-toggle { width: 34px !important; height: 32px !important; }
+  .mobile-menu { top: calc(100% + 4px) !important; }
+
+  .workspace-page { padding-top: 16px !important; }
+  .list-sidebar { min-height: 0; gap: 4px; padding: 6px !important; border-left: 3px solid var(--ui-accent) !important; }
+  .list-link { min-width: 132px; min-height: 36px; padding: 7px 9px !important; font-size: 10px !important; }
+  .workspace .section-head { padding-bottom: 12px !important; }
+  .workspace .section-head h2 { font-size: 38px !important; letter-spacing: -.06em !important; }
+  .workspace .section-head .subhead { max-width: 38ch; font-size: 13px !important; line-height: 1.4 !important; }
+  .workspace .live { margin-top: 10px !important; font-size: 10px !important; }
+
+  .feed-notice { margin: 12px 0 8px !important; padding: 10px !important; font-size: 11px !important; line-height: 1.4 !important; }
+  .gate-summary { gap: 6px !important; padding: 8px !important; font-size: 9px !important; }
+  .gate-summary span b { font-size: 10px !important; }
+  .intelligence-strip {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    margin: 10px 0 !important;
+  }
+  .intelligence-strip > div,
+  .intelligence-strip > p,
+  .intelligence-strip > button { grid-row: auto; padding: 9px !important; }
+  .intelligence-strip > div { min-height: 62px; grid-row: auto; }
+  .intelligence-strip > div:nth-child(3),
+  .intelligence-strip > p,
+  .intelligence-strip > button { grid-column: 1 / -1; }
+  .intelligence-strip b { font-size: 12px !important; }
+  .intelligence-strip small { font-size: 10px !important; line-height: 1.25 !important; }
+
+  .preset-bar {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scrollbar-width: none;
+    margin: 14px 0 8px !important;
+    padding-bottom: 4px !important;
+  }
+  .preset-bar::-webkit-scrollbar { display: none; }
+  .preset-bar .eyebrow,
+  .preset-btn,
+  .decision-filter-btn { flex: 0 0 auto; white-space: nowrap; }
+  .preset-btn,
+  .decision-filter-btn { min-height: 32px; padding: 0 9px !important; }
+  .decision-filter-label {
+    width: auto !important;
+    margin: 0 4px 0 10px !important;
+    padding-left: 10px;
+    border-left: 1px solid var(--ui-line);
+  }
+
+  .controls {
+    display: flex !important;
+    gap: 8px !important;
+    overflow-x: auto !important;
+    scrollbar-width: none;
+    margin: 12px 0 !important;
+    padding: 10px !important;
+  }
+  .controls::-webkit-scrollbar { display: none; }
+  .controls label { flex: 0 0 148px; min-width: 148px; }
+  .controls input,
+  .controls select { min-height: 38px; margin-top: 5px; padding: 8px !important; }
+  .workspace-filter-state { margin: 10px 0 !important; padding: 9px 10px !important; }
+  .workspace-filter-copy strong { font-size: 12px !important; }
+
+  .toolbar { grid-template-columns: minmax(0, 1fr) auto !important; gap: 7px !important; margin-bottom: 10px !important; }
+  .toolbar .search { grid-column: 1 / -1; min-height: 40px; }
+  .toolbar .refresh,
+  .toolbar .metric-toggle { width: auto !important; min-height: 38px; padding: 0 9px !important; }
+  .count { grid-column: 1 / -1; justify-self: start; margin-top: -2px; }
+
+  .workspace-page .table-scroll-viewport { overflow-x: auto !important; overflow-y: visible !important; max-height: none !important; }
+  .workspace-page table { width: max-content !important; min-width: 760px !important; }
+  .workspace-page thead th { top: 54px !important; padding: 9px !important; font-size: 9px !important; }
+  .workspace-page tbody td { padding: 10px 9px !important; font-size: 11px !important; }
+  .workspace-page .pool-name { gap: 6px; }
+  .workspace-page .pool-name strong { font-size: 12px !important; }
+  .workspace-page .token-avatar { width: 30px !important; height: 30px !important; flex-basis: 30px !important; }
+  .workspace-page table th:nth-child(2),
+  .workspace-page table td:nth-child(2),
+  .workspace-page table th:nth-child(6),
+  .workspace-page table td:nth-child(6) { display: none !important; }
+  .workspace-page .table-scroll-controls { margin-top: 6px !important; }
+  .screen-method { margin-top: 14px !important; padding-top: 12px !important; }
+  .screen-method p { font-size: 12px !important; line-height: 1.45 !important; }
+
+  body.has-modal-selection .evidence-panel {
+    top: 6px !important;
+    right: 6px !important;
+    bottom: 6px !important;
+    left: 6px !important;
+    width: auto !important;
+    max-height: calc(100dvh - 12px) !important;
+    padding: 12px !important;
+    border-left-width: 3px !important;
+    border-radius: 4px !important;
+  }
+  /* taste-system keeps a higher-specificity desktop modal rule; match it so
+     the phone sheet can use the full viewport and the compact spacing below. */
+  .workspace-page.has-selection .evidence-panel {
+    inset: 6px !important;
+    width: auto !important;
+    max-height: calc(100dvh - 12px) !important;
+    padding: 12px !important;
+    border-left-width: 3px !important;
+    border-radius: 4px !important;
+  }
+  body.has-modal-selection .evidence-head {
+    position: sticky !important;
+    top: -12px !important;
+    z-index: 4;
+    gap: 8px !important;
+    margin: -4px 0 10px !important;
+    padding: 4px 0 9px !important;
+    background: var(--ui-surface) !important;
+  }
+  .workspace-page.has-selection .evidence-head {
+    position: sticky !important;
+    top: -12px !important;
+    z-index: 4;
+    gap: 8px !important;
+    margin: -4px 0 10px !important;
+    padding: 4px 0 9px !important;
+    background: var(--ui-surface) !important;
+  }
+  .evidence-head h3 { font-size: 20px !important; line-height: 1.1 !important; }
+  .evidence-head p:not(.eyebrow) { font-size: 10px !important; line-height: 1.35 !important; }
+  .evidence-actions { gap: 6px !important; }
+  .evidence-close,
+  .watch-toggle { min-height: 34px !important; padding: 0 8px !important; }
+  .mini-chart { margin-top: 8px !important; padding: 8px !important; }
+  .mini-chart .candlestick-chart { height: 190px !important; }
+  .indicator-grid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 4px !important; margin-top: 8px !important; }
+  .indicator-grid > div { min-width: 0; padding: 7px 6px !important; }
+  .indicator-grid span { overflow: hidden; font-size: 8px !important; text-overflow: ellipsis; white-space: nowrap; }
+  .indicator-grid b { margin-top: 4px !important; font-size: 10px !important; }
+  .evidence-grid { grid-template-columns: 1fr !important; gap: 6px !important; margin-top: 8px !important; }
+  .evidence-score { grid-column: auto !important; padding: 10px !important; }
+  .evidence-item { min-height: 0; padding: 9px !important; }
+  .evidence-item b { font-size: 11px !important; }
+  .evidence-item small { font-size: 10px !important; line-height: 1.35 !important; }
+  .evidence-bars { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 6px !important; margin-top: 10px !important; }
+  .evidence-bars span { padding: 7px !important; font-size: 9px !important; }
+  .playbook-stack,
+  .research-stack { margin-top: 10px !important; padding: 10px !important; }
+  .playbook-check { padding: 7px !important; }
+  .research-stack a { padding: 6px 7px !important; }
 }
 
 @media (prefers-reduced-motion: reduce) {

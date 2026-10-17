@@ -968,18 +968,27 @@ async function fetchCandles(pool: Pool) {
     if (cached?.candles && Date.now() - cached.fetchedAt < CANDLE_FRESH_MS) return cached.candles;
     if (cached?.retryAt && Date.now() < cached.retryAt) return undefined;
     if (cached?.failedAt && !cached.retryAt && Date.now() - cached.failedAt < 60_000) return undefined;
-    const markFailure = (retryMs?: number) => { const now = Date.now(); candleCache.set(key, { fetchedAt: cached?.fetchedAt ?? now, failedAt: now, retryAt: retryMs ? now + retryMs : undefined }); };
+    const markFailure = (retryMs?: number) => { const now = Date.now(); candleCache.set(key, { ...cached, fetchedAt: cached?.fetchedAt ?? now, failedAt: now, retryAt: retryMs ? now + retryMs : undefined }); };
     await waitForCandleSlot();
+    let serverRateLimited = false;
     try {
       const payload = await fetchJson<unknown>(liveApi("ohlcv", { pool: key, token: pool.tokenAddress ?? "", limit: "48" }), 12000);
       const candles = parseOhlcv(payload);
       if (candles.length) { candleCache.set(key, { candles, fetchedAt: Date.now() }); persistCandleCache(); return candles; }
     } catch (error) {
       const errorText = String(error);
-      if (/\b429\b/.test(errorText)) candleBackoffUntil = Date.now() + 15_000;
-      // Keep the direct provider fallback for 4xx responses too. A pair can be
-      // absent from one index while still being available from GeckoTerminal.
-      console.warn("server 15m candle adapter failed; trying direct fallback", key, error);
+      serverRateLimited = /\b429\b/.test(errorText);
+      if (serverRateLimited) candleBackoffUntil = Date.now() + 15_000;
+      // Keep the direct provider fallback for non-rate-limit responses too. A
+      // pair can be absent from one index while still being available in Gecko.
+      console.warn("server 15m candle adapter failed", key, error);
+    }
+    // The server adapter already uses GeckoTerminal when no higher-quota key is
+    // configured. Do not immediately duplicate a rate-limited request from the
+    // browser; keep the last good series and let the scheduled retry recover it.
+    if (serverRateLimited) {
+      markFailure(15_000);
+      return cached?.candles;
     }
     try {
       const payload = await fetchJson<unknown>(`https://api.geckoterminal.com/api/v2/networks/solana/pools/${encodeURIComponent(key)}/ohlcv/minute?aggregate=15&limit=48`, 12000);
@@ -992,7 +1001,7 @@ async function fetchCandles(pool: Pool) {
       markFailure(rateLimited ? 15_000 : 30_000);
     }
     markFailure(30_000);
-    return undefined;
+    return cached?.candles;
   })();
   candleRequestInFlight.set(key, request);
   try {
@@ -1039,6 +1048,7 @@ async function enrichTechnicalData(pools: Pool[]) {
       }
       return undefined;
     });
+    if (queued.some((pool) => candleCache.get(pool.pairAddress ?? "")?.retryAt)) scheduleCandleRetry();
   };
   const priority = targets.slice(0, 30);
   const remainder = targets.slice(30);

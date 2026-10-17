@@ -786,3 +786,14 @@ body.has-modal-selection { overflow-y: hidden !important; }
   .x-post-row, .x-token-row { grid-template-columns: 1fr; }
   .x-post-row > a, .x-token-row > a { justify-self: start; }
 }
+
+/* Final interaction contract: one document scroller, one horizontal table viewport, and one modal layer. */
+html{scroll-behavior:auto !important}
+.workspace-page .table-wrap{overflow:visible !important;max-height:none !important;height:auto !important;border:0 !important;touch-action:auto !important;overscroll-behavior:initial !important}
+.workspace-page .table-scroll-viewport{width:100%;max-height:none !important;height:auto !important;overflow-x:auto !important;overflow-y:clip !important;touch-action:pan-x !important;overscroll-behavior-x:contain !important;overscroll-behavior-y:initial !important;-webkit-overflow-scrolling:touch}
+.workspace-page .table-scroll-viewport table{width:max-content !important;min-width:1160px !important}
+.workspace-page tbody tr.pool-row,.workspace-page tbody tr.pool-row:hover{transform:none !important}
+body.has-modal-selection{overflow:hidden !important}
+.evidence-backdrop{position:fixed !important;inset:0 !important;z-index:200 !important;width:100% !important;height:100% !important;border:0 !important;padding:0 !important;background:rgba(26,33,27,.28) !important;cursor:default !important;appearance:none !important}
+body.has-modal-selection .evidence-panel,.workspace-page.has-selection .evidence-panel{position:fixed !important;top:94px !important;right:max(18px,calc((100vw - 1480px) / 2 + 34px)) !important;bottom:18px !important;left:auto !important;z-index:210 !important;width:min(720px,calc(100vw - 48px)) !important;max-width:none !important;max-height:none !important;height:auto !important;margin:0 !important;overflow-x:hidden !important;overflow-y:auto !important;transform:none !important;overscroll-behavior:contain !important;box-shadow:0 24px 70px rgba(26,33,27,.24) !important}
+@media(max-width:800px){.workspace-page .table-scroll-viewport{overflow-x:auto !important;overflow-y:clip !important}.workspace-page .table-scroll-viewport table{min-width:1160px !important}body.has-modal-selection .evidence-panel,.workspace-page.has-selection .evidence-panel{top:72px !important;right:12px !important;bottom:12px !important;left:12px !important;width:auto !important;max-height:none !important;padding:20px 16px !important}.evidence-backdrop{inset:0 !important}}

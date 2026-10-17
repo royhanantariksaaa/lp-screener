@@ -946,5 +946,32 @@
     "sourceUrls": ["https://x.com/Nova6", "https://fomolens.app/trader/nova6", "https://fomolens.app/token/robinhood/0xeb579e280648b6f48a840086a9e6631500a20684", "https://fomo.family/profile/nova6"],
     "thesisMatches": [{"token": "Wheel Smith / GIGAMUSK / CYPHERCAT / SG", "evidenceUrl": "https://fomolens.app/trader/nova6", "thesis": "FomoLens records a Wheel Smith flywheel-launchpad thesis, GIGAMUSK/Musk4 high-risk nano-cap calls, a CYPHERCAT upside thesis, and an SG reference to a public Grok post. Preserve these as captured thesis context, not recommendations.", "sourceUrls": ["https://fomolens.app/trader/nova6", "https://fomolens.app/token/robinhood/0xeb579e280648b6f48a840086a9e6631500a20684", "https://x.com/Nova6"], "updatedAt": "2026-10-17"}],
     "updatedAt": "2026-10-17"
+  },
+  "picametalica": {
+    "xHandle": "picametalica",
+    "xUrl": "https://x.com/picametalica",
+    "status": "LIKELY",
+    "note": "The public @picametalica profile is live and uses the same handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. Its X display name is buls and no Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/picametalica", "https://fomolens.app/trader/picametalica", "https://fomolens.app/token/solana/24chbLd52BvQsqoJeNaZcirARSsvqmJg7Ucz2Tr9pump", "https://fomo.family/profile/picametalica"],
+    "thesisMatches": [{"token": "RIZO / EI", "evidenceUrl": "https://fomolens.app/trader/picametalica", "thesis": "FomoLens records repeated RIZO calls, including one that quotes an external SawyerMerritt X post, plus an EI call about moving attention back to Pump.fun. Preserve these as captured call context with indirect attribution where noted.", "sourceUrls": ["https://fomolens.app/trader/picametalica", "https://fomolens.app/token/solana/24chbLd52BvQsqoJeNaZcirARSsvqmJg7Ucz2Tr9pump", "https://x.com/SawyerMerritt/status/2110951012882084016", "https://x.com/picametalica"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "facap": {
+    "xHandle": "FacaP",
+    "xUrl": "https://x.com/FacaP",
+    "status": "LIKELY",
+    "note": "The public @FacaP profile resolves to the same normalized handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. Its public bio is sparse and no Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/FacaP", "https://fomolens.app/trader/facap", "https://fomolens.app/token/robinhood/0x15f3385625d7e364c5a6216fbbceadf10fa90e7d", "https://fomo.family/profile/facap"],
+    "thesisMatches": [{"token": "ABYSS / MEME / STANDARD", "evidenceUrl": "https://fomolens.app/trader/facap", "thesis": "FomoLens records Robinhood Chain ABYSS, MEME, and STANDARD calls with short notes about a coded launch, concern, and exposure. Preserve these as captured thesis context, not recommendations.", "sourceUrls": ["https://fomolens.app/trader/facap", "https://fomolens.app/token/robinhood/0x15f3385625d7e364c5a6216fbbceadf10fa90e7d", "https://x.com/FacaP"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "plottwisst": {
+    "xHandle": "Plottwisst",
+    "xUrl": "https://x.com/Plottwisst",
+    "status": "LIKELY",
+    "note": "The public @Plottwisst profile resolves to the same normalized handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. Its X display name is Plot twist and no Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/Plottwisst", "https://fomolens.app/trader/plottwisst", "https://fomolens.app/token/robinhood/0xedbf91223639800bcd5756815caf908df3b890be", "https://fomo.family/profile/plottwisst"],
+    "thesisMatches": [{"token": "PRIORS", "evidenceUrl": "https://fomolens.app/trader/plottwisst", "thesis": "FomoLens records a Robinhood Chain PRIORS call with a concise entry thesis. Preserve this as captured call context, not a recommendation or independent proof of wallet ownership.", "sourceUrls": ["https://fomolens.app/trader/plottwisst", "https://fomolens.app/token/robinhood/0xedbf91223639800bcd5756815caf908df3b890be", "https://x.com/Plottwisst"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
   }
 }

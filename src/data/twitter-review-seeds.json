@@ -1162,5 +1162,32 @@
     "sourceUrls": ["https://x.com/AssetAngus", "https://fomolens.app/trader/AssetAngus", "https://fomolens.app/token/solana/4MMQY9bwkxxTtsK3W227Q5ABT6yFY8Pmn9Ze7wmAXKY8", "https://fomo.family/profile/AssetAngus"],
     "thesisMatches": [{"token": "ALLINU", "evidenceUrl": "https://fomolens.app/trader/AssetAngus", "thesis": "FomoLens records an ALLINU Solana thesis centered on community strength through a correction and a possible move from a $4M floor toward a larger valuation. Preserve this as captured thesis context, not a recommendation.", "sourceUrls": ["https://fomolens.app/trader/AssetAngus", "https://fomolens.app/token/solana/4MMQY9bwkxxTtsK3W227Q5ABT6yFY8Pmn9Ze7wmAXKY8", "https://x.com/AssetAngus"], "updatedAt": "2026-10-17"}],
     "updatedAt": "2026-10-17"
+  },
+  "voidborn": {
+    "xHandle": "Voidborn",
+    "xUrl": "https://x.com/Voidborn",
+    "status": "LIKELY",
+    "note": "The public @Voidborn profile is live and uses the same handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. Its X bio references online games and no Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/Voidborn", "https://fomolens.app/trader/voidborn", "https://fomolens.app/token/solana/2j5SaS7xy776qCBpyPQbZjyQSAtKiFgrwjfErthnW2ZM", "https://fomo.family/profile/voidborn"],
+    "thesisMatches": [{"token": "CLAUDIA", "evidenceUrl": "https://fomolens.app/trader/voidborn", "thesis": "FomoLens records a Solana CLAUDIA thesis built around one character and infinite creators. Preserve this as captured thesis context, not a recommendation or independent proof of wallet ownership.", "sourceUrls": ["https://fomolens.app/trader/voidborn", "https://fomolens.app/token/solana/2j5SaS7xy776qCBpyPQbZjyQSAtKiFgrwjfErthnW2ZM", "https://x.com/Voidborn"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "its_phobia": {
+    "xHandle": "its_phobia",
+    "xUrl": "https://x.com/its_phobia",
+    "status": "LIKELY",
+    "note": "The public @its_phobia profile links to crypto-building and trading accounts and uses the same handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. No Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/its_phobia", "https://fomolens.app/trader/its_phobia", "https://fomolens.app/token/solana/CC5D6puFmcsnGaJh7kNXeAcRpL2SZzQfoQezvx45uKjt", "https://fomo.family/profile/its_phobia"],
+    "thesisMatches": [{"token": "WORLD / VRAX / MEMEOS", "evidenceUrl": "https://fomolens.app/trader/its_phobia", "thesis": "FomoLens records a WORLD charitable-narrative call, a VRAX Robinhood Chain thesis around privacy and attention, and a MEMEOS launchpad-integration thesis. Preserve these as captured thesis context, not recommendations.", "sourceUrls": ["https://fomolens.app/trader/its_phobia", "https://fomolens.app/token/solana/CC5D6puFmcsnGaJh7kNXeAcRpL2SZzQfoQezvx45uKjt", "https://fomolens.app/token/robinhood/0x94641b97010608c3827fb058074889f19868ff33", "https://x.com/its_phobia"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "0xnneged": {
+    "xHandle": "0xnneged",
+    "xUrl": "https://x.com/0xnneged",
+    "status": "LIKELY",
+    "note": "The public @0xnneged profile explicitly says it posts Solana/AI-companion watches and trades on Fomo, while FomoLens and the FOMO profile expose the matching resolver-backed trader. No Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/0xnneged", "https://fomolens.app/trader/0xnneged", "https://fomolens.app/token/solana/HuAXPyDWDaMYFKuwQHpqL1oPnj93zdzWmtvFGzCeCUa7", "https://fomo.family/profile/0xnneged"],
+    "thesisMatches": [{"token": "MASK / CAPE", "evidenceUrl": "https://fomolens.app/trader/0xnneged", "thesis": "FomoLens records repeated MASK privacy-protocol conviction and CAPE volume/market-cap calls. Preserve these as captured thesis context, not recommendations or independent proof of wallet ownership.", "sourceUrls": ["https://fomolens.app/trader/0xnneged", "https://fomolens.app/token/solana/HuAXPyDWDaMYFKuwQHpqL1oPnj93zdzWmtvFGzCeCUa7", "https://fomolens.app/token/solana/CXuxsSC2CeyszHZNAQAgwguWzaNhWvbGD7J8xpxwpump", "https://x.com/0xnneged"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
   }
 }

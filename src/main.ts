@@ -731,12 +731,11 @@ function renderWorkspaceInPlace() {
   const body = document.querySelector<HTMLTableSectionElement>("#workspace-table-body");
   const root = document.querySelector<HTMLElement>("[data-workspace-root]");
   if (!body || !root) return false;
+  const previousScroll = captureWorkspaceScroll();
   const pools = filtered();
   const nextRows = pools.map(poolRow).join("") || `<tr><td colspan="10" class="empty">${emptyWorkspaceState()}</td></tr>`;
   if (body.innerHTML !== nextRows) {
-    const previousScroll = captureWorkspaceScroll();
     body.innerHTML = nextRows;
-    restoreWorkspaceScroll(previousScroll);
   }
   const count = root.querySelector<HTMLElement>("#workspace-count");
   if (count) count.textContent = `${pools.length} candidates`;
@@ -776,6 +775,7 @@ function renderWorkspaceInPlace() {
   syncEvidenceBackdrop();
   bindWorkspaceDynamic();
   bindCandleTooltips();
+  restoreWorkspaceScroll(previousScroll);
   return true;
 }
 function render(mode: "full" | "data" = "full") {

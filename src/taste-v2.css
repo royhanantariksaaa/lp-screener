@@ -871,6 +871,9 @@ footer b { color: var(--ui-muted) !important; }
 .workspace-page .table-scroll-viewport {
   overflow-anchor: none !important;
 }
+.workspace-page .table-scroll-viewport thead th {
+  top: var(--table-header-top, 72px) !important;
+}
 .workspace-page .table-sticky-spacer { display: none !important; }
 .workspace-page .table-scroll-viewport.table-header-offset .table-sticky-spacer { display: table-row !important; }
 

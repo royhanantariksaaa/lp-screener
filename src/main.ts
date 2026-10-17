@@ -658,10 +658,25 @@ function syncWorkspaceTableHeaderOffset() {
   const topbarHeight = Math.round(document.querySelector<HTMLElement>(".topbar")?.getBoundingClientRect().height ?? (window.innerWidth <= 680 ? 54 : 72));
   const shouldOffset = viewport.getBoundingClientRect().top <= topbarHeight + 1;
   const wasOffset = viewport.classList.contains("table-header-offset");
-  if (shouldOffset === wasOffset) return;
-  const previousScroll = captureWorkspaceScroll();
-  viewport.classList.toggle("table-header-offset", shouldOffset);
-  restoreWorkspaceScroll(previousScroll);
+  if (shouldOffset !== wasOffset) viewport.classList.toggle("table-header-offset", shouldOffset);
+  const spacerCells = Array.from(viewport.querySelectorAll<HTMLElement>(".table-sticky-spacer th"));
+  if (!shouldOffset) {
+    viewport.style.removeProperty("--table-header-top");
+    spacerCells.forEach((cell) => cell.style.removeProperty("height"));
+    return;
+  }
+  const viewportTop = viewport.getBoundingClientRect().top;
+  const headerTop = Math.max(0, Math.ceil(topbarHeight - viewportTop));
+  viewport.style.setProperty("--table-header-top", `${headerTop}px`);
+  const headerCell = viewport.querySelector<HTMLElement>("thead tr:not(.table-sticky-spacer) th");
+  const firstRow = viewport.querySelector<HTMLElement>("tbody tr.pool-row");
+  if (headerCell && firstRow && spacerCells.length) {
+    const desiredBottom = topbarHeight + headerCell.getBoundingClientRect().height;
+    const currentBodyTop = firstRow.getBoundingClientRect().top;
+    const currentSpacerHeight = spacerCells[0].getBoundingClientRect().height;
+    const nextSpacerHeight = Math.max(0, Math.ceil(currentSpacerHeight + desiredBottom - currentBodyTop));
+    spacerCells.forEach((cell) => cell.style.setProperty("height", `${nextSpacerHeight}px`, "important"));
+  }
 }
 function bindWorkspaceTableHeaderOffset() {
   if (!workspaceTableOffsetBound) {

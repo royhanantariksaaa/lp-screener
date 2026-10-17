@@ -1342,5 +1342,32 @@
     "sourceUrls": ["https://x.com/that1618guy", "https://fomolens.app/trader/that1618guy", "https://fomolens.app/token/robinhood/0xedbf91223639800bcd5756815caf908df3b890be", "https://fomo.family/profile/that1618guy"],
     "thesisMatches": [{"token": "PRIORS", "evidenceUrl": "https://fomolens.app/trader/that1618guy", "thesis": "FomoLens records a detailed Robinhood Chain PRIORS thesis around team activity, product usefulness, capital efficiency, and the Pendle/USDG example. Preserve this as captured thesis context, not a recommendation.", "sourceUrls": ["https://fomolens.app/trader/that1618guy", "https://fomolens.app/token/robinhood/0xedbf91223639800bcd5756815caf908df3b890be", "https://x.com/that1618guy"], "updatedAt": "2026-10-17"}],
     "updatedAt": "2026-10-17"
+  },
+  "onlytrifiz": {
+    "xHandle": "onlytrifiz",
+    "xUrl": "https://x.com/onlytrifiz",
+    "status": "LIKELY",
+    "note": "The public @onlytrifiz profile identifies as a crypto OG and uses the same handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. No Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/onlytrifiz", "https://fomolens.app/trader/onlytrifiz", "https://fomolens.app/token/robinhood/0x7168563b0e70124f0c7c0cf2f13a8d1861baf4a5", "https://fomo.family/profile/onlytrifiz"],
+    "thesisMatches": [{"token": "BACKED", "evidenceUrl": "https://fomolens.app/trader/onlytrifiz", "thesis": "FomoLens records a Robinhood Chain BACKED call framing it as undervalued. Preserve this as captured thesis context, not a recommendation or independent proof of wallet ownership.", "sourceUrls": ["https://fomolens.app/trader/onlytrifiz", "https://fomolens.app/token/robinhood/0x7168563b0e70124f0c7c0cf2f13a8d1861baf4a5", "https://x.com/onlytrifiz"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "fabolous": {
+    "xHandle": "Fabolous",
+    "xUrl": "https://x.com/Fabolous",
+    "status": "LIKELY",
+    "note": "The public @Fabolous profile resolves to the same normalized handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. Its X display name is Dylan Fleming and no Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/Fabolous", "https://fomolens.app/trader/fabolous", "https://fomolens.app/token/robinhood/0xbf3e53713a53e9c3d5d1ddc25dd2c65669244663", "https://fomo.family/profile/fabolous"],
+    "thesisMatches": [{"token": "PCC / MP / MANIFEST", "evidenceUrl": "https://fomolens.app/trader/fabolous", "thesis": "FomoLens records PCC Robinhood Chain bottom/community theses, MP as a hedge against traditional markets, and a MANIFEST Solana call. Preserve these as captured thesis context, not recommendations.", "sourceUrls": ["https://fomolens.app/trader/fabolous", "https://fomolens.app/token/robinhood/0xbf3e53713a53e9c3d5d1ddc25dd2c65669244663", "https://fomolens.app/token/robinhood/0x5f57aa1bb52d7ca10a3588ff4736e3650a2e1e18", "https://x.com/Fabolous"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "pennylane": {
+    "xHandle": "PennyLane",
+    "xUrl": "https://x.com/PennyLane",
+    "status": "LIKELY",
+    "note": "The public @PennyLane profile resolves to the same normalized handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. Its X display name is Samantha and no Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/PennyLane", "https://fomolens.app/trader/pennylane", "https://fomolens.app/token/solana/Ai66LHZG9MCzg1WKdawwqduVAXpNDUuV8M3uyq5ppump", "https://fomo.family/profile/pennylane"],
+    "thesisMatches": [{"token": "CATE / ZEC", "evidenceUrl": "https://fomolens.app/trader/pennylane", "thesis": "FomoLens records CATE conviction through market turbulence and a ZEC entry/average-entry call. Preserve these as captured thesis context, not recommendations.", "sourceUrls": ["https://fomolens.app/trader/pennylane", "https://fomolens.app/token/solana/Ai66LHZG9MCzg1WKdawwqduVAXpNDUuV8M3uyq5ppump", "https://fomolens.app/token/solana/A7bdiYdS5GjqGFtxf17ppRHtDKPkkRqbKtR27dxvQXaS", "https://x.com/PennyLane"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
   }
 }

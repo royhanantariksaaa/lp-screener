@@ -1189,5 +1189,32 @@
     "sourceUrls": ["https://x.com/0xnneged", "https://fomolens.app/trader/0xnneged", "https://fomolens.app/token/solana/HuAXPyDWDaMYFKuwQHpqL1oPnj93zdzWmtvFGzCeCUa7", "https://fomo.family/profile/0xnneged"],
     "thesisMatches": [{"token": "MASK / CAPE", "evidenceUrl": "https://fomolens.app/trader/0xnneged", "thesis": "FomoLens records repeated MASK privacy-protocol conviction and CAPE volume/market-cap calls. Preserve these as captured thesis context, not recommendations or independent proof of wallet ownership.", "sourceUrls": ["https://fomolens.app/trader/0xnneged", "https://fomolens.app/token/solana/HuAXPyDWDaMYFKuwQHpqL1oPnj93zdzWmtvFGzCeCUa7", "https://fomolens.app/token/solana/CXuxsSC2CeyszHZNAQAgwguWzaNhWvbGD7J8xpxwpump", "https://x.com/0xnneged"], "updatedAt": "2026-10-17"}],
     "updatedAt": "2026-10-17"
+  },
+  "Bullieve": {
+    "xHandle": "Bullieve",
+    "xUrl": "https://x.com/Bullieve",
+    "status": "LIKELY",
+    "note": "The public @Bullieve profile is live and uses the same handle, while FomoLens links current CLAUDIA calls and the FOMO profile exposes the matching resolver-backed trader. Its X display name is Je$u$ and no Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/Bullieve", "https://fomolens.app/trader/Bullieve", "https://fomolens.app/token/solana/2j5SaS7xy776qCBpyPQbZjyQSAtKiFgrwjfErthnW2ZM", "https://fomo.family/profile/Bullieve"],
+    "thesisMatches": [{"token": "CLAUDIA", "evidenceUrl": "https://fomolens.app/trader/Bullieve", "thesis": "FomoLens records repeated CLAUDIA calls that cite public Roadster/Elon/Moonshot references. Those external posts are indirect context, so preserve this as captured thesis evidence, not a recommendation or proof of authorship.", "sourceUrls": ["https://fomolens.app/trader/Bullieve", "https://fomolens.app/token/solana/2j5SaS7xy776qCBpyPQbZjyQSAtKiFgrwjfErthnW2ZM", "https://x.com/anto_sabatella/status/2111212331267166257?s=46", "https://x.com/Bullieve"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "Clark10x": {
+    "xHandle": "Clark10x",
+    "xUrl": "https://x.com/Clark10x",
+    "status": "LIKELY",
+    "note": "The public @Clark10x profile is live and uses the same handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. Its bio is sparse and no Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/Clark10x", "https://fomolens.app/trader/Clark10x", "https://fomolens.app/token/robinhood/0x01e6301bc1118be90cc6bc2d1b5c0c44bb883111", "https://fomo.family/profile/Clark10x"],
+    "thesisMatches": [{"token": "IGNITION / STARMAN / CLAUDIA", "evidenceUrl": "https://fomolens.app/trader/Clark10x", "thesis": "FomoLens records an IGNITION wait thesis, a STARMAN narrative around future posting, and a CLAUDIA/Roadster call. Preserve these as captured thesis context, not recommendations.", "sourceUrls": ["https://fomolens.app/trader/Clark10x", "https://fomolens.app/token/robinhood/0x01e6301bc1118be90cc6bc2d1b5c0c44bb883111", "https://fomolens.app/token/ethereum/0x12419a0427c2a27a61c1cb4a49f5fad24fd4e671", "https://x.com/Clark10x"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "JamJam0407": {
+    "xHandle": "JamJam0407",
+    "xUrl": "https://x.com/JamJam0407",
+    "status": "LIKELY",
+    "note": "The public @JamJam0407 profile is live and uses the same handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. Its X display name is まお and no Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/JamJam0407", "https://fomolens.app/trader/JamJam0407", "https://fomolens.app/token/solana/B32ocrADBEo1XHsGVnxqP81SaK2NiZkQmmAoTnmT8Ybu", "https://fomo.family/profile/JamJam0407"],
+    "thesisMatches": [{"token": "BANKROLL", "evidenceUrl": "https://fomolens.app/trader/JamJam0407", "thesis": "FomoLens records a Solana BANKROLL call with a brief 🍒🦉 narrative. Preserve this as captured call context, not a recommendation or independent proof of wallet ownership.", "sourceUrls": ["https://fomolens.app/trader/JamJam0407", "https://fomolens.app/token/solana/B32ocrADBEo1XHsGVnxqP81SaK2NiZkQmmAoTnmT8Ybu", "https://x.com/JamJam0407"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
   }
 }

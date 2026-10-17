@@ -26,6 +26,12 @@ const localMarketProxy = (): Plugin => ({
           response.end(JSON.stringify(payload));
           return;
         }
+        if (kind === "xfeed") {
+          response.statusCode = 200;
+          response.setHeader("Content-Type", "application/json; charset=utf-8");
+          response.end(JSON.stringify({ status: "KEY_REQUIRED", source: "X API v2 · bearer token required", profiles: {}, posts: [], fetchedAt: new Date().toISOString(), note: "Set X_BEARER_TOKEN on the server to fetch recent public posts and replies." }));
+          return;
+        }
         const upstream = kind === "ohlcv"
           ? `https://api.geckoterminal.com/api/v2/networks/solana/pools/${encodeURIComponent(query.get("pool") ?? "")}/ohlcv/minute?aggregate=15&limit=100`
           : `https://api.dexscreener.com/latest/dex/search?q=${encodeURIComponent(query.get("q") ?? "SOL")}`;

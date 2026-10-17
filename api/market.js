@@ -15,6 +15,7 @@ const BIRDEYE_API = "https://public-api.birdeye.so";
 const OCULA_FEED = "https://vwpzmuprmqwqwshqiyhl.supabase.co/functions/v1/codex-brewing";
 const NANSEN_API = "https://api.nansen.ai/api/v1";
 const KAITO_MCP = "https://bff.kaito.ai/api/mcp";
+const X_API = "https://api.x.com/2";
 const MADEONSOL_API = "https://madeonsol.com/api/v1";
 const RUGCHECK_API = "https://api.rugcheck.xyz/v1";
 // MadeOnSol documents this read-only demo key for testing. Production deployments
@@ -23,6 +24,8 @@ const MADEONSOL_DEMO_KEY = "msk_demo_try_the_solana_api_2026";
 
 let madeOnSolFeedCache = { fetchedAt: 0, trades: [], delaySeconds: 0, asOf: undefined };
 let madeOnSolFeedPromise;
+const xFeedCache = new Map();
+const xFeedInFlight = new Map();
 const ohlcvCache = new Map();
 const geckoPoolCache = new Map();
 const trackedWalletIndex = new Map((Array.isArray(trackedWalletMap) ? trackedWalletMap : []).map((row) => [String(row.address ?? "").toLowerCase(), Array.isArray(row.matches) ? row.matches : []]));
@@ -466,6 +469,107 @@ const ageLabel = (timestamp) => {
   return minutes < 60 ? `${minutes}m` : `${Math.round(minutes / 60)}h`;
 };
 
+const xJson = async (url, bearer) => {
+  const response = await withTimeout(url, { headers: { accept: "application/json", authorization: `Bearer ${bearer}` } }, 15000);
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const detail = payload?.detail || payload?.title || payload?.error || payload?.message || `x (${response.status})`;
+    const error = new Error(String(detail));
+    error.status = response.status;
+    throw error;
+  }
+  return payload;
+};
+
+const safeXHandle = (value) => String(value ?? "").trim().replace(/^@+/, "").slice(0, 15);
+const isSafeXHandle = (value) => /^[a-z0-9_]{1,15}$/i.test(String(value ?? ""));
+const uniqueStrings = (values) => [...new Set(values.filter(Boolean).map((value) => String(value)))];
+const xPostEvidence = (tweet, usersById) => {
+  const user = usersById.get(String(tweet?.author_id ?? ""));
+  const username = safeXHandle(user?.username);
+  if (!username || !tweet?.id) return undefined;
+  const text = String(tweet.text ?? "").trim();
+  const solanaAddresses = text.match(/(?<![A-Za-z0-9])[1-9A-HJ-NP-Za-km-z]{32,44}(?![A-Za-z0-9])/g) ?? [];
+  const evmAddresses = text.match(/(?<![A-Za-z0-9])0x[a-fA-F0-9]{40}(?![A-Za-z0-9])/g) ?? [];
+  const cas = uniqueStrings([...solanaAddresses, ...evmAddresses]);
+  const dollarMentions = text.match(/\$[A-Za-z][A-Za-z0-9_]{1,14}/g) ?? [];
+  const hashMentions = text.match(/#[A-Za-z][A-Za-z0-9_]{1,14}/g) ?? [];
+  const uppercaseMentions = text.match(/\b[A-Z][A-Z0-9_]{2,14}\b/g) ?? [];
+  const stopwords = new Set(["THE", "AND", "FOR", "NOT", "THIS", "THAT", "WITH", "FROM", "JUST", "SOL", "USD", "USDC", "LFG", "DYOR", "ATH", "ATL", "CA"]);
+  const tokenMentions = uniqueStrings([...dollarMentions, ...hashMentions, ...uppercaseMentions].map((value) => value.replace(/^[#$]/, "").toUpperCase()).filter((value) => !stopwords.has(value) && value.length >= 2));
+  const metrics = tweet.public_metrics ?? {};
+  const isReply = Boolean(tweet.in_reply_to_user_id || (tweet.referenced_tweets ?? []).some((item) => item?.type === "replied_to"));
+  const createdAt = typeof tweet.created_at === "string" ? tweet.created_at : undefined;
+  return {
+    id: String(tweet.id),
+    xHandle: username,
+    url: `https://x.com/${encodeURIComponent(username)}/status/${encodeURIComponent(String(tweet.id))}`,
+    text: text.slice(0, 560),
+    createdAt,
+    contractAddresses: uniqueStrings(cas),
+    tokenMentions,
+    isReply,
+    replyToUserId: tweet.in_reply_to_user_id ? String(tweet.in_reply_to_user_id) : undefined,
+    publicMetrics: {
+      replies: Number(metrics.reply_count ?? 0),
+      likes: Number(metrics.like_count ?? 0),
+      reposts: Number(metrics.retweet_count ?? 0),
+      quotes: Number(metrics.quote_count ?? 0),
+    },
+    authorConfidence: "EXACT",
+  };
+};
+
+const xRecentFeed = async (handles) => {
+  const apiKey = String(process.env.X_BEARER_TOKEN ?? "").trim();
+  const normalizedHandles = [...new Set(handles.map(safeXHandle).filter(isSafeXHandle))].slice(0, 10);
+  if (!apiKey) return { status: "KEY_REQUIRED", source: "X API v2 · bearer token required", profiles: {}, posts: [], fetchedAt: new Date().toISOString(), note: "Set X_BEARER_TOKEN on the server to fetch recent public posts and replies without exposing the token to the browser." };
+  if (!normalizedHandles.length) return { status: "LIVE", source: "X API v2 · recent search", profiles: {}, posts: [], fetchedAt: new Date().toISOString() };
+  const cacheKey = normalizedHandles.map((handle) => handle.toLowerCase()).sort().join(",");
+  const cached = xFeedCache.get(cacheKey);
+  if (cached && Date.now() - cached.fetchedAt < 5 * 60_000) return cached.payload;
+  const inFlight = xFeedInFlight.get(cacheKey);
+  if (inFlight) return inFlight;
+  const request = (async () => {
+    const query = `(${normalizedHandles.map((handle) => `from:${handle}`).join(" OR ")}) -is:retweet`;
+    const params = new URLSearchParams({
+      query,
+      max_results: "100",
+      "tweet.fields": "created_at,author_id,conversation_id,in_reply_to_user_id,public_metrics,referenced_tweets,entities",
+      expansions: "author_id",
+      "user.fields": "username,name,profile_image_url,public_metrics",
+    });
+    try {
+      const payload = await xJson(`${X_API}/tweets/search/recent?${params.toString()}`, apiKey);
+      const usersById = new Map((Array.isArray(payload?.includes?.users) ? payload.includes.users : []).map((user) => [String(user.id), user]));
+      const posts = (Array.isArray(payload?.data) ? payload.data : []).map((tweet) => xPostEvidence(tweet, usersById)).filter(Boolean);
+      const profiles = Object.fromEntries(normalizedHandles.map((handle) => [handle.toLowerCase(), { xHandle: handle, posts: [], summary: { postCount: 0, replyCount: 0, contractCount: 0, engagement: 0, latestAt: undefined } }]));
+      posts.forEach((post) => {
+        const key = post.xHandle.toLowerCase();
+        const profile = profiles[key] ?? { xHandle: post.xHandle, posts: [], summary: { postCount: 0, replyCount: 0, contractCount: 0, engagement: 0, latestAt: undefined } };
+        profile.posts.push(post);
+        profile.summary.postCount += 1;
+        profile.summary.replyCount += post.isReply ? 1 : 0;
+        profile.summary.contractCount += post.contractAddresses.length;
+        profile.summary.engagement += post.publicMetrics.replies + post.publicMetrics.likes + post.publicMetrics.reposts + post.publicMetrics.quotes;
+        if (!profile.summary.latestAt || String(post.createdAt ?? "") > String(profile.summary.latestAt)) profile.summary.latestAt = post.createdAt;
+        profiles[key] = profile;
+      });
+      Object.values(profiles).forEach((profile) => profile.posts.sort((a, b) => String(b.createdAt ?? "").localeCompare(String(a.createdAt ?? ""))));
+      const result = { status: "LIVE", source: "X API v2 · recent posts + replies", profiles, posts, fetchedAt: new Date().toISOString(), window: "7d", nextToken: payload?.meta?.next_token };
+      xFeedCache.set(cacheKey, { fetchedAt: Date.now(), payload: result });
+      return result;
+    } catch (error) {
+      if (cached?.payload) return { ...cached.payload, status: "LIVE", source: `${cached.payload.source} · stale cache`, stale: true, note: error instanceof Error ? error.message : "X API refresh failed" };
+      return { status: error?.status === 429 ? "RATE_LIMITED" : "UNAVAILABLE", source: "X API v2 · recent posts", profiles: {}, posts: [], fetchedAt: new Date().toISOString(), note: error instanceof Error ? error.message : "X API unavailable" };
+    } finally {
+      xFeedInFlight.delete(cacheKey);
+    }
+  })();
+  xFeedInFlight.set(cacheKey, request);
+  return request;
+};
+
 const kaitoCall = async (name, args, apiKey) => {
   const response = await withTimeout(KAITO_MCP, {
     method: "POST",
@@ -633,6 +737,7 @@ const providerHealth = () => {
       { key: "blockscout", label: "Blockscout indexes", status: "LIVE", mode: "INDEXED_EVM", source: "Persisted Ethereum + Base + Robinhood wallet history · BNB key required" },
       { key: "defillama", label: "DeFiLlama", status: "LIVE", mode: "PUBLIC", source: "Chain TVL context" },
       { key: "lunarcrush", label: "LunarCrush", status: configured("LUNARCRUSH_API_KEY") ? "LIVE" : "KEY_REQUIRED", mode: "KOL", source: "Topic mentions + creators" },
+      { key: "x-api", label: "X API", status: configured("X_BEARER_TOKEN") ? "LIVE" : "KEY_REQUIRED", mode: "X_THESIS", source: "Recent posts + replies + contract extraction" },
       { key: "birdeye", label: "Birdeye", status: configured("BIRDEYE_API_KEY") ? "LIVE" : "KEY_REQUIRED", mode: "HOLDER_PROFILE", source: "Holder behavior enrichment" },
       { key: "nansen", label: "Nansen", status: configured("NANSEN_API_KEY") ? "LIVE" : "KEY_REQUIRED", mode: "SMART_MONEY", source: "Smart-money holders + 24h flow" },
       { key: "gmgn", label: "GMGN", status: "LINK_ONLY", mode: "LINK_ONLY", source: "On-chain trader context link" },
@@ -844,6 +949,10 @@ export default async function handler(req, res) {
         delaySeconds: snapshot.delaySeconds,
         asOf: snapshot.asOf,
       });
+    }
+    if (kind === "xfeed") {
+      const rawHandles = String(req.query?.handles ?? req.query?.handle ?? "").split(/[;,\s]+/).map(safeXHandle).filter(isSafeXHandle).slice(0, 10);
+      return res.status(200).json(await xRecentFeed(rawHandles));
     }
     return res.status(400).json({ error: "unknown_kind" });
   } catch (error) {

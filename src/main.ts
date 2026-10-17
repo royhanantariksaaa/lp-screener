@@ -672,8 +672,10 @@ function syncWorkspaceTableHeaderOffset() {
   const headerCell = viewport.querySelector<HTMLElement>("thead tr:not(.table-sticky-spacer) th");
   const firstRow = viewport.querySelector<HTMLElement>("tbody tr.pool-row");
   if (headerCell && firstRow && spacerCells.length) {
+    const firstRowRect = firstRow.getBoundingClientRect();
+    if (firstRowRect.bottom <= -topbarHeight || firstRowRect.top >= window.innerHeight + topbarHeight) return;
     const desiredBottom = topbarHeight + headerCell.getBoundingClientRect().height;
-    const currentBodyTop = firstRow.getBoundingClientRect().top;
+    const currentBodyTop = firstRowRect.top;
     const currentSpacerHeight = spacerCells[0].getBoundingClientRect().height;
     const nextSpacerHeight = Math.max(0, Math.ceil(currentSpacerHeight + desiredBottom - currentBodyTop));
     spacerCells.forEach((cell) => cell.style.setProperty("height", `${nextSpacerHeight}px`, "important"));

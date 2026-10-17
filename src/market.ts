@@ -45,7 +45,6 @@ export type EligibilityStatus = "OPEN_NOW" | "ELIGIBLE_WAIT" | "PENDING" | "REJE
 
 export type EligibilityAnalysis = {
   status: EligibilityStatus;
-  score: number;
   reasons: string[];
   hardGates: {
     address: boolean;
@@ -76,10 +75,258 @@ export function marketCapTier(marketCap?: number): MarketCapTier {
 
 export const marketCapTierLabel = (tier: MarketCapTier) => tier === "ULTRA_MICRO" ? "ULTRA MICRO" : tier === "ULTRA_MACRO" ? "ULTRA MACRO" : tier;
 
-export const marketCapFitScore = (marketCap?: number) => {
-  const tier = marketCapTier(marketCap);
-  return tier === "NANO" ? 8 : tier === "ULTRA_MICRO" ? 7 : tier === "MICRO" ? 5 : tier === "MEDIUM" ? 3 : tier === "MACRO" ? 1 : 0;
+export type ScoringPool = {
+  marketCap?: number;
+  liquidity: number;
+  volume24h: number;
+  ageDays: number;
+  fee?: number;
+  change24h: number;
+  technical?: TechnicalAnalysis;
+  candles?: Candle[];
+  walletFlow?: string;
+  smartWallets?: number;
+  trackedWalletHits?: number;
+  walletIntelligence?: string;
+  kolMentions?: number;
+  kolCreators?: number;
+  kolIntelligence?: string;
+  oculaVolume1h?: number;
+  oculaChange1h?: number;
+  tokenStatus?: string;
+  tokenSafety?: string;
+  mintAuthority?: boolean;
+  freezeAuthority?: boolean;
+  holderTop10Pct?: number;
 };
+
+export type ScoreSnapshot = {
+  snapshotId: number;
+  capturedAt: number;
+  lpFit: number;
+  runnerPotential: number;
+  flowUpside: number;
+  evidenceConfidence: number;
+  pending: boolean;
+  capTier: MarketCapTier;
+  components: {
+    depth: number;
+    volume: number;
+    turnover: number;
+    fee: number;
+    age: number;
+    range: number;
+    safety: number;
+    momentum: number;
+    acceleration: number;
+    wallet: number;
+    attention: number;
+  };
+  available: {
+    depth: boolean;
+    volume: boolean;
+    turnover: boolean;
+    fee: boolean;
+    age: boolean;
+    range: boolean;
+    safety: boolean;
+    momentum: boolean;
+    acceleration: boolean;
+    wallet: boolean;
+    attention: boolean;
+  };
+};
+
+const clampScore = (value: number) => Math.max(0, Math.min(100, Math.round(value)));
+const finitePositive = (value: unknown) => typeof value === "number" && Number.isFinite(value) && value > 0;
+const logNormalize = (value: number, low: number, high: number) => {
+  if (!Number.isFinite(value) || value <= low) return 0;
+  if (value >= high) return 100;
+  return clampScore((Math.log(value) - Math.log(low)) / (Math.log(high) - Math.log(low)) * 100);
+};
+const weightedAverage = (items: Array<{ value: number; weight: number; available: boolean }>) => {
+  const available = items.filter((item) => item.available && Number.isFinite(item.value));
+  const weight = available.reduce((sum, item) => sum + item.weight, 0);
+  return weight ? clampScore(available.reduce((sum, item) => sum + item.value * item.weight, 0) / weight) : 0;
+};
+const turnoverQuality = (ratio: number) => {
+  if (!Number.isFinite(ratio) || ratio <= 0.05) return 0;
+  if (ratio < 0.25) return clampScore(ratio / 0.25 * 55);
+  if (ratio < 0.75) return clampScore(55 + (ratio - 0.25) / 0.5 * 35);
+  if (ratio <= 2) return 100;
+  if (ratio <= 4) return clampScore(100 - (ratio - 2) / 2 * 20);
+  return clampScore(Math.max(30, 80 - Math.log(ratio / 4) * 24));
+};
+const ageReliability = (ageDays: number) => {
+  if (!Number.isFinite(ageDays) || ageDays < 0) return 0;
+  if (ageDays < 0.5) return 25;
+  if (ageDays < 2) return 45;
+  if (ageDays < 7) return 65;
+  if (ageDays < 30) return 85;
+  if (ageDays <= 180) return 100;
+  if (ageDays <= 365) return 78;
+  return 45;
+};
+const momentumScore = (change24h: number) => {
+  if (!Number.isFinite(change24h)) return 0;
+  if (change24h <= 0) return clampScore(Math.max(8, 30 + change24h * 2));
+  if (change24h < 5) return clampScore(30 + change24h * 4);
+  if (change24h < 10) return clampScore(50 + (change24h - 5) * 6);
+  if (change24h < 25) return clampScore(80 + (change24h - 10) * 1.33);
+  return 100;
+};
+const technicalRangeScore = (technical?: TechnicalAnalysis) => {
+  if (!technical?.available || !technical.fresh) return undefined;
+  const trend = technical.trend === "BULLISH" ? 92 : technical.trend === "BEARISH" ? 20 : 50;
+  const width = technical.bollinger?.widthPct;
+  const widthScore = width === undefined ? 50 : width < 2 ? 50 : width <= 18 ? 92 : width <= 35 ? 68 : 35;
+  const drawdown = technical.drawdownPct;
+  const drawdownScore = drawdown === undefined ? 50 : clampScore(Math.max(20, Math.min(100, 100 + drawdown * 2)));
+  return clampScore(trend * 0.55 + widthScore * 0.25 + drawdownScore * 0.2);
+};
+const candleAccelerationScore = (candles?: Candle[]) => {
+  if (!candles || candles.length < 8) return undefined;
+  const recent = candles.slice(-4).reduce((sum, candle) => sum + Math.max(0, candle.volume), 0) / 4;
+  const prior = candles.slice(-8, -4).reduce((sum, candle) => sum + Math.max(0, candle.volume), 0) / 4;
+  if (!prior) return recent > 0 ? 70 : 0;
+  const ratio = recent / prior;
+  if (ratio <= 0.5) return 15;
+  if (ratio < 1) return clampScore(15 + (ratio - 0.5) * 70);
+  if (ratio < 2) return clampScore(50 + (ratio - 1) * 45);
+  return 100;
+};
+const hourlyAccelerationScore = (pool: ScoringPool) => {
+  const hourly = pool.oculaVolume1h;
+  const baseline = pool.volume24h > 0 ? pool.volume24h / 24 : 0;
+  const scores: number[] = [];
+  if (finitePositive(hourly) && finitePositive(baseline)) {
+    const ratio = (hourly as number) / baseline;
+    scores.push(ratio <= 0.5 ? 15 : ratio < 1 ? clampScore(15 + (ratio - 0.5) * 70) : ratio < 2 ? clampScore(50 + (ratio - 1) * 45) : 100);
+  }
+  const change = pool.oculaChange1h;
+  if (typeof change === "number" && Number.isFinite(change)) scores.push(change <= 0 ? 15 : change < 5 ? clampScore(30 + change * 4) : change < 20 ? clampScore(50 + (change - 5) * 3.33) : 100);
+  return scores.length ? Math.max(...scores) : undefined;
+};
+const walletSignalScore = (pool: ScoringPool) => {
+  if (pool.walletFlow !== "INFLOW" && pool.walletFlow !== "MIXED" && pool.walletFlow !== "OUTFLOW" && pool.walletIntelligence !== "LIVE" && !(pool.trackedWalletHits && pool.trackedWalletHits > 0)) return undefined;
+  if (pool.walletFlow === "INFLOW") return 100;
+  if (pool.walletFlow === "MIXED") return 52;
+  if (pool.walletFlow === "OUTFLOW") return 12;
+  if (pool.trackedWalletHits && pool.trackedWalletHits > 0) return Math.min(100, 68 + pool.trackedWalletHits * 8);
+  return pool.smartWallets && pool.smartWallets > 0 ? 60 : 35;
+};
+const attentionSignalScore = (pool: ScoringPool) => {
+  const mentions = Math.max(0, Number(pool.kolMentions ?? 0));
+  const creators = Math.max(0, Number(pool.kolCreators ?? mentions));
+  if (pool.kolIntelligence !== "LIVE" && mentions <= 0 && creators <= 0) return undefined;
+  return clampScore(Math.min(100, Math.log10(mentions + creators + 1) * 55));
+};
+const feeRealizationScore = (pool: ScoringPool) => {
+  if (!finitePositive(pool.fee) || !finitePositive(pool.liquidity) || !Number.isFinite(pool.volume24h)) return undefined;
+  const annualizedFeeYield = Math.max(0, pool.volume24h * (pool.fee as number / 100) * 365 / pool.liquidity * 100);
+  return logNormalize(annualizedFeeYield, 5, 300);
+};
+const safetySignalScore = (pool: ScoringPool) => {
+  if (pool.tokenStatus !== "LIVE" || !pool.tokenSafety) return undefined;
+  if (pool.mintAuthority || pool.freezeAuthority) return 0;
+  const concentration = pool.holderTop10Pct;
+  const concentrationScore = concentration === undefined ? 70 : clampScore(100 - Math.max(0, concentration - 20) * 2.2);
+  return pool.tokenSafety === "PASS" ? concentrationScore : pool.tokenSafety === "WARN" ? Math.min(55, concentrationScore) : 25;
+};
+
+export function computeScoreSnapshot(pool: ScoringPool, snapshotId = 0, capturedAt = Date.now()): ScoreSnapshot {
+  const turnover = pool.liquidity > 0 ? pool.volume24h / pool.liquidity : 0;
+  const range = technicalRangeScore(pool.technical);
+  const fee = feeRealizationScore(pool);
+  const safety = safetySignalScore(pool);
+  const acceleration = Math.max(hourlyAccelerationScore(pool) ?? 0, candleAccelerationScore(pool.candles) ?? 0);
+  const momentum = momentumScore(pool.change24h);
+  const wallet = walletSignalScore(pool);
+  const attention = attentionSignalScore(pool);
+  const depth = logNormalize(pool.liquidity, 5_000, 1_000_000);
+  const volume = logNormalize(pool.volume24h, 2_000, 5_000_000);
+  const age = ageReliability(pool.ageDays);
+  const components = {
+    depth,
+    volume,
+    turnover: turnoverQuality(turnover),
+    fee: fee ?? 0,
+    age,
+    range: range ?? 0,
+    safety: safety ?? 0,
+    momentum,
+    acceleration,
+    wallet: wallet ?? 0,
+    attention: attention ?? 0,
+  };
+  const available = {
+    depth: Number.isFinite(pool.liquidity),
+    volume: Number.isFinite(pool.volume24h),
+    turnover: Number.isFinite(pool.liquidity) && pool.liquidity > 0 && Number.isFinite(pool.volume24h),
+    fee: fee !== undefined,
+    age: Number.isFinite(pool.ageDays),
+    range: range !== undefined,
+    safety: safety !== undefined,
+    momentum: Number.isFinite(pool.change24h),
+    acceleration: hourlyAccelerationScore(pool) !== undefined || candleAccelerationScore(pool.candles) !== undefined,
+    wallet: wallet !== undefined,
+    attention: attention !== undefined,
+  };
+  const lpItems = [
+    { value: depth, weight: 22, available: available.depth },
+    { value: volume, weight: 18, available: available.volume },
+    { value: components.turnover, weight: 18, available: available.turnover },
+    { value: components.fee, weight: 14, available: available.fee },
+    { value: components.range, weight: 14, available: available.range },
+    { value: components.safety, weight: 10, available: available.safety },
+    { value: age, weight: 4, available: available.age },
+  ];
+  let lpFit = weightedAverage(lpItems);
+  if (pool.volume24h <= 0) lpFit = Math.min(lpFit, 25);
+  else if (pool.volume24h < 2_000) lpFit = Math.min(lpFit, 40);
+  const flowItems = [
+    { value: components.acceleration, weight: 35, available: available.acceleration },
+    { value: components.momentum, weight: 25, available: available.momentum },
+    { value: components.wallet, weight: 15, available: available.wallet },
+    { value: components.attention, weight: 10, available: available.attention },
+    { value: age, weight: 5, available: available.age },
+    { value: depth, weight: 10, available: available.depth },
+  ];
+  const flowCoverage = flowItems.filter((item) => item.available).reduce((sum, item) => sum + item.weight, 0) / 100;
+  const flowUpside = clampScore(weightedAverage(flowItems) * (0.35 + flowCoverage * 0.65));
+  const tier = marketCapTier(pool.marketCap);
+  const runnerEligible = tier === "NANO" || tier === "ULTRA_MICRO";
+  const runnerItems = [
+    { value: components.acceleration, weight: 30, available: available.acceleration },
+    { value: components.momentum, weight: 25, available: available.momentum },
+    { value: components.range, weight: 20, available: available.range },
+    { value: components.wallet, weight: 15, available: available.wallet },
+    { value: components.attention, weight: 10, available: available.attention },
+  ];
+  const runnerCoverage = runnerItems.filter((item) => item.available).reduce((sum, item) => sum + item.weight, 0) / 100;
+  const runnerPotential = runnerEligible ? clampScore(weightedAverage(runnerItems) * (0.35 + runnerCoverage * 0.65)) : 0;
+  const confidenceParts = [
+    { value: available.depth && available.volume && available.age, weight: 20 },
+    { value: available.range, weight: 20 },
+    { value: available.safety, weight: 20 },
+    { value: available.fee, weight: 15 },
+    { value: available.wallet, weight: 12.5 },
+    { value: available.attention, weight: 12.5 },
+  ];
+  const evidenceConfidence = clampScore(confidenceParts.reduce((sum, item) => sum + (item.value ? item.weight : 0), 0));
+  return {
+    snapshotId,
+    capturedAt,
+    lpFit: clampScore(lpFit),
+    runnerPotential: clampScore(runnerPotential),
+    flowUpside: clampScore(flowUpside),
+    evidenceConfidence,
+    pending: evidenceConfidence < 70 || !available.range || !available.safety,
+    capTier: tier,
+    components,
+    available,
+  };
+}
 
 const unavailable = (candlesCount = 0): TechnicalAnalysis => ({
   available: false,
@@ -271,20 +518,8 @@ export function evaluateEligibility(
   if (!safetyReady) reasons.push("Waiting for mint and holder safety checks.");
   else if (!safetyPass) reasons.push("Mint, freeze, or holder concentration checks failed.");
   if (!reasons.length) reasons.push(trigger ? "All gates pass and a fresh bullish trigger is present." : "All hard gates pass; wait for the next confirmed trigger.");
-  const score = Math.max(0, Math.min(100,
-    (address ? 8 : 0) +
-    (liquidity ? 14 : 0) +
-    (volume ? 14 : 0) +
-    (age ? 9 : 0) +
-    (technical ? 19 : 0) +
-    (walletReady ? 8 : 0) +
-    (kolReady ? 7 : 0) +
-    (safetyPass ? 14 : 0) +
-    marketCapFitScore(pool.marketCap),
-  ));
   return {
     status,
-    score,
     reasons,
     hardGates: { address, liquidity, volume, age, technical, intelligence: intelligenceReady, safety: Boolean(safetyPass) },
   };

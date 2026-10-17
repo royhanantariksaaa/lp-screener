@@ -58,9 +58,10 @@ export type EligibilityAnalysis = {
   };
 };
 
-export type MarketCapTier = "ULTRA_MICRO" | "MICRO" | "MEDIUM" | "MACRO" | "ULTRA_MACRO" | "UNKNOWN";
+export type MarketCapTier = "NANO" | "ULTRA_MICRO" | "MICRO" | "MEDIUM" | "MACRO" | "ULTRA_MACRO" | "UNKNOWN";
 
 const MARKET_CAP_BANDS: Array<{ tier: MarketCapTier; max?: number }> = [
+  { tier: "NANO", max: 100_000 },
   { tier: "ULTRA_MICRO", max: 1_000_000 },
   { tier: "MICRO", max: 10_000_000 },
   { tier: "MEDIUM", max: 100_000_000 },
@@ -77,7 +78,7 @@ export const marketCapTierLabel = (tier: MarketCapTier) => tier === "ULTRA_MICRO
 
 export const marketCapFitScore = (marketCap?: number) => {
   const tier = marketCapTier(marketCap);
-  return tier === "ULTRA_MICRO" ? 7 : tier === "MICRO" ? 6 : tier === "MEDIUM" ? 4 : tier === "MACRO" ? 2 : tier === "ULTRA_MACRO" ? 1 : 0;
+  return tier === "NANO" ? 8 : tier === "ULTRA_MICRO" ? 7 : tier === "MICRO" ? 5 : tier === "MEDIUM" ? 3 : tier === "MACRO" ? 1 : 0;
 };
 
 const unavailable = (candlesCount = 0): TechnicalAnalysis => ({

@@ -2,6 +2,7 @@ import trackedWalletMap from "./wallet-map.json" with { type: "json" };
 import solanaWalletClusters from "./solana-wallet-clusters.json" with { type: "json" };
 import evmWalletClusters from "./evm-wallet-clusters.json" with { type: "json" };
 import walletGraph from "./wallet-graph.json" with { type: "json" };
+import { readFileSync } from "node:fs";
 
 const GECKO_OHLCV = "https://api.geckoterminal.com/api/v2/networks/solana/pools";
 const METEORA_DLMM_API = "https://dlmm.datapi.meteora.ag";
@@ -16,6 +17,9 @@ const OCULA_FEED = "https://vwpzmuprmqwqwshqiyhl.supabase.co/functions/v1/codex-
 const NANSEN_API = "https://api.nansen.ai/api/v1";
 const KAITO_MCP = "https://bff.kaito.ai/api/mcp";
 const X_API = "https://api.x.com/2";
+const X_FEED_SNAPSHOT_URL = String(process.env.X_FEED_SNAPSHOT_URL ?? "").trim();
+const X_FEED_SNAPSHOT_FILE = String(process.env.X_FEED_SNAPSHOT_FILE ?? "").trim();
+const X_FEED_SNAPSHOT_TOKEN = String(process.env.X_FEED_SNAPSHOT_TOKEN ?? "").trim();
 const MADEONSOL_API = "https://madeonsol.com/api/v1";
 const RUGCHECK_API = "https://api.rugcheck.xyz/v1";
 // MadeOnSol documents this read-only demo key for testing. Production deployments
@@ -520,10 +524,84 @@ const xPostEvidence = (tweet, usersById) => {
   };
 };
 
+const isSnapshotPost = (post) => post && typeof post === "object" && String(post.id ?? "").trim() && String(post.xHandle ?? "").trim();
+const snapshotPostForHandle = (post, handle) => String(post?.xHandle ?? "").toLowerCase() === String(handle ?? "").toLowerCase();
+const snapshotSummary = (posts) => ({
+  postCount: posts.length,
+  replyCount: posts.filter((post) => post.isReply).length,
+  contractCount: posts.reduce((total, post) => total + post.contractAddresses.length, 0),
+  engagement: posts.reduce((total, post) => total + post.publicMetrics.replies + post.publicMetrics.likes + post.publicMetrics.reposts + post.publicMetrics.quotes, 0),
+  latestAt: posts.map((post) => post.createdAt).filter(Boolean).sort().at(-1),
+});
+const normalizeSnapshotFeed = (payload, handles) => {
+  const sourcePosts = Array.isArray(payload?.posts) ? payload.posts : [];
+  const requested = new Set(handles.map((handle) => String(handle).toLowerCase()));
+  const posts = sourcePosts.filter(isSnapshotPost).filter((post) => !requested.size || requested.has(String(post.xHandle).toLowerCase())).map((post) => ({
+    id: String(post.id),
+    xHandle: String(post.xHandle).replace(/^@+/, ""),
+    url: String(post.url ?? `https://x.com/${encodeURIComponent(String(post.xHandle).replace(/^@+/, ""))}/status/${encodeURIComponent(String(post.id))}`),
+    text: String(post.text ?? "").slice(0, 560),
+    createdAt: post.createdAt ? String(post.createdAt) : undefined,
+    contractAddresses: Array.isArray(post.contractAddresses) ? [...new Set(post.contractAddresses.map(String))].slice(0, 8) : [],
+    tokenMentions: Array.isArray(post.tokenMentions) ? [...new Set(post.tokenMentions.map(String))].slice(0, 16) : [],
+    isReply: Boolean(post.isReply),
+    replyToUserId: post.replyToUserId ? String(post.replyToUserId) : undefined,
+    publicMetrics: {
+      replies: Number(post.publicMetrics?.replies ?? 0),
+      likes: Number(post.publicMetrics?.likes ?? 0),
+      reposts: Number(post.publicMetrics?.reposts ?? 0),
+      quotes: Number(post.publicMetrics?.quotes ?? 0),
+    },
+    authorConfidence: "EXACT",
+  }));
+  const profileHandles = handles.length ? handles : [...new Set(posts.map((post) => post.xHandle))];
+  const profiles = Object.fromEntries(profileHandles.map((handle) => {
+    const profilePosts = posts.filter((post) => snapshotPostForHandle(post, handle)).sort((a, b) => String(b.createdAt ?? "").localeCompare(String(a.createdAt ?? "")));
+    return [String(handle).toLowerCase(), { xHandle: String(handle).replace(/^@+/, ""), posts: profilePosts, summary: snapshotSummary(profilePosts) }];
+  }));
+  return {
+    status: "LIVE",
+    source: String(payload?.source ?? "Authorized X snapshot bridge"),
+    profiles,
+    posts,
+    fetchedAt: String(payload?.fetchedAt ?? payload?.capturedAt ?? new Date().toISOString()),
+    window: String(payload?.window ?? "7d"),
+    stale: true,
+    note: payload?.note ? String(payload.note) : "Snapshot imported by a separate authorized collector.",
+  };
+};
+const readSnapshotFile = () => {
+  if (!X_FEED_SNAPSHOT_FILE) return undefined;
+  try {
+    return JSON.parse(readFileSync(X_FEED_SNAPSHOT_FILE, "utf8"));
+  } catch {
+    return undefined;
+  }
+};
+const xSnapshotFeed = async (handles) => {
+  let payload = readSnapshotFile();
+  if (!payload && X_FEED_SNAPSHOT_URL) {
+    try {
+      const headers = { accept: "application/json" };
+      if (X_FEED_SNAPSHOT_TOKEN) headers.authorization = `Bearer ${X_FEED_SNAPSHOT_TOKEN}`;
+      const response = await withTimeout(X_FEED_SNAPSHOT_URL, { headers }, 10000);
+      if (!response.ok) throw new Error(`snapshot (${response.status})`);
+      payload = await response.json().catch(() => ({}));
+    } catch {
+      payload = undefined;
+    }
+  }
+  return payload ? normalizeSnapshotFeed(payload, handles) : undefined;
+};
+
 const xRecentFeed = async (handles) => {
   const apiKey = String(process.env.X_BEARER_TOKEN ?? "").trim();
   const normalizedHandles = [...new Set(handles.map(safeXHandle).filter(isSafeXHandle))].slice(0, 10);
-  if (!apiKey) return { status: "KEY_REQUIRED", source: "X API v2 · bearer token required", profiles: {}, posts: [], fetchedAt: new Date().toISOString(), note: "Set X_BEARER_TOKEN on the server to fetch recent public posts and replies without exposing the token to the browser." };
+  if (!apiKey) {
+    const snapshot = await xSnapshotFeed(normalizedHandles);
+    if (snapshot) return snapshot;
+    return { status: "KEY_REQUIRED", source: "X API v2 · bearer token required", profiles: {}, posts: [], fetchedAt: new Date().toISOString(), note: "Set X_BEARER_TOKEN on the server, or configure X_FEED_SNAPSHOT_URL for an authorized private snapshot bridge." };
+  }
   if (!normalizedHandles.length) return { status: "LIVE", source: "X API v2 · recent search", profiles: {}, posts: [], fetchedAt: new Date().toISOString() };
   const cacheKey = normalizedHandles.map((handle) => handle.toLowerCase()).sort().join(",");
   const cached = xFeedCache.get(cacheKey);
@@ -561,6 +639,8 @@ const xRecentFeed = async (handles) => {
       return result;
     } catch (error) {
       if (cached?.payload) return { ...cached.payload, status: "LIVE", source: `${cached.payload.source} · stale cache`, stale: true, note: error instanceof Error ? error.message : "X API refresh failed" };
+      const snapshot = await xSnapshotFeed(normalizedHandles);
+      if (snapshot) return { ...snapshot, note: `Official X API unavailable: ${error instanceof Error ? error.message : "X API refresh failed"}` };
       return { status: error?.status === 429 ? "RATE_LIMITED" : "UNAVAILABLE", source: "X API v2 · recent posts", profiles: {}, posts: [], fetchedAt: new Date().toISOString(), note: error instanceof Error ? error.message : "X API unavailable" };
     } finally {
       xFeedInFlight.delete(cacheKey);
@@ -723,6 +803,7 @@ const tokenSignal = async (mint) => {
 };
 
 const providerHealth = () => {
+  const xSnapshotConfigured = Boolean(X_FEED_SNAPSHOT_URL || X_FEED_SNAPSHOT_FILE);
   const configured = (name) => Boolean(String(process.env[name] ?? "").trim());
   return {
     providers: [
@@ -737,7 +818,7 @@ const providerHealth = () => {
       { key: "blockscout", label: "Blockscout indexes", status: "LIVE", mode: "INDEXED_EVM", source: "Persisted Ethereum + Base + Robinhood wallet history · BNB key required" },
       { key: "defillama", label: "DeFiLlama", status: "LIVE", mode: "PUBLIC", source: "Chain TVL context" },
       { key: "lunarcrush", label: "LunarCrush", status: configured("LUNARCRUSH_API_KEY") ? "LIVE" : "KEY_REQUIRED", mode: "KOL", source: "Topic mentions + creators" },
-      { key: "x-api", label: "X API", status: configured("X_BEARER_TOKEN") ? "LIVE" : "KEY_REQUIRED", mode: "X_THESIS", source: "Recent posts + replies + contract extraction" },
+      { key: "x-api", label: "X API / snapshot bridge", status: configured("X_BEARER_TOKEN") || xSnapshotConfigured ? "LIVE" : "KEY_REQUIRED", mode: "X_THESIS", source: configured("X_BEARER_TOKEN") ? "Recent posts + replies + contract extraction" : xSnapshotConfigured ? "Authorized snapshot feed + contract extraction" : "Recent posts + replies · server key or snapshot bridge required" },
       { key: "birdeye", label: "Birdeye", status: configured("BIRDEYE_API_KEY") ? "LIVE" : "KEY_REQUIRED", mode: "HOLDER_PROFILE", source: "Holder behavior enrichment" },
       { key: "nansen", label: "Nansen", status: configured("NANSEN_API_KEY") ? "LIVE" : "KEY_REQUIRED", mode: "SMART_MONEY", source: "Smart-money holders + 24h flow" },
       { key: "gmgn", label: "GMGN", status: "LINK_ONLY", mode: "LINK_ONLY", source: "On-chain trader context link" },

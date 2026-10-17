@@ -27,9 +27,21 @@ const localMarketProxy = (): Plugin => ({
           return;
         }
         if (kind === "xfeed") {
+          const snapshotPath = process.env.X_FEED_SNAPSHOT_FILE?.trim();
+          if (snapshotPath) {
+            try {
+              const snapshot = JSON.parse(readFileSync(snapshotPath, "utf8"));
+              response.statusCode = 200;
+              response.setHeader("Content-Type", "application/json; charset=utf-8");
+              response.end(JSON.stringify(snapshot));
+              return;
+            } catch {
+              // Fall through to the explicit key-required state below.
+            }
+          }
           response.statusCode = 200;
           response.setHeader("Content-Type", "application/json; charset=utf-8");
-          response.end(JSON.stringify({ status: "KEY_REQUIRED", source: "X API v2 · bearer token required", profiles: {}, posts: [], fetchedAt: new Date().toISOString(), note: "Set X_BEARER_TOKEN on the server to fetch recent public posts and replies." }));
+          response.end(JSON.stringify({ status: "KEY_REQUIRED", source: "X API v2 · bearer token required", profiles: {}, posts: [], fetchedAt: new Date().toISOString(), note: "Set X_BEARER_TOKEN or X_FEED_SNAPSHOT_FILE on the local server to fetch recent public posts and replies." }));
           return;
         }
         const upstream = kind === "ohlcv"

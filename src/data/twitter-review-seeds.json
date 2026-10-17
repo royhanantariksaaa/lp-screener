@@ -1216,5 +1216,32 @@
     "sourceUrls": ["https://x.com/JamJam0407", "https://fomolens.app/trader/JamJam0407", "https://fomolens.app/token/solana/B32ocrADBEo1XHsGVnxqP81SaK2NiZkQmmAoTnmT8Ybu", "https://fomo.family/profile/JamJam0407"],
     "thesisMatches": [{"token": "BANKROLL", "evidenceUrl": "https://fomolens.app/trader/JamJam0407", "thesis": "FomoLens records a Solana BANKROLL call with a brief 🍒🦉 narrative. Preserve this as captured call context, not a recommendation or independent proof of wallet ownership.", "sourceUrls": ["https://fomolens.app/trader/JamJam0407", "https://fomolens.app/token/solana/B32ocrADBEo1XHsGVnxqP81SaK2NiZkQmmAoTnmT8Ybu", "https://x.com/JamJam0407"], "updatedAt": "2026-10-17"}],
     "updatedAt": "2026-10-17"
+  },
+  "end837": {
+    "xHandle": "end837",
+    "xUrl": "https://x.com/end837",
+    "status": "LIKELY",
+    "note": "The public @end837 profile is live and uses the same handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. Its X profile is sparse and no Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/end837", "https://fomolens.app/trader/end837", "https://fomolens.app/token/solana/6Mix12LiHrQFojaQEnfPUC65Qkwd6X4Y5Qg93oFbordr", "https://fomo.family/profile/end837"],
+    "thesisMatches": [{"token": "BORDR", "evidenceUrl": "https://fomolens.app/trader/end837", "thesis": "FomoLens records repeated Solana BORDR calls, including a money-rotation thesis and a later top-blasting call. Preserve these as captured thesis context, not recommendations.", "sourceUrls": ["https://fomolens.app/trader/end837", "https://fomolens.app/token/solana/6Mix12LiHrQFojaQEnfPUC65Qkwd6X4Y5Qg93oFbordr", "https://x.com/end837"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "ManRay": {
+    "xHandle": "manray",
+    "xUrl": "https://x.com/manray",
+    "status": "LIKELY",
+    "note": "The public @manray profile resolves to the same normalized handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. Its X display name is Lars Christiansen with a sparse business bio, and no Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/manray", "https://fomolens.app/trader/ManRay", "https://fomolens.app/token/solana/FtRQa4uZDjVYW4vLcPNyf4oYXqG2iVwxZfPriBNkpump", "https://fomo.family/profile/ManRay"],
+    "thesisMatches": [{"token": "Winnie / GIGAMUSK / MUSK6900", "evidenceUrl": "https://fomolens.app/trader/ManRay", "thesis": "FomoLens records short Solana calls for Winnie, GIGAMUSK, and MUSK6900 framed as possible runners or winners. Preserve these as captured call context, not recommendations.", "sourceUrls": ["https://fomolens.app/trader/ManRay", "https://fomolens.app/token/solana/FtRQa4uZDjVYW4vLcPNyf4oYXqG2iVwxZfPriBNkpump", "https://fomolens.app/token/solana/CGKWX13FgftpdUaU8mBu6c6jUpseuzVmjV2nSvuiaLGf", "https://x.com/manray"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "OinkersRUs": {
+    "xHandle": "OinkersRUs",
+    "xUrl": "https://x.com/OinkersRUs",
+    "status": "LIKELY",
+    "note": "The public @OinkersRUs profile identifies Grant Liu and uses the same handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. No Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/OinkersRUs", "https://fomolens.app/trader/OinkersRUs", "https://fomolens.app/token/solana/jr963C1eUWRYk7TYAxii7MRyJqr1zJhVyZuYgVYpump", "https://fomo.family/profile/OinkersRUs"],
+    "thesisMatches": [{"token": "CUTS / AURA / GUANO", "evidenceUrl": "https://fomolens.app/trader/OinkersRUs", "thesis": "FomoLens records CUTS as a Pendle-like memecoin mechanism, AURA as a quick conviction call, and GUANO as a short meme thesis. Unnamed-token references are omitted from the display label.", "sourceUrls": ["https://fomolens.app/trader/OinkersRUs", "https://fomolens.app/token/solana/jr963C1eUWRYk7TYAxii7MRyJqr1zJhVyZuYgVYpump", "https://fomolens.app/token/solana/6ZjXu9fMvvEWwpZFTvNaGfkYQU48VvHLYWmb5Uqbco3C", "https://x.com/OinkersRUs"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
   }
 }

@@ -242,11 +242,11 @@ const poolDecision = (pool: Pool, displayedScore = scoreFor(pool)) => {
   const eligible = pool.eligibility?.status === "OPEN_NOW" || pool.eligibility?.status === "ELIGIBLE_WAIT";
   const runner = runnerPotentialScore(pool);
   const flow = volumeUpsideScore(pool);
+  if (pool.eligibility?.status === "REJECTED") return { label: "REJECTED", className: "rejected" };
   if (eligible && displayedScore >= 70) return { label: "LP CANDIDATE", className: "lp-candidate" };
   if (eligible && displayedScore >= 55) return { label: "LP WATCH", className: "lp-watch" };
   if (isRunnerTier(pool.marketCap) && runner >= 3) return { label: "RUNNER CANDIDATE", className: "runner-candidate" };
   if (flow >= 4) return { label: "FLOW UPSIDE", className: "flow-upside" };
-  if (pool.eligibility?.status === "REJECTED") return { label: "REJECTED", className: "rejected" };
   return { label: "SCREENING", className: "screening" };
 };
 const volumeUpsideScore = (pool: Pool) => {

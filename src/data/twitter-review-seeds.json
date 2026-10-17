@@ -1027,5 +1027,32 @@
     "sourceUrls": ["https://x.com/carver_", "https://fomolens.app/trader/Carver_", "https://fomolens.app/token/solana/a8QNBntUcepcqcUp2At7NSvXxfoRFzyy9a6ktgDzjsV", "https://fomo.family/profile/Carver_"],
     "thesisMatches": [{"token": "IRIS / LARPCHECK / bazucat", "evidenceUrl": "https://fomolens.app/trader/Carver_", "thesis": "FomoLens records an IRIS thesis around a ChatGPT companion, LARPCHECK adoption and leaderboard momentum, and a bazucat survival call. Preserve these as captured thesis context, not recommendations.", "sourceUrls": ["https://fomolens.app/trader/Carver_", "https://fomolens.app/token/solana/a8QNBntUcepcqcUp2At7NSvXxfoRFzyy9a6ktgDzjsV", "https://x.com/carver_"], "updatedAt": "2026-10-17"}],
     "updatedAt": "2026-10-17"
+  },
+  "397397": {
+    "xHandle": "397397",
+    "xUrl": "https://x.com/397397",
+    "status": "LIKELY",
+    "note": "The public @397397 profile is live and uses the same handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. Its X display name is Мартина and no Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/397397", "https://fomolens.app/trader/397397", "https://fomolens.app/token/solana/Gyk9Z93Ri2JUjqES9HTpc7pxCJTLD7vhBhEjBhyApump", "https://fomo.family/profile/397397"],
+    "thesisMatches": [{"token": "Altai", "evidenceUrl": "https://fomolens.app/trader/397397", "thesis": "FomoLens records repeated Solana Altai calls, including short notes about entering and losing on the position. Preserve this as captured call context, not a recommendation or independent proof of wallet ownership.", "sourceUrls": ["https://fomolens.app/trader/397397", "https://fomolens.app/token/solana/Gyk9Z93Ri2JUjqES9HTpc7pxCJTLD7vhBhEjBhyApump", "https://x.com/397397"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "VexRex23": {
+    "xHandle": "VexRex23",
+    "xUrl": "https://x.com/VexRex23",
+    "status": "LIKELY",
+    "note": "The public @VexRex23 profile is live and uses the same handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. Its X display name is Ayovex and no Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/VexRex23", "https://fomolens.app/trader/VexRex23", "https://fomolens.app/token/robinhood/0x020bfc650a365f8bb26819deaabf3e21291018b4", "https://fomo.family/profile/VexRex23"],
+    "thesisMatches": [{"token": "CASHCAT", "evidenceUrl": "https://fomolens.app/trader/VexRex23", "thesis": "FomoLens records a Robinhood Chain CASHCAT thesis around the $100M market-cap level, cats as this cycle's meme narrative, and Robinhood distribution. Preserve this as captured thesis context, not a recommendation.", "sourceUrls": ["https://fomolens.app/trader/VexRex23", "https://fomolens.app/token/robinhood/0x020bfc650a365f8bb26819deaabf3e21291018b4", "https://x.com/VexRex23"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "DonnyDicey": {
+    "xHandle": "DonnyDicey",
+    "xUrl": "https://x.com/DonnyDicey",
+    "status": "LIKELY",
+    "note": "The public @DonnyDicey profile identifies a tape-reading trader and uses the same handle, while FomoLens links the trader record and a direct X post for the matching thesis. No Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/DonnyDicey", "https://x.com/DonnyDicey/status/2111199878965834226?s=20", "https://fomolens.app/trader/DonnyDicey", "https://fomo.family/profile/DonnyDicey"],
+    "thesisMatches": [{"token": "旺柴", "evidenceUrl": "https://x.com/DonnyDicey/status/2111199878965834226?s=20", "thesis": "FomoLens records a BNB Chain 旺柴 call that links directly to a DonnyDicey X post, plus macro/tape commentary around BTC demand and the token narrative. Preserve this as captured public thesis evidence, not a recommendation.", "sourceUrls": ["https://x.com/DonnyDicey/status/2111199878965834226?s=20", "https://fomolens.app/trader/DonnyDicey", "https://fomolens.app/token/bsc/0x14f6a94909c407854390aa2d2462a3095d317777", "https://x.com/DonnyDicey"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
   }
 }

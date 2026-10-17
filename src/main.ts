@@ -450,8 +450,7 @@ function selectEvidencePool(key: string) {
   render();
   window.requestAnimationFrame(() => {
     const evidence = document.querySelector(".evidence-panel");
-    if (window.matchMedia("(min-width: 801px)").matches) evidence?.scrollIntoView({ behavior: "smooth", block: "start" });
-    else evidence?.querySelector<HTMLButtonElement>("[data-close-evidence]")?.focus();
+    evidence?.querySelector<HTMLButtonElement>("[data-close-evidence]")?.focus();
   });
   void enrichSelectedPool(key);
 }

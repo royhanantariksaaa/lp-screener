@@ -19,6 +19,7 @@
     "vite": "^7.0.0"
   },
   "dependencies": {
-    "@vercel/blob": "^2.8.2"
+    "@vercel/blob": "^2.8.2",
+    "lucide": "^1.59.0"
   }
 }

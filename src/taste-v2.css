@@ -948,3 +948,49 @@ footer b { color: var(--ui-muted) !important; }
   *::before,
   *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .001ms !important; }
 }
+
+/* Lucide is the single icon vocabulary for controls, status markers, and
+   evidence signals.  Keep the SVGs sized to the surrounding type so the
+   library improves clarity without changing the existing density. */
+.ui-icon {
+  display: block;
+  width: 1em;
+  height: 1em;
+  flex: 0 0 auto;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.icon-slot,
+.button-icon,
+.menu-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+.icon-slot { line-height: 1; }
+.brand-mark .ui-icon { width: 18px; height: 18px; stroke-width: 2.2; }
+.pill .icon-slot { margin-right: 5px; font-size: 11px; }
+.menu-icon .ui-icon { width: 18px; height: 18px; stroke-width: 1.8; }
+.sort-icon { width: 12px; height: 12px; vertical-align: -2px; margin-left: 3px; }
+.button-icon { width: 14px; height: 14px; vertical-align: -2px; }
+.badge-icon { width: 12px; height: 12px; vertical-align: -2px; margin-right: 3px; }
+.evidence-icon .ui-icon { width: 18px; height: 18px; }
+.list-link .icon-slot { font-size: 13px; }
+.list-link .icon-slot .ui-icon { width: 14px; height: 14px; }
+.row-watch .button-icon,
+.row-compare .button-icon { width: 13px; height: 13px; }
+.row-watch.active .button-icon { fill: currentColor; }
+.inline-icon { display: inline-block; width: .95em; height: .95em; vertical-align: -.16em; }
+.search-icon { display: inline-flex; align-items: center; color: var(--ui-accent); }
+.search-icon .ui-icon { width: 14px; height: 14px; }
+.feed-state-icon .ui-icon,
+.intel-icon .ui-icon { width: 16px; height: 16px; }
+.lab-tab .ui-icon { width: 18px; height: 18px; }
+.lab-tab > i .ui-icon { width: 14px; height: 14px; }
+.source-toggle .inline-icon,
+.text-link .inline-icon,
+.primary .inline-icon,
+.lesson-next .inline-icon,
+.academy-source .inline-icon { margin-left: 4px; }

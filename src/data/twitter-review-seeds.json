@@ -1000,5 +1000,32 @@
     "sourceUrls": ["https://x.com/kenobi_wif", "https://fomolens.app/trader/kenobi_wif", "https://fomolens.app/token/solana/BVdbH7PLTSQxBssqvWTxVDoA8qfsztdVtMsZQSS9CScZ", "https://fomo.family/profile/kenobi_wif"],
     "thesisMatches": [{"token": "GHOSTCAT", "evidenceUrl": "https://fomolens.app/trader/kenobi_wif", "thesis": "FomoLens records a Solana GHOSTCAT call with a concise speculative entry note. Preserve this as captured call context, not a recommendation or independent proof of wallet ownership.", "sourceUrls": ["https://fomolens.app/trader/kenobi_wif", "https://fomolens.app/token/solana/BVdbH7PLTSQxBssqvWTxVDoA8qfsztdVtMsZQSS9CScZ", "https://x.com/kenobi_wif"], "updatedAt": "2026-10-17"}],
     "updatedAt": "2026-10-17"
+  },
+  "rarety": {
+    "xHandle": "rarety",
+    "xUrl": "https://x.com/rarety",
+    "status": "LIKELY",
+    "note": "The public @rarety profile is live and uses the same handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. Its X display name is gabriella di falco and no Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/rarety", "https://fomolens.app/trader/rarety", "https://fomolens.app/token/solana/2j5SaS7xy776qCBpyPQbZjyQSAtKiFgrwjfErthnW2ZM", "https://fomo.family/profile/rarety"],
+    "thesisMatches": [{"token": "CLAUDIA / SAINDRA / AI IDOLS", "evidenceUrl": "https://fomolens.app/trader/rarety", "thesis": "FomoLens records repeated CLAUDIA and SAINDRA calls around AI-idol and new-meta narratives, including a thesis update and a longer-term category view. Preserve these as captured thesis context, not recommendations.", "sourceUrls": ["https://fomolens.app/trader/rarety", "https://fomolens.app/token/solana/2j5SaS7xy776qCBpyPQbZjyQSAtKiFgrwjfErthnW2ZM", "https://fomolens.app/token/solana/A2yA6AFtfKkfVkfsnGpvsKoUV5kQPpMYboZsBPvmkA9T", "https://x.com/rarety"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "rook63": {
+    "xHandle": "rook63",
+    "xUrl": "https://x.com/rook63",
+    "status": "LIKELY",
+    "note": "The public @rook63 profile is live and uses the same handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. Its X display name is Korean-language 최형록 and no Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/rook63", "https://fomolens.app/trader/rook63", "https://fomolens.app/token/solana/nxPqZ4F7ux8Vph5NFu25rEP6Kx9Gr1U6Fmj36Rjpump", "https://fomo.family/profile/rook63"],
+    "thesisMatches": [{"token": "DACITY / FTR", "evidenceUrl": "https://fomolens.app/trader/rook63", "thesis": "FomoLens records Dacity calls framed around a game launch and repeated FTR calls tied to a Tony Stark/real-world-tech narrative. Preserve these as captured thesis context, not recommendations.", "sourceUrls": ["https://fomolens.app/trader/rook63", "https://fomolens.app/token/solana/nxPqZ4F7ux8Vph5NFu25rEP6Kx9Gr1U6Fmj36Rjpump", "https://x.com/rook63"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "Carver_": {
+    "xHandle": "carver_",
+    "xUrl": "https://x.com/carver_",
+    "status": "LIKELY",
+    "note": "The public @carver_ profile is live and uses the same normalized handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. Its X display name is Janice Wardlaw and no Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/carver_", "https://fomolens.app/trader/Carver_", "https://fomolens.app/token/solana/a8QNBntUcepcqcUp2At7NSvXxfoRFzyy9a6ktgDzjsV", "https://fomo.family/profile/Carver_"],
+    "thesisMatches": [{"token": "IRIS / LARPCHECK / bazucat", "evidenceUrl": "https://fomolens.app/trader/Carver_", "thesis": "FomoLens records an IRIS thesis around a ChatGPT companion, LARPCHECK adoption and leaderboard momentum, and a bazucat survival call. Preserve these as captured thesis context, not recommendations.", "sourceUrls": ["https://fomolens.app/trader/Carver_", "https://fomolens.app/token/solana/a8QNBntUcepcqcUp2At7NSvXxfoRFzyy9a6ktgDzjsV", "https://x.com/carver_"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
   }
 }

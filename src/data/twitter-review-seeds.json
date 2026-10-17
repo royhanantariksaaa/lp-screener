@@ -1081,5 +1081,32 @@
     "sourceUrls": ["https://x.com/guden", "https://fomolens.app/trader/Guden", "https://fomolens.app/token/solana/9piNCtrdv2KC9V2uQ2ECFUvqw8m6xmnipC2QBXjHpump", "https://fomo.family/profile/Guden"],
     "thesisMatches": [{"token": "Prometheus", "evidenceUrl": "https://fomolens.app/trader/Guden", "thesis": "FomoLens records a Solana Prometheus call tied to a forthcoming Starbase statue reveal. Preserve this as captured call context, not a recommendation or independent proof of wallet ownership.", "sourceUrls": ["https://fomolens.app/trader/Guden", "https://fomolens.app/token/solana/9piNCtrdv2KC9V2uQ2ECFUvqw8m6xmnipC2QBXjHpump", "https://x.com/guden"], "updatedAt": "2026-10-17"}],
     "updatedAt": "2026-10-17"
+  },
+  "Grovyle": {
+    "xHandle": "Grovyle",
+    "xUrl": "https://x.com/Grovyle",
+    "status": "LIKELY",
+    "note": "The public @Grovyle profile is live and uses the same handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. Its X bio is a fictional-character reference and no Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/Grovyle", "https://fomolens.app/trader/Grovyle", "https://fomolens.app/token/robinhood/0xedbf91223639800bcd5756815caf908df3b890be", "https://fomo.family/profile/Grovyle"],
+    "thesisMatches": [{"token": "PRIORS", "evidenceUrl": "https://fomolens.app/trader/Grovyle", "thesis": "FomoLens records repeated Robinhood Chain PRIORS calls with a short flip-soon thesis. Preserve this as captured call context, not a recommendation or independent proof of wallet ownership.", "sourceUrls": ["https://fomolens.app/trader/Grovyle", "https://fomolens.app/token/robinhood/0xedbf91223639800bcd5756815caf908df3b890be", "https://x.com/Grovyle"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "GerardGamba": {
+    "xHandle": "GerardGamba",
+    "xUrl": "https://x.com/GerardGamba",
+    "status": "LIKELY",
+    "note": "The public @GerardGamba profile is live and uses the same handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. Its X display name is Weaver with a sparse bio, and no Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/GerardGamba", "https://fomolens.app/trader/GerardGamba", "https://fomolens.app/token/solana/DMRKspYf38RCq9M6RSHP2CRhXVAPEkPLN9E7MwTfa95h", "https://fomo.family/profile/GerardGamba"],
+    "thesisMatches": [{"token": "DMRK / HermesWorld", "evidenceUrl": "https://fomolens.app/trader/GerardGamba", "thesis": "FomoLens records a DMRK gaming call focused on a working game and dev-wallet context, plus a HermesWorld AI-MMORPG thesis. Preserve these as captured thesis context, not recommendations.", "sourceUrls": ["https://fomolens.app/trader/GerardGamba", "https://fomolens.app/token/solana/DMRKspYf38RCq9M6RSHP2CRhXVAPEkPLN9E7MwTfa95h", "https://x.com/hermesworldai/status/2110740189849030977?s=46", "https://x.com/GerardGamba"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "Izakalon": {
+    "xHandle": "Izakalon",
+    "xUrl": "https://x.com/Izakalon",
+    "status": "LIKELY",
+    "note": "The public @Izakalon profile resolves to the same handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. No Provadata record is present; some source call text contains offensive language and has been omitted from the app thesis label.",
+    "sourceUrls": ["https://x.com/Izakalon", "https://fomolens.app/trader/Izakalon", "https://fomolens.app/token/solana/6hjaMcRPvB4DEGpHqgHxmgipb2vrGQWMewZBAVSLpump", "https://fomo.family/profile/Izakalon"],
+    "thesisMatches": [{"token": "STATE / DACITY / VRAX", "evidenceUrl": "https://fomolens.app/trader/Izakalon", "thesis": "FomoLens records STATE, Dacity, and VRAX calls; the display label preserves the token references while omitting offensive wording from the source notes. Treat this as captured call context, not a recommendation.", "sourceUrls": ["https://fomolens.app/trader/Izakalon", "https://fomolens.app/token/solana/6hjaMcRPvB4DEGpHqgHxmgipb2vrGQWMewZBAVSLpump", "https://fomolens.app/token/solana/nxPqZ4F7ux8Vph5NFu25rEP6Kx9Gr1U6Fmj36Rjpump", "https://x.com/Izakalon"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
   }
 }

@@ -919,5 +919,32 @@
     "sourceUrls": ["https://x.com/Hifive_07", "https://fomolens.app/trader/Hifive_07", "https://fomolens.app/token/bsc/0x14f6a94909c407854390aa2d2462a3095d317777", "https://fomo.family/profile/Hifive_07"],
     "thesisMatches": [{"token": "旺柴", "evidenceUrl": "https://fomolens.app/trader/Hifive_07", "thesis": "FomoLens records BNB Chain 旺柴 calls built around the prosperous-dog pun, the 7777 framing, and a prosperity narrative. Preserve this as captured thesis context, not a recommendation.", "sourceUrls": ["https://fomolens.app/trader/Hifive_07", "https://fomolens.app/token/bsc/0x14f6a94909c407854390aa2d2462a3095d317777", "https://x.com/Hifive_07"], "updatedAt": "2026-10-17"}],
     "updatedAt": "2026-10-17"
+  },
+  "Rowdy": {
+    "xHandle": "rowdy",
+    "xUrl": "https://x.com/rowdy",
+    "status": "LIKELY",
+    "note": "The public @rowdy profile is live and uses the same handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. Its X display name is Angie Boone, so the social-to-wallet mapping remains likely rather than confirmed.",
+    "sourceUrls": ["https://x.com/rowdy", "https://fomolens.app/trader/Rowdy", "https://fomolens.app/token/solana/HxKqU1V7L8jUfMwuScDMtww3Ex2TPWL7zYmFuCJ4Zvki", "https://fomo.family/profile/Rowdy"],
+    "thesisMatches": [{"token": "FTR / TXGYM / BS", "evidenceUrl": "https://fomolens.app/trader/Rowdy", "thesis": "FomoLens records an FTR thesis tied to Tesla-product context, TXGYM game/virality calls, and a BNB Chain black-dog meme call. Preserve these as captured thesis context, not recommendations.", "sourceUrls": ["https://fomolens.app/trader/Rowdy", "https://fomolens.app/token/solana/HxKqU1V7L8jUfMwuScDMtww3Ex2TPWL7zYmFuCJ4Zvki", "https://x.com/rowdy"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "jxnwa": {
+    "xHandle": "jxnwa",
+    "xUrl": "https://x.com/jxnwa",
+    "status": "LIKELY",
+    "note": "The public @jxnwa profile identifies a crypto-law professional and resolves to the same handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. No Provadata record is present, so the wallet mapping remains likely.",
+    "sourceUrls": ["https://x.com/jxnwa", "https://fomolens.app/trader/jxnwa", "https://fomolens.app/token/solana/4BsfttrYqyGneG6C5MxA7Rq3XDuv5ajGFjdRjjd6T4kf", "https://fomo.family/profile/jxnwa"],
+    "thesisMatches": [{"token": "ROADSTER / BeforeGTA6 / FTR / Froggie", "evidenceUrl": "https://fomolens.app/trader/jxnwa", "thesis": "FomoLens records ROADSTER as a flying-car thesis, BeforeGTA6 as FTR-linked beta, FTR as an Elon-themed Ethereum call, and Froggie as an OG Chinese-ticker narrative. Preserve these as captured thesis context, not recommendations.", "sourceUrls": ["https://fomolens.app/trader/jxnwa", "https://fomolens.app/token/solana/4BsfttrYqyGneG6C5MxA7Rq3XDuv5ajGFjdRjjd6T4kf", "https://x.com/jxnwa"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "nova6": {
+    "xHandle": "Nova6",
+    "xUrl": "https://x.com/Nova6",
+    "status": "LIKELY",
+    "note": "The public @Nova6 profile resolves to the same handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. Its X display name is Russell Taylor, so the social-to-wallet mapping remains likely rather than confirmed.",
+    "sourceUrls": ["https://x.com/Nova6", "https://fomolens.app/trader/nova6", "https://fomolens.app/token/robinhood/0xeb579e280648b6f48a840086a9e6631500a20684", "https://fomo.family/profile/nova6"],
+    "thesisMatches": [{"token": "Wheel Smith / GIGAMUSK / CYPHERCAT / SG", "evidenceUrl": "https://fomolens.app/trader/nova6", "thesis": "FomoLens records a Wheel Smith flywheel-launchpad thesis, GIGAMUSK/Musk4 high-risk nano-cap calls, a CYPHERCAT upside thesis, and an SG reference to a public Grok post. Preserve these as captured thesis context, not recommendations.", "sourceUrls": ["https://fomolens.app/trader/nova6", "https://fomolens.app/token/robinhood/0xeb579e280648b6f48a840086a9e6631500a20684", "https://x.com/Nova6"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
   }
 }

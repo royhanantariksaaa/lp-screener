@@ -677,7 +677,12 @@ function renderWorkspaceInPlace() {
   const root = document.querySelector<HTMLElement>("[data-workspace-root]");
   if (!body || !root) return false;
   const pools = filtered();
-  body.innerHTML = pools.map(poolRow).join("") || `<tr><td colspan="10" class="empty">${emptyWorkspaceState()}</td></tr>`;
+  const nextRows = pools.map(poolRow).join("") || `<tr><td colspan="10" class="empty">${emptyWorkspaceState()}</td></tr>`;
+  if (body.innerHTML !== nextRows) {
+    const previousScroll = captureWorkspaceScroll();
+    body.innerHTML = nextRows;
+    restoreWorkspaceScroll(previousScroll);
+  }
   const count = root.querySelector<HTMLElement>("#workspace-count");
   if (count) count.textContent = `${pools.length} candidates`;
   const candleReady = state.pools.filter((pool) => (pool.candles?.length ?? 0) >= 2).length;
@@ -691,7 +696,16 @@ function renderWorkspaceInPlace() {
   const gate = root.querySelector<HTMLElement>("#workspace-gate-summary");
   if (gate) gate.outerHTML = gateSummary();
   const evidenceSlot = root.querySelector<HTMLElement>("#workspace-evidence-slot");
-  if (evidenceSlot) evidenceSlot.innerHTML = poolEvidence();
+  if (evidenceSlot) {
+    const nextEvidence = poolEvidence();
+    if (evidenceSlot.innerHTML !== nextEvidence) {
+      const currentPanel = evidenceSlot.querySelector<HTMLElement>(".evidence-panel");
+      const panelScrollTop = currentPanel?.scrollTop ?? 0;
+      evidenceSlot.innerHTML = nextEvidence;
+      const nextPanel = evidenceSlot.querySelector<HTMLElement>(".evidence-panel");
+      if (nextPanel) nextPanel.scrollTop = panelScrollTop;
+    }
+  }
   document.body.classList.toggle("has-modal-selection", route() === "discover" && Boolean(state.selectedPool));
   document.querySelector<HTMLElement>(".workspace-page")?.classList.toggle("has-selection", Boolean(state.selectedPool));
   syncEvidenceBackdrop();

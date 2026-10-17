@@ -1243,5 +1243,32 @@
     "sourceUrls": ["https://x.com/OinkersRUs", "https://fomolens.app/trader/OinkersRUs", "https://fomolens.app/token/solana/jr963C1eUWRYk7TYAxii7MRyJqr1zJhVyZuYgVYpump", "https://fomo.family/profile/OinkersRUs"],
     "thesisMatches": [{"token": "CUTS / AURA / GUANO", "evidenceUrl": "https://fomolens.app/trader/OinkersRUs", "thesis": "FomoLens records CUTS as a Pendle-like memecoin mechanism, AURA as a quick conviction call, and GUANO as a short meme thesis. Unnamed-token references are omitted from the display label.", "sourceUrls": ["https://fomolens.app/trader/OinkersRUs", "https://fomolens.app/token/solana/jr963C1eUWRYk7TYAxii7MRyJqr1zJhVyZuYgVYpump", "https://fomolens.app/token/solana/6ZjXu9fMvvEWwpZFTvNaGfkYQU48VvHLYWmb5Uqbco3C", "https://x.com/OinkersRUs"], "updatedAt": "2026-10-17"}],
     "updatedAt": "2026-10-17"
+  },
+  "chopper_trades": {
+    "xHandle": "chopper_trades",
+    "xUrl": "https://x.com/chopper_trades",
+    "status": "LIKELY",
+    "note": "The public @chopper_trades profile describes a trading journal and uses the same handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. No Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/chopper_trades", "https://fomolens.app/trader/chopper_trades", "https://fomolens.app/token/solana/84Ciai5YhpxxYiLE55SJqGHY3jftEtVxvcBXMwyapump", "https://fomo.family/profile/chopper_trades"],
+    "thesisMatches": [{"token": "BOWSKI / uncdog", "evidenceUrl": "https://fomolens.app/trader/chopper_trades", "thesis": "FomoLens records a BOWSKI brainrot call and repeated uncdog calls framed around an unc-dog/cat narrative. Preserve these as captured call context, not recommendations.", "sourceUrls": ["https://fomolens.app/trader/chopper_trades", "https://fomolens.app/token/solana/84Ciai5YhpxxYiLE55SJqGHY3jftEtVxvcBXMwyapump", "https://fomolens.app/token/solana/EN3rLpbQa6ZUdH1SrS9oHkkWQUkQBj6VjnqZQhzrpump", "https://x.com/chopper_trades"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "nibblernibsdips": {
+    "xHandle": "nibblernibsdips",
+    "xUrl": "https://x.com/nibblernibsdips",
+    "status": "LIKELY",
+    "note": "The public @nibblernibsdips profile describes studying animal spirits and uses the same handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. No Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/nibblernibsdips", "https://fomolens.app/trader/nibblernibsdips", "https://fomolens.app/token/robinhood/0x7ecc40fb4d33a078eb65a85f581e165c3c2f8f9c", "https://fomo.family/profile/nibblernibsdips"],
+    "thesisMatches": [{"token": "UNAL / MOTION / V4", "evidenceUrl": "https://fomolens.app/trader/nibblernibsdips", "thesis": "FomoLens records an UNAL new-gem call, repeated MOTION market-cap and volume calls, and a V4/Hookr comparison. Preserve these as captured thesis context, not recommendations.", "sourceUrls": ["https://fomolens.app/trader/nibblernibsdips", "https://fomolens.app/token/robinhood/0x7ecc40fb4d33a078eb65a85f581e165c3c2f8f9c", "https://fomolens.app/token/robinhood/0x061732dc141e0a2d37f5fa91cf5343f24064e60f", "https://x.com/nibblernibsdips"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "EarlyBurry": {
+    "xHandle": "EarlyBurry",
+    "xUrl": "https://x.com/EarlyBurry",
+    "status": "LIKELY",
+    "note": "The public @EarlyBurry profile references a trading community and uses the same handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. No Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/EarlyBurry", "https://fomolens.app/trader/EarlyBurry", "https://fomolens.app/token/solana/BsbsB3WLq7vbY5En3MBCAsTrcwaCxNKY2Mp5pGuLpump", "https://fomo.family/profile/EarlyBurry"],
+    "thesisMatches": [{"token": "GTA / Macca / HOTBOT", "evidenceUrl": "https://fomolens.app/trader/EarlyBurry", "thesis": "FomoLens records a GTA attention/catalyst thesis, a Macca front-running thesis for streamer attention, and a HOTBOT call tied to winning the Ansem Hack and Colosseum Crypto World’s Fair. Preserve these as captured thesis context, not recommendations.", "sourceUrls": ["https://fomolens.app/trader/EarlyBurry", "https://fomolens.app/token/solana/BsbsB3WLq7vbY5En3MBCAsTrcwaCxNKY2Mp5pGuLpump", "https://fomolens.app/token/solana/AKotzk1dhcNangAJBtvNKtT9bhbSVZc2mMhRFgkFpump", "https://x.com/EarlyBurry"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
   }
 }

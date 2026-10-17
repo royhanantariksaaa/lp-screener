@@ -58,22 +58,30 @@ body {
   font-family: var(--ledger-ui);
 }
 body:before { display: none !important; }
+/* Keep the document as the scrolling container so sticky reading chrome can
+   clamp to the viewport. `overflow-x: hidden` on #app would make it a nearer
+   scroll container even when it has no own scrollbar. */
+html, body, #app { overflow-x: clip !important; }
 button, input, select, textarea { font-family: var(--ledger-ui); }
 a { color: var(--ledger-action-dark); }
 .shell {
   max-width: 1480px;
-  padding: 0 34px;
+  padding: 76px 34px 0;
   color: var(--ledger-ink);
 }
 
-/* The masthead is a fixed reading tool, not decoration. */
+/* The masthead stays in the viewport while the results page moves beneath it.
+   The side padding follows the centered shell at wide widths. */
 .topbar {
   height: 76px;
-  margin: 0 -34px;
-  padding: 0 34px;
-  position: sticky;
-  top: 0;
-  z-index: 80;
+  margin: 0;
+  padding: 0 max(34px, calc((100vw - 1480px) / 2 + 34px));
+  position: fixed !important;
+  top: 0 !important;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 120 !important;
   border-bottom: 1px solid var(--ledger-line) !important;
   background: rgba(242, 240, 233, .94) !important;
   box-shadow: 0 8px 20px rgba(36, 44, 36, .05) !important;
@@ -378,7 +386,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
    results table keeps its scroll position underneath instead of jumping to an
    inline panel above the rows. */
 body.has-modal-selection { overflow-y: hidden !important; }
-.workspace-page.has-selection::before { content: ""; position: fixed; inset: 76px 0 0; z-index: 55; background: rgba(26, 33, 27, .22); pointer-events: none; }
+.workspace-page.has-selection::before { display: none; }
+.evidence-backdrop { position: fixed; inset: 76px 0 0; z-index: 55; border: 0; padding: 0; background: rgba(26, 33, 27, .22); cursor: default; }
+.evidence-backdrop:focus { outline: none; }
 .workspace-page.has-selection .evidence-panel { position: fixed; top: 94px; right: max(18px, calc((100vw - 1480px) / 2 + 34px)); bottom: 18px; z-index: 70; width: min(720px, calc(100vw - 48px)); max-width: none; max-height: none; height: auto; overflow: auto; margin: 0; padding: 24px; border: 1px solid var(--ledger-line-strong) !important; border-left: 3px solid var(--ledger-action) !important; background: var(--ledger-paper) !important; box-shadow: 0 24px 70px rgba(26, 33, 27, .24) !important; overscroll-behavior: contain; }
 .workspace-page.has-selection .evidence-head { position: sticky; top: -24px; z-index: 3; margin: -8px 0 16px; padding: 8px 0 14px; background: var(--ledger-paper); border-bottom: 1px solid var(--ledger-line); }
 .workspace-page.has-selection .evidence-close { min-width: 40px; min-height: 40px; }
@@ -496,8 +506,8 @@ body.has-modal-selection { overflow-y: hidden !important; }
 
 /* Small screens: keep the reading order and give every value a full line. */
 @media (max-width: 980px) {
-  .shell { padding: 0 22px; }
-  .topbar { margin: 0 -22px; padding: 0 22px; }
+  .shell { padding: 76px 22px 0; }
+  .topbar { padding-left: 22px; padding-right: 22px; }
   .topbar nav { margin-right: 8px; }
   .page-home .hero { padding: 52px 48px; grid-template-columns: 1fr; }
   .orbital { margin-top: 12px; }
@@ -519,8 +529,8 @@ body.has-modal-selection { overflow-y: hidden !important; }
 }
 @media (max-width: 800px) {
   body.has-modal-selection { overflow-y: hidden !important; }
-  .shell { padding: 0 16px; }
-  .topbar { height: 62px; margin: 0 -16px; padding: 0 16px; }
+  .shell { padding: 62px 16px 0; }
+  .topbar { height: 62px; padding-left: 16px; padding-right: 16px; }
   .topbar nav { display: none; }
   .badges .pill { display: none; }
   main { padding-top: 32px; }
@@ -546,7 +556,8 @@ body.has-modal-selection { overflow-y: hidden !important; }
   .workspace-page .toolbar { position: static; margin: 0; padding-left: 0; padding-right: 0; }
   .workspace-page thead { position: static; }
   .workspace-filter-state { margin-top: 12px; }
-  .workspace-page.has-selection::before { content: ""; position: fixed; inset: 62px 0 0; z-index: 55; background: rgba(26, 33, 27, .22); pointer-events: none; }
+  .workspace-page.has-selection::before { display: none; }
+  .evidence-backdrop { inset: 62px 0 0; }
   .workspace-page.has-selection .evidence-panel { position: fixed; inset: 72px 12px 12px; z-index: 70; width: auto; max-width: none; max-height: none; height: auto; overflow: auto; margin: 0; padding: 20px 16px; border: 1px solid var(--ledger-line-strong) !important; border-left: 3px solid var(--ledger-action) !important; background: var(--ledger-paper) !important; box-shadow: 0 24px 70px rgba(26, 33, 27, .24) !important; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
   .workspace-page.has-selection .evidence-head { position: sticky; top: -20px; z-index: 3; margin: -4px 0 14px; padding: 4px 0 12px; background: var(--ledger-paper); border-bottom: 1px solid var(--ledger-line); }
   .workspace-page.has-selection .evidence-close { min-width: 132px; min-height: 44px; padding: 8px 10px; font-size: 0; white-space: nowrap; }

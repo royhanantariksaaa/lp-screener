@@ -13,7 +13,7 @@ The refresh control attempts to load Solana pairs from Dexscreener and falls bac
 
 ### 15m candles
 
-The `/api/market?kind=ohlcv` route uses DexPaprika for pool-specific 15-minute OHLCV when the server has a `DEXPAPRIKA_API_KEY`. Keep the key server-side (for example, as a Vercel environment variable); it is never bundled into the browser. GeckoTerminal remains an automatic fallback when the primary request is unavailable. DexPaprika's free key supports 15-minute pool candles, while its Dev/Pro plans provide higher request limits for large chart batches.
+The `/api/market?kind=ohlcv` route uses Codex pair/token bars when `CODEX_API_KEY` is configured, matching the market-data source documented by Defined. DexPaprika is the next pool-specific adapter when `DEXPAPRIKA_API_KEY` is configured, and GeckoTerminal remains an automatic fallback. Keep keys server-side (for example, as Vercel environment variables); they are never bundled into the browser. Token requests can be resolved to their current GeckoTerminal pool automatically, so a token URL such as `defined.fi/token/sol/<mint>` does not need to be scraped.
 
 The KOL Radar wallet detail view can run an on-demand Solana related-wallet scan through `/api/market?kind=wallet-cluster&chain=solana&address=...`. It reads recent finalized signatures, co-signers, and SPL token-account owners from the configured RPCs. Results are candidate relationships for research and are never presented as proof of common ownership. EVM and Robinhood history requires indexed transfer logs or trace data; same-address reuse across the captured chain labels remains separate evidence.
 

@@ -5,6 +5,8 @@ import walletGraph from "./wallet-graph.json" with { type: "json" };
 
 const GECKO_OHLCV = "https://api.geckoterminal.com/api/v2/networks/solana/pools";
 const DEXPAPRIKA_API = "https://api.dexpaprika.com";
+const CODEX_API = "https://graph.codex.io/graphql";
+const SOLANA_NETWORK_ID = 1399811149;
 const SOLANA_RPCS = [process.env.SOLANA_RPC_URL, "https://solana-rpc.publicnode.com", "https://api.mainnet-beta.solana.com"].filter(Boolean);
 const LUNARCRUSH_API = "https://lunarcrush.com/api4";
 const DEFILLAMA_API = "https://api.llama.fi";
@@ -20,6 +22,7 @@ const MADEONSOL_DEMO_KEY = "msk_demo_try_the_solana_api_2026";
 let madeOnSolFeedCache = { fetchedAt: 0, trades: [], delaySeconds: 0, asOf: undefined };
 let madeOnSolFeedPromise;
 const ohlcvCache = new Map();
+const geckoPoolCache = new Map();
 const trackedWalletIndex = new Map((Array.isArray(trackedWalletMap) ? trackedWalletMap : []).map((row) => [String(row.address ?? "").toLowerCase(), Array.isArray(row.matches) ? row.matches : []]));
 const confidenceRank = (confidence) => confidence === "verified" ? 3 : confidence === "likely" ? 2 : 1;
 
@@ -46,6 +49,59 @@ const dexPaprikaOhlcv = async (pool, apiKey, limit) => {
   ]).filter((row) => row[0] > 0 && row.slice(1, 5).every(Number.isFinite));
   if (!ohlcvList.length) throw new Error("dexpaprika returned no 15m candles");
   return { data: { attributes: { ohlcv_list: ohlcvList } } };
+};
+
+// Defined's chart data is supplied by Codex. Keep the integration server-side so
+// the API key never reaches the browser. Pair bars are preferred; token bars are
+// a useful fallback when a pool has migrated or is not indexed yet.
+const codexOhlcv = async (pool, token, apiKey, limit) => {
+  const now = Math.floor(Date.now() / 1000);
+  const from = now - 12 * 60 * 60;
+  const symbols = [...new Set([
+    pool ? `${pool}:${SOLANA_NETWORK_ID}` : "",
+    token ? `${token}:${SOLANA_NETWORK_ID}` : "",
+  ].filter(Boolean))];
+  let lastError;
+  for (const symbol of symbols) {
+    const query = `query GetBars($symbol: String!, $from: Int!, $to: Int!, $resolution: String!) {
+      getBars(symbol: $symbol, from: $from, to: $to, resolution: $resolution, removeEmptyBars: true) { o h l c v t }
+    }`;
+    try {
+      const response = await withTimeout(CODEX_API, {
+        method: "POST",
+        headers: { accept: "application/json", "content-type": "application/json", authorization: apiKey },
+        body: JSON.stringify({ query, variables: { symbol, from, to: now, resolution: "15" } }),
+      }, 15000);
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(`codex (${response.status})`);
+      if (Array.isArray(payload?.errors) && payload.errors.length) throw new Error(`codex (${String(payload.errors[0]?.message ?? "query error")})`);
+      const bars = payload?.data?.getBars ?? {};
+      const rows = ["t", "o", "h", "l", "c", "v"].map((key) => Array.isArray(bars[key]) ? bars[key] : []);
+      const count = Math.min(...rows.map((row) => row.length));
+      const ohlcvList = Array.from({ length: count }, (_, index) => [
+        Number(rows[0][index]), Number(rows[1][index]), Number(rows[2][index]), Number(rows[3][index]), Number(rows[4][index]), Number(rows[5][index] ?? 0),
+      ]).filter((row) => row[0] > 0 && row.slice(1, 5).every(Number.isFinite)).slice(-limit);
+      if (!ohlcvList.length) throw new Error("codex returned no 15m candles");
+      return { body: { data: { attributes: { ohlcv_list: ohlcvList } } }, source: symbol.startsWith(`${pool}:`) ? "codex-pair" : "codex-token" };
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  throw lastError ?? new Error("codex returned no 15m candles");
+};
+
+const geckoPoolForToken = async (token) => {
+  const normalized = String(token ?? "").trim();
+  if (!normalized) return undefined;
+  const cached = geckoPoolCache.get(normalized);
+  if (cached && Date.now() - cached.fetchedAt < 5 * 60_000) return cached.pool;
+  const response = await withTimeout(`${GECKO_OHLCV.replace(/\/pools$/, "")}/tokens/${encodeURIComponent(normalized)}/pools?page=1`, { headers: { accept: "application/json" } }, 12000);
+  if (!response.ok) throw new Error(`gecko token pools (${response.status})`);
+  const payload = await response.json().catch(() => ({}));
+  const rows = Array.isArray(payload?.data) ? payload.data : [];
+  const pool = rows.map((row) => String(row?.attributes?.address ?? row?.id ?? "").replace(/^solana_/, "")).find((address) => /^[1-9A-HJ-NP-Za-km-z]{32,50}$/.test(address));
+  if (pool) geckoPoolCache.set(normalized, { pool, fetchedAt: Date.now() });
+  return pool;
 };
 
 const rpc = async (method, params, id = 1) => {
@@ -476,6 +532,7 @@ const providerHealth = () => {
   return {
     providers: [
       { key: "dexscreener", label: "Dexscreener", status: "LIVE", mode: "PUBLIC", source: "Live pair discovery + token profiles" },
+      { key: "codex", label: "Codex · Defined data", status: configured("CODEX_API_KEY") ? "LIVE" : "KEY_REQUIRED", mode: "15M_OHLCV", source: configured("CODEX_API_KEY") ? "Pair/token 15m OHLCV · primary" : "Defined-style pair/token 15m OHLCV · server key required" },
       { key: "dexpaprika", label: "DexPaprika", status: configured("DEXPAPRIKA_API_KEY") ? "LIVE" : "KEY_REQUIRED", mode: "15M_OHLCV", source: configured("DEXPAPRIKA_API_KEY") ? "Pool-specific 15m OHLCV · primary" : "Pool-specific 15m OHLCV · server key required" },
       { key: "geckoterminal", label: "GeckoTerminal", status: "LIVE", mode: "FALLBACK", source: "15m OHLCV fallback · public rate limited" },
       { key: "solana-rpc", label: "Solana RPC", status: "LIVE", mode: "PUBLIC", source: "Wallet activity + token safety + on-demand related-wallet scans" },
@@ -565,35 +622,56 @@ export default async function handler(req, res) {
     }
     if (kind === "ohlcv") {
       const pool = String(req.query?.pool ?? "");
-      if (!/^[1-9A-HJ-NP-Za-km-z]{32,50}$/.test(pool)) return res.status(400).json({ error: "invalid_pool" });
+      const token = String(req.query?.token ?? "");
+      if (!/^[1-9A-HJ-NP-Za-km-z]{32,50}$/.test(pool) && !/^[1-9A-HJ-NP-Za-km-z]{32,50}$/.test(token)) return res.status(400).json({ error: "invalid_pool" });
+      const codexKey = String(process.env.CODEX_API_KEY ?? "").trim();
       const dexPaprikaKey = String(process.env.DEXPAPRIKA_API_KEY ?? "").trim();
-      const cacheKey = `${dexPaprikaKey ? "dexpaprika" : "gecko"}:${pool}`;
+      const cachePrefix = codexKey ? "codex" : dexPaprikaKey ? "dexpaprika" : "gecko";
+      const cacheKey = `${cachePrefix}:${pool || "token"}:${token}`;
+      const cacheTtl = codexKey ? 60_000 : dexPaprikaKey ? 90_000 : 180_000;
       const cached = ohlcvCache.get(cacheKey);
-      if (cached && Date.now() - cached.fetchedAt < 5 * 60_000) {
-        res.setHeader("Cache-Control", "s-maxage=300, stale-while-revalidate=600");
+      if (cached && Date.now() - cached.fetchedAt < cacheTtl) {
+        res.setHeader("Cache-Control", `s-maxage=${Math.round(cacheTtl / 1000)}, stale-while-revalidate=${Math.round(cacheTtl * 2 / 1000)}`);
         res.setHeader("X-OHLCV-Cache", "hit");
-        res.setHeader("X-OHLCV-Source", cached.source ?? (dexPaprikaKey ? "dexpaprika" : "gecko"));
+        res.setHeader("X-OHLCV-Source", cached.source ?? cachePrefix);
         return res.status(200).json(cached.body);
       }
       const limit = Math.max(24, Math.min(100, Number(req.query?.limit ?? 48)));
+      if (codexKey) {
+        try {
+          const result = await codexOhlcv(pool, token, codexKey, limit);
+          ohlcvCache.set(cacheKey, { body: result.body, fetchedAt: Date.now(), source: result.source });
+          res.setHeader("Cache-Control", `s-maxage=${Math.round(cacheTtl / 1000)}, stale-while-revalidate=${Math.round(cacheTtl * 2 / 1000)}`);
+          res.setHeader("X-OHLCV-Source", result.source);
+          return res.status(200).json(result.body);
+        } catch (error) {
+          console.warn("Codex 15m candle request failed", pool || token, error);
+        }
+      }
       if (dexPaprikaKey) {
         try {
+          if (!pool) throw new Error("dexpaprika requires a pool address");
           const body = await dexPaprikaOhlcv(pool, dexPaprikaKey, limit);
           ohlcvCache.set(cacheKey, { body, fetchedAt: Date.now(), source: "dexpaprika" });
-          res.setHeader("Cache-Control", "s-maxage=300, stale-while-revalidate=600");
+          res.setHeader("Cache-Control", `s-maxage=${Math.round(cacheTtl / 1000)}, stale-while-revalidate=${Math.round(cacheTtl * 2 / 1000)}`);
           res.setHeader("X-OHLCV-Source", "dexpaprika");
           return res.status(200).json(body);
         } catch (error) {
-          console.warn("DexPaprika 15m candle request failed", pool, error);
+          console.warn("DexPaprika 15m candle request failed", pool || token, error);
         }
       }
-      const url = `${GECKO_OHLCV}/${encodeURIComponent(pool)}/ohlcv/minute?aggregate=15&limit=${limit}`;
+      let geckoPool = pool;
+      if (!geckoPool && token) {
+        try { geckoPool = await geckoPoolForToken(token); } catch (error) { console.warn("Gecko token-to-pool lookup failed", token, error); }
+      }
+      if (!geckoPool) return res.status(404).json({ error: "pool_not_found_for_token" });
+      const url = `${GECKO_OHLCV}/${encodeURIComponent(geckoPool)}/ohlcv/minute?aggregate=15&limit=${limit}`;
       const upstream = await withTimeout(url, { headers: { accept: "application/json" } }, 20000);
       const body = await upstream.text();
       res.setHeader("Content-Type", "application/json; charset=utf-8");
       if (upstream.ok) {
         try { ohlcvCache.set(cacheKey, { body: JSON.parse(body), fetchedAt: Date.now(), source: "gecko" }); } catch { /* Preserve the upstream response if it is not JSON. */ }
-        res.setHeader("Cache-Control", "s-maxage=300, stale-while-revalidate=600");
+        res.setHeader("Cache-Control", `s-maxage=${Math.round(cacheTtl / 1000)}, stale-while-revalidate=${Math.round(cacheTtl * 2 / 1000)}`);
         res.setHeader("X-OHLCV-Source", "gecko");
       }
       if (upstream.status === 429 && cached?.body) {

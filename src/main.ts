@@ -630,7 +630,7 @@ function syncEvidenceBackdrop() {
 function closeEvidence() {
   if (!state.selectedPool) return;
   state.selectedPool = "";
-    render("data");
+  renderEvidenceInPlace();
 }
 function bindWorkspaceDynamic() {
   document.querySelectorAll<HTMLTableRowElement>(".workspace tr[data-pool]").forEach((row) => {
@@ -662,6 +662,16 @@ function bindWorkspaceDynamic() {
   });
   document.querySelector<HTMLButtonElement>(".workspace [data-close-evidence]")?.addEventListener("click", closeEvidence);
 }
+function renderEvidenceInPlace() {
+  const slot = document.querySelector<HTMLElement>("#workspace-evidence-slot");
+  if (!slot) return false;
+  slot.innerHTML = poolEvidence();
+  document.body.classList.toggle("has-modal-selection", route() === "discover" && Boolean(state.selectedPool));
+  document.querySelector<HTMLElement>(".workspace-page")?.classList.toggle("has-selection", Boolean(state.selectedPool));
+  syncEvidenceBackdrop();
+  bindWorkspaceDynamic();
+  return true;
+}
 function renderWorkspaceInPlace() {
   const body = document.querySelector<HTMLTableSectionElement>("#workspace-table-body");
   const root = document.querySelector<HTMLElement>("[data-workspace-root]");
@@ -682,6 +692,9 @@ function renderWorkspaceInPlace() {
   if (gate) gate.outerHTML = gateSummary();
   const evidenceSlot = root.querySelector<HTMLElement>("#workspace-evidence-slot");
   if (evidenceSlot) evidenceSlot.innerHTML = poolEvidence();
+  document.body.classList.toggle("has-modal-selection", route() === "discover" && Boolean(state.selectedPool));
+  document.querySelector<HTMLElement>(".workspace-page")?.classList.toggle("has-selection", Boolean(state.selectedPool));
+  syncEvidenceBackdrop();
   bindWorkspaceDynamic();
   return true;
 }
@@ -692,7 +705,7 @@ function render(mode: "full" | "data" = "full") {
 function selectEvidencePool(key: string) {
   if (!key) return;
   state.selectedPool = key;
-    render("data");
+  renderEvidenceInPlace();
   window.requestAnimationFrame(() => {
     const evidence = document.querySelector(".evidence-panel");
     evidence?.querySelector<HTMLButtonElement>("[data-close-evidence]")?.focus({ preventScroll: true });

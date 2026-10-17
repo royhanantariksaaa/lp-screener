@@ -97,3 +97,9 @@ html,body,#app{max-width:100%;overflow-x:hidden}img,svg,video,canvas{max-width:1
 .workspace-page .table-wrap{overflow:visible !important;max-height:none !important;border:0 !important;box-shadow:none !important}
 .workspace-page .table-scroll-viewport{overflow-x:auto !important;overflow-y:hidden !important;max-height:none !important;border:1px solid var(--ledger-line,#1c2a23);border-radius:2px}
 @media(max-width:800px){.workspace-page .table-scroll-viewport{overflow:visible !important;border:0 !important}}
+
+/* Evidence stays a true modal so opening a row cannot reflow the list or move the page. */
+body.has-modal-selection{overflow:hidden}
+.evidence-backdrop{position:fixed;inset:0;z-index:80;width:100%;height:100%;padding:0;border:0;background:rgba(2,7,4,.72);cursor:default;appearance:none}
+body.has-modal-selection .evidence-panel{position:fixed;z-index:90;top:16px;left:50%;width:min(1080px,calc(100vw - 32px));max-height:calc(100dvh - 32px);margin:0;overflow-x:hidden;overflow-y:auto;transform:translateX(-50%);overscroll-behavior:contain;box-shadow:0 26px 80px rgba(0,0,0,.48)}
+@media(max-width:800px){body.has-modal-selection .evidence-panel{top:10px;width:calc(100vw - 20px);max-height:calc(100dvh - 20px);border-radius:14px}}

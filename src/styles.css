@@ -103,3 +103,4 @@ body.has-modal-selection{overflow:hidden}
 .evidence-backdrop{position:fixed;inset:0;z-index:80;width:100%;height:100%;padding:0;border:0;background:rgba(2,7,4,.72);cursor:default;appearance:none}
 body.has-modal-selection .evidence-panel{position:fixed;z-index:90;top:16px;left:50%;width:min(1080px,calc(100vw - 32px));max-height:calc(100dvh - 32px);margin:0;overflow-x:hidden;overflow-y:auto;transform:translateX(-50%);overscroll-behavior:contain;box-shadow:0 26px 80px rgba(0,0,0,.48)}
 @media(max-width:800px){body.has-modal-selection .evidence-panel{top:10px;width:calc(100vw - 20px);max-height:calc(100dvh - 20px);border-radius:14px}}
+.score-meta{display:block;margin-top:4px;color:#6e826f;font:8px 'DM Mono';letter-spacing:.45px;white-space:nowrap}

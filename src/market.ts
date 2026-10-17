@@ -58,6 +58,28 @@ export type EligibilityAnalysis = {
   };
 };
 
+export type MarketCapTier = "ULTRA_MICRO" | "MICRO" | "MEDIUM" | "MACRO" | "ULTRA_MACRO" | "UNKNOWN";
+
+const MARKET_CAP_BANDS: Array<{ tier: MarketCapTier; max?: number }> = [
+  { tier: "ULTRA_MICRO", max: 1_000_000 },
+  { tier: "MICRO", max: 10_000_000 },
+  { tier: "MEDIUM", max: 100_000_000 },
+  { tier: "MACRO", max: 1_000_000_000 },
+  { tier: "ULTRA_MACRO" },
+];
+
+export function marketCapTier(marketCap?: number): MarketCapTier {
+  if (!Number.isFinite(marketCap) || Number(marketCap) <= 0) return "UNKNOWN";
+  return MARKET_CAP_BANDS.find((band) => band.max === undefined || Number(marketCap) < band.max)?.tier ?? "UNKNOWN";
+}
+
+export const marketCapTierLabel = (tier: MarketCapTier) => tier === "ULTRA_MICRO" ? "ULTRA MICRO" : tier === "ULTRA_MACRO" ? "ULTRA MACRO" : tier;
+
+export const marketCapFitScore = (marketCap?: number) => {
+  const tier = marketCapTier(marketCap);
+  return tier === "ULTRA_MICRO" ? 7 : tier === "MICRO" ? 6 : tier === "MEDIUM" ? 4 : tier === "MACRO" ? 2 : tier === "ULTRA_MACRO" ? 1 : 0;
+};
+
 const unavailable = (candlesCount = 0): TechnicalAnalysis => ({
   available: false,
   candlesCount,
@@ -211,7 +233,7 @@ export function derivePlaybooks(pool: { dex: string; marketCap?: number; liquidi
 
 
 export function evaluateEligibility(
-  pool: { pairAddress?: string; tokenAddress?: string; liquidity: number; volume24h: number; ageDays: number },
+  pool: { pairAddress?: string; tokenAddress?: string; marketCap?: number; liquidity: number; volume24h: number; ageDays: number },
   analysis: TechnicalAnalysis | undefined,
   intelligence: { walletLive: boolean; kolLive: boolean; walletEvidence?: boolean; kolEvidence?: boolean },
   safety: TokenSafetyAnalysis | undefined,
@@ -249,14 +271,15 @@ export function evaluateEligibility(
   else if (!safetyPass) reasons.push("Mint, freeze, or holder concentration checks failed.");
   if (!reasons.length) reasons.push(trigger ? "All gates pass and a fresh bullish trigger is present." : "All hard gates pass; wait for the next confirmed trigger.");
   const score = Math.max(0, Math.min(100,
-    (address ? 10 : 0) +
-    (liquidity ? 15 : 0) +
-    (volume ? 15 : 0) +
-    (age ? 10 : 0) +
-    (technical ? 20 : 0) +
+    (address ? 8 : 0) +
+    (liquidity ? 14 : 0) +
+    (volume ? 14 : 0) +
+    (age ? 9 : 0) +
+    (technical ? 19 : 0) +
     (walletReady ? 8 : 0) +
     (kolReady ? 7 : 0) +
-    (safetyPass ? 15 : 0),
+    (safetyPass ? 14 : 0) +
+    marketCapFitScore(pool.marketCap),
   ));
   return {
     status,

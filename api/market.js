@@ -95,11 +95,23 @@ const geckoPoolForToken = async (token) => {
   if (!normalized) return undefined;
   const cached = geckoPoolCache.get(normalized);
   if (cached && Date.now() - cached.fetchedAt < 5 * 60_000) return cached.pool;
-  const response = await withTimeout(`${GECKO_OHLCV.replace(/\/pools$/, "")}/tokens/${encodeURIComponent(normalized)}/pools?page=1`, { headers: { accept: "application/json" } }, 12000);
-  if (!response.ok) throw new Error(`gecko token pools (${response.status})`);
-  const payload = await response.json().catch(() => ({}));
-  const rows = Array.isArray(payload?.data) ? payload.data : [];
-  const pool = rows.map((row) => String(row?.attributes?.address ?? row?.id ?? "").replace(/^solana_/, "")).find((address) => /^[1-9A-HJ-NP-Za-km-z]{32,50}$/.test(address));
+  let pool;
+  try {
+    const response = await withTimeout(`https://api.dexscreener.com/latest/dex/tokens/${encodeURIComponent(normalized)}`, { headers: { accept: "application/json" } }, 10000);
+    if (!response.ok) throw new Error(`dexscreener token (${response.status})`);
+    const payload = await response.json().catch(() => ({}));
+    const rows = Array.isArray(payload?.pairs) ? payload.pairs : [];
+    pool = rows.sort((a, b) => Number(b?.liquidity?.usd ?? 0) - Number(a?.liquidity?.usd ?? 0)).map((row) => String(row?.pairAddress ?? "")).find((address) => /^[1-9A-HJ-NP-Za-km-z]{32,50}$/.test(address));
+  } catch {
+    // Dexscreener is the primary public resolver; Gecko remains the secondary path.
+  }
+  if (!pool) {
+    const response = await withTimeout(`${GECKO_OHLCV.replace(/\/pools$/, "")}/tokens/${encodeURIComponent(normalized)}/pools?page=1`, { headers: { accept: "application/json" } }, 12000);
+    if (!response.ok) throw new Error(`gecko token pools (${response.status})`);
+    const payload = await response.json().catch(() => ({}));
+    const rows = Array.isArray(payload?.data) ? payload.data : [];
+    pool = rows.map((row) => String(row?.attributes?.address ?? row?.id ?? "").replace(/^solana_/, "")).find((address) => /^[1-9A-HJ-NP-Za-km-z]{32,50}$/.test(address));
+  }
   if (pool) geckoPoolCache.set(normalized, { pool, fetchedAt: Date.now() });
   return pool;
 };

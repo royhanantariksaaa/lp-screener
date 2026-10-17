@@ -250,12 +250,31 @@ const scoreBreakdown = (pool: Pool) => {
   const runner = runnerPotentialScore(pool);
   return { liquidity, volume, age, technical, wallets, kol, risk, cap, runner, total: Math.min(100, Math.round(liquidity + volume + age + technical + wallets + kol + risk + cap + runner)) };
 };
+const scorePoolKey = (pool: Pool) => pool.pairAddress ?? pool.id ?? pool.symbol;
+const scoreMemory = new Map<string, { raw: number; value: number; updatedAt: number }>();
+const stableDisplayedScore = (pool: Pool, raw: number) => {
+  const key = scorePoolKey(pool);
+  const now = Date.now();
+  const prior = scoreMemory.get(key);
+  if (!prior) {
+    scoreMemory.set(key, { raw, value: raw, updatedAt: now });
+    return raw;
+  }
+  if (prior.raw === raw) return prior.value;
+  prior.raw = raw;
+  if (now - prior.updatedAt < 12_000) return prior.value;
+  const delta = Math.max(-4, Math.min(4, raw - prior.value));
+  prior.value = Math.max(0, Math.min(100, Math.round(prior.value + delta)));
+  prior.updatedAt = now;
+  return prior.value;
+};
 const scoreFor = (pool: Pool) => {
   const localScore = scoreBreakdown(pool).total;
   const providerScore = pool.intelligence === "LIVE" && typeof pool.screenScore === "number" && pool.screenScore > 0 ? pool.screenScore : undefined;
-  return providerScore === undefined ? localScore : Math.min(100, Math.round(providerScore * 0.75 + localScore * 0.25));
+  const raw = providerScore === undefined ? localScore : Math.min(100, Math.round(providerScore * 0.75 + localScore * 0.25));
+  return stableDisplayedScore(pool, raw);
 };
-const poolKey = (pool: Pool) => pool.pairAddress ?? pool.id ?? pool.symbol;
+const poolKey = scorePoolKey;
 const poolByKey = (key: string) => state.pools.find((pool) => poolKey(pool) === key);
 const statusLabel = (status?: PlaybookSignal["status"]) => status === "ENTRY_NOW" ? "ENTRY NOW" : status === "ARMED_WAIT" ? "ARMED · WAIT" : status === "UPDATING" ? "UPDATING" : status === "NOT_ELIGIBLE" ? "NOT ELIGIBLE" : "MONITOR";
 const statusClass = (status?: PlaybookSignal["status"]) => String(status ?? "MONITOR").toLowerCase().replace("_", "-");

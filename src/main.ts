@@ -582,8 +582,9 @@ function captureWorkspaceScroll(): WorkspaceScrollPosition {
   return { pageY: window.scrollY, tableLeft: table?.scrollLeft ?? 0, tableTop: table?.scrollTop ?? 0, anchor: firstVisible ? { ...firstVisible.anchor, offset: firstVisible.rect.top } : undefined };
 }
 function restoreWorkspaceScroll(position: WorkspaceScrollPosition) {
-  let restored = false;
-  if (position.anchor) {
+  window.scrollTo({ top: position.pageY, left: 0, behavior: "auto" });
+  let restored = Math.abs(window.scrollY - position.pageY) <= 8;
+  if (!restored && position.anchor) {
     const { kind, key, offset } = position.anchor;
     const target = kind === "pool" ? Array.from(document.querySelectorAll<HTMLElement>(".pool-row[data-pool]")).find((element) => element.dataset.pool === key) : kind === "kol" ? Array.from(document.querySelectorAll<HTMLElement>(".kol-card")).find((element) => element.querySelector("[data-kol-select]")?.getAttribute("data-kol-select") === key) : document.querySelector<HTMLElement>(".evidence-panel");
     if (target) {

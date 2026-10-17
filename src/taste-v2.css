@@ -860,7 +860,7 @@ footer b { color: var(--ui-muted) !important; }
 
 @media (max-width: 680px) {
   .workspace-page .list-sidebar {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     padding: 6px !important;
     border-left: 3px solid var(--ui-accent) !important;
   }
@@ -878,6 +878,10 @@ footer b { color: var(--ui-muted) !important; }
     padding-inline: 7px !important;
     font-size: 9px !important;
   }
+}
+
+@media (max-width: 360px) {
+  .workspace-page .list-sidebar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (min-width: 681px) and (max-width: 800px) {

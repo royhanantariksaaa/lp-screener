@@ -6,3 +6,5 @@ dist/
 *.tsbuildinfo
 api/x-feed-snapshot.json
 *.x-feed-snapshot.json
+__pycache__/
+*.pyc

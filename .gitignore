@@ -8,3 +8,5 @@ api/x-feed-snapshot.json
 *.x-feed-snapshot.json
 __pycache__/
 *.pyc
+workers/x-feed-collector-ts/data/
+workers/x-feed-collector-ts/.env.local

@@ -1,1 +1,0 @@
-twscrape[curl]==0.20.1

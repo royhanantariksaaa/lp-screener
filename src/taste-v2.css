@@ -354,6 +354,7 @@ textarea:focus-visible { outline: 2px solid var(--ui-accent) !important; outline
 .workspace-page .table-sticky-spacer th { height: 0 !important; padding: 0 !important; border: 0 !important; background: transparent !important; }
 .workspace-page .table-scroll-viewport.table-header-offset .table-sticky-spacer { display: table-row !important; }
 .workspace-page .table-scroll-viewport.table-header-offset .table-sticky-spacer th { height: 72px !important; }
+.workspace-page .empty-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .workspace-page thead th { position: sticky; top: 72px; z-index: 5; padding: 12px 13px !important; background: var(--ui-surface-3) !important; border-bottom: 2px solid var(--ui-accent) !important; color: var(--ui-muted) !important; font: 600 10px var(--ui-data) !important; }
 .workspace-page tbody td { padding: 14px 13px !important; background: var(--ui-surface) !important; border-top: 1px solid var(--ui-line-soft) !important; color: var(--ui-muted) !important; font: 12px var(--ui-data) !important; }
 .workspace-page tbody tr:hover td { background: #2a2d30 !important; }

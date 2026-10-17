@@ -1,8 +1,8 @@
 $ErrorActionPreference = 'Stop'
 $taskName = 'Meteora LP Screener X Feed'
 $workerScript = Join-Path $PSScriptRoot 'run-worker.ps1'
-$pwsh = (Get-Command pwsh -ErrorAction SilentlyContinue).Source
-if (-not $pwsh) { $pwsh = (Get-Command powershell.exe).Source }
+$pwsh = (Get-Command powershell.exe -ErrorAction SilentlyContinue).Source
+if (-not $pwsh) { $pwsh = (Get-Command pwsh).Source }
 $action = New-ScheduledTaskAction -Execute $pwsh -Argument ('-NoProfile -ExecutionPolicy Bypass -File "{0}"' -f $workerScript) -WorkingDirectory $PSScriptRoot
 $trigger = New-ScheduledTaskTrigger -Once -At (Get-Date).AddMinutes(1) -RepetitionInterval (New-TimeSpan -Minutes 15) -RepetitionDuration (New-TimeSpan -Days 3650)
 $principal = New-ScheduledTaskPrincipal -UserId ([System.Security.Principal.WindowsIdentity]::GetCurrent().Name) -LogonType Interactive -RunLevel Limited

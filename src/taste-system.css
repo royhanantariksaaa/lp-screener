@@ -342,6 +342,12 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .evidence-item, .playbook-check, .evidence-bars span { border-color: var(--ledger-line) !important; }
 .evidence-item small, .evidence-score small, .playbook-check small { color: var(--ledger-muted) !important; }
 .evidence-footer { border-color: var(--ledger-line) !important; color: var(--ledger-muted) !important; }
+.workspace-page .evidence-head { flex-wrap: wrap; }
+.evidence-nav { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex: 1 1 100%; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--ledger-line); color: var(--ledger-muted); font: 10px var(--ledger-mono); }
+.evidence-nav > div { display: flex; gap: 6px; }
+.evidence-nav button { min-height: 30px; padding: 5px 8px; border: 1px solid var(--ledger-line-strong); border-radius: 2px; background: var(--ledger-paper); color: var(--ledger-action-dark); cursor: pointer; font: 10px var(--ledger-mono); }
+.evidence-nav button:hover:not(:disabled) { border-color: var(--ledger-action); background: var(--taste-accent-wash); }
+.evidence-nav button:disabled { opacity: .4; cursor: not-allowed; }
 .pagination { color: var(--ledger-muted) !important; }
 .pagination button { border-color: var(--ledger-line-strong) !important; background: transparent !important; color: var(--ledger-action-dark) !important; border-radius: 2px !important; }
 

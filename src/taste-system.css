@@ -662,3 +662,59 @@ body.has-modal-selection { overflow-y: hidden !important; }
 @media (max-width: 1200px) {
   .workspace-page table { width: max-content; min-width: 1160px; }
 }
+
+/* Dense market-board treatment: the table owns its vertical scroll so its
+   header can stay pinned while the rows move, like a trading terminal. */
+.workspace-page .table-wrap {
+  max-height: min(68vh, 720px);
+  overflow: auto;
+  scrollbar-gutter: stable;
+}
+.workspace-page table { border-spacing: 0; }
+.workspace-page thead th {
+  position: sticky !important;
+  top: 0;
+  z-index: 20;
+  padding: 7px 10px !important;
+  background: var(--ledger-paper-2) !important;
+  border-bottom: 1px solid var(--ledger-line-strong) !important;
+}
+.workspace-page thead th:first-child {
+  left: 0;
+  z-index: 24;
+}
+.table-sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 24px;
+  padding: 3px 0;
+  border: 0;
+  background: transparent;
+  color: var(--ledger-muted);
+  font: 600 8px var(--ledger-mono);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.table-sort i { color: var(--ledger-quiet); font: 11px/1 var(--ledger-mono); font-style: normal; }
+.table-sort:hover, .workspace-page thead th.is-sorted .table-sort { color: var(--ledger-action-dark); }
+.workspace-page tbody td {
+  padding: 8px 10px !important;
+  font-size: 10px;
+  line-height: 1.25;
+}
+.workspace-page tbody td[data-label="POOL"] { padding: 8px 10px !important; }
+.workspace-page .pool-name { gap: 6px; }
+.workspace-page .token-avatar { width: 28px !important; height: 28px !important; flex-basis: 28px !important; border-radius: 7px !important; }
+.workspace-page .pool-name strong { font-size: 12px; letter-spacing: 0; }
+.workspace-page .pool-row>td>small { margin-top: 2px; font-size: 8px; }
+.workspace-page .pool-contract { margin-top: 3px; }
+.workspace-page .copy-ca { padding: 3px 5px; font-size: 8px; }
+.workspace-page .signal-stack { gap: 3px; }
+.workspace-page .stack-badge, .workspace-page .flow-badge, .workspace-page .status-pill { padding: 3px 5px; font-size: 8px; }
+.workspace-page .screen-score { min-width: 34px; height: 26px; font-size: 10px; }
+@media (max-width: 800px) {
+  .workspace-page .table-wrap { max-height: calc(100vh - 250px); }
+}

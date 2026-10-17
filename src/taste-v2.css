@@ -656,6 +656,40 @@ footer b { color: var(--ui-muted) !important; }
   .workspace-page table td:nth-child(2),
   .workspace-page table th:nth-child(6),
   .workspace-page table td:nth-child(6) { display: none !important; }
+  .workspace-page tbody tr.pool-row td:nth-child(2),
+  .workspace-page tbody tr.pool-row td:nth-child(6) { display: none !important; }
+  .workspace-page .table-scroll-viewport table {
+    width: 960px !important;
+    min-width: 960px !important;
+    table-layout: fixed !important;
+  }
+  .workspace-page table th:nth-child(1),
+  .workspace-page table td:nth-child(1) { width: 215px; }
+  .workspace-page table th:nth-child(3),
+  .workspace-page table td:nth-child(3) { width: 82px; }
+  .workspace-page table th:nth-child(4),
+  .workspace-page table td:nth-child(4),
+  .workspace-page table th:nth-child(5),
+  .workspace-page table td:nth-child(5) { width: 90px; }
+  .workspace-page table th:nth-child(7),
+  .workspace-page table td:nth-child(7) { width: 122px; }
+  .workspace-page table th:nth-child(8),
+  .workspace-page table td:nth-child(8) { width: 165px; }
+  .workspace-page table th:nth-child(9),
+  .workspace-page table td:nth-child(9) { width: 105px; }
+  .workspace-page table th:nth-child(10),
+  .workspace-page table td:nth-child(10) { width: 80px; }
+  .workspace-page tbody td { overflow: hidden; text-overflow: ellipsis; white-space: normal; }
+  .workspace-page tbody td:first-child { overflow: visible; }
+  .workspace-page .pool-name { min-width: 0 !important; }
+  .workspace-page .pool-name strong { max-width: 128px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .workspace-page tbody tr.pool-row td[data-label="POOL"] > small { display: block; max-width: 185px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .workspace-page .pool-contract { max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .workspace-page .signal-stack { min-width: 0 !important; max-width: 100%; white-space: normal !important; }
+  .workspace-page .stack-badge,
+  .workspace-page .flow-badge,
+  .workspace-page .status-pill { white-space: nowrap; }
+  .workspace-page .pool-chart-cell { min-width: 0 !important; width: 100%; }
   .workspace-page .table-scroll-controls { margin-top: 6px !important; }
   .screen-method { margin-top: 14px !important; padding-top: 12px !important; }
   .screen-method p { font-size: 12px !important; line-height: 1.45 !important; }

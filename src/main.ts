@@ -499,7 +499,7 @@ function poolEvidence() {
 }
 const workspaceTableHeader = (label: string, key?: WorkspaceSort) => key ? `<th scope="col" class="${state.sort === key ? "is-sorted" : ""}" aria-sort="${state.sort === key ? (state.sortDir === "asc" ? "ascending" : "descending") : "none"}"><button type="button" class="table-sort" data-table-sort="${key}" aria-label="Sort by ${label}"><span>${label}</span><i aria-hidden="true">${workspaceSortIndicator(key)}</i></button></th>` : `<th scope="col">${label}</th>`;
 const workspaceTableScrollControls = () => `<div class="table-scroll-controls" aria-label="Horizontal table navigation"><span>SCROLL COLUMNS</span><button type="button" data-table-scroll="left" aria-label="Scroll table left">←</button><button type="button" data-table-scroll="right" aria-label="Scroll table right">→</button></div>`;
-const workspaceTableStickySpacer = () => "";
+const workspaceTableStickySpacer = () => `<tr class="table-sticky-spacer" aria-hidden="true"><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th></tr>`;
 function renderWorkspace() {
   const pools = filtered();
   const walletReady = state.pools.some((pool) => pool.walletIntelligence === "LIVE");
@@ -650,6 +650,34 @@ function restoreWorkspaceScroll(position: WorkspaceScrollPosition) {
     table.scrollTop = position.tableTop;
   }
 }
+let workspaceTableOffsetBound = false;
+let workspaceTableOffsetFrame: number | undefined;
+function syncWorkspaceTableHeaderOffset() {
+  const viewport = document.querySelector<HTMLElement>(".table-scroll-viewport");
+  if (!viewport || !viewport.querySelector(".table-sticky-spacer")) return;
+  const topbarHeight = Math.round(document.querySelector<HTMLElement>(".topbar")?.getBoundingClientRect().height ?? (window.innerWidth <= 680 ? 54 : 72));
+  const shouldOffset = viewport.getBoundingClientRect().top <= topbarHeight + 1;
+  const wasOffset = viewport.classList.contains("table-header-offset");
+  if (shouldOffset === wasOffset) return;
+  const previousScroll = captureWorkspaceScroll();
+  viewport.classList.toggle("table-header-offset", shouldOffset);
+  restoreWorkspaceScroll(previousScroll);
+}
+function bindWorkspaceTableHeaderOffset() {
+  if (!workspaceTableOffsetBound) {
+    const schedule = () => {
+      if (workspaceTableOffsetFrame !== undefined) return;
+      workspaceTableOffsetFrame = window.requestAnimationFrame(() => {
+        workspaceTableOffsetFrame = undefined;
+        syncWorkspaceTableHeaderOffset();
+      });
+    };
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    workspaceTableOffsetBound = true;
+  }
+  syncWorkspaceTableHeaderOffset();
+}
 let lastRenderedRoute = "";
 function syncEvidenceBackdrop() {
   const existing = document.querySelector<HTMLButtonElement>("#evidenceBackdrop");
@@ -725,6 +753,7 @@ function renderEvidenceInPlace() {
   syncEvidenceBackdrop();
   bindWorkspaceDynamic();
   bindCandleTooltips();
+  bindWorkspaceTableHeaderOffset();
   return true;
 }
 function renderWorkspaceInPlace() {
@@ -775,6 +804,7 @@ function renderWorkspaceInPlace() {
   syncEvidenceBackdrop();
   bindWorkspaceDynamic();
   bindCandleTooltips();
+  bindWorkspaceTableHeaderOffset();
   restoreWorkspaceScroll(previousScroll);
   return true;
 }
@@ -867,6 +897,7 @@ function bind() {
   document.querySelectorAll<HTMLButtonElement>("[data-wallet-cluster]").forEach((button) => button.addEventListener("click", async (event) => { event.stopPropagation(); const address = button.dataset.walletCluster ?? ""; const chain = button.dataset.walletChain ?? "solana"; if (!address) return; state.walletCluster = { address, chain, loading: true, error: "", result: undefined }; render(); try { const result = await fetchJson<WalletClusterPayload>(liveApi("wallet-clusters", { address, chain }), 45000); if (state.walletCluster.address === address && state.walletCluster.chain === chain) state.walletCluster = { address, chain, loading: false, error: result.status === "UNAVAILABLE" || result.status === "KEY_REQUIRED" ? (result.note ?? "This chain requires indexed history.") : "", result: { ...result, chain } }; } catch (error) { if (state.walletCluster.address === address) state.walletCluster = { address, chain, loading: false, error: error instanceof Error ? error.message : "Persisted wallet scan unavailable", result: undefined }; } render(); }));
   document.querySelectorAll<HTMLButtonElement>("[data-copy-ca]").forEach((button) => button.addEventListener("click", async (event) => { event.stopPropagation(); const address = button.dataset.copyCa ?? ""; try { await navigator.clipboard.writeText(address); button.textContent = "Copied"; setTimeout(() => { button.textContent = `CA ${shortAddress(address)}`; }, 1400); } catch { button.textContent = "Select"; } }));
   bindCandleTooltips();
+  bindWorkspaceTableHeaderOffset();
 }
 async function loadChainContext() {
   try {

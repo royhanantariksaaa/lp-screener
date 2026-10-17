@@ -862,25 +862,17 @@ footer b { color: var(--ui-muted) !important; }
   .workspace-page .pool-contract { max-width: 225px; }
 }
 
-/* Discover table stability pass: the page owns vertical scrolling. Keeping
-   the column header in normal flow prevents it from covering the first row
-   while live rows are refreshed or the table is horizontally panned. */
+/* Discover table stability pass: the page owns vertical scrolling. The
+   header only pins beneath the fixed topbar once the table reaches it; the
+   spacer row keeps the first pool row below the pinned header. */
 .workspace-page {
   overflow-anchor: none !important;
 }
 .workspace-page .table-scroll-viewport {
   overflow-anchor: none !important;
 }
-.workspace-page .table-scroll-viewport thead th,
-.workspace-page .table-scroll-viewport thead th:first-child {
-  position: static !important;
-  top: auto !important;
-  z-index: 2 !important;
-}
-.workspace-page .table-sticky-spacer,
-.workspace-page .table-scroll-viewport.table-header-offset .table-sticky-spacer {
-  display: none !important;
-}
+.workspace-page .table-sticky-spacer { display: none !important; }
+.workspace-page .table-scroll-viewport.table-header-offset .table-sticky-spacer { display: table-row !important; }
 
 @media (prefers-reduced-motion: reduce) {
   *,

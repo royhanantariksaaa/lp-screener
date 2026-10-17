@@ -668,6 +668,7 @@ function syncWorkspaceTableHeaderOffset() {
   const viewportTop = viewport.getBoundingClientRect().top;
   const headerTop = Math.max(0, Math.ceil(topbarHeight - viewportTop));
   viewport.style.setProperty("--table-header-top", `${headerTop}px`);
+  if (wasOffset) return;
   const headerCell = viewport.querySelector<HTMLElement>("thead tr:not(.table-sticky-spacer) th");
   const firstRow = viewport.querySelector<HTMLElement>("tbody tr.pool-row");
   if (headerCell && firstRow && spacerCells.length) {

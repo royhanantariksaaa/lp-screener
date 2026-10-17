@@ -1135,5 +1135,32 @@
     "sourceUrls": ["https://x.com/DineroDom0", "https://fomolens.app/trader/DineroDom0", "https://fomolens.app/token/robinhood/0xdd90bfa4adc7f4401e611abac692d939f9f4cb07", "https://fomo.family/profile/DineroDom0"],
     "thesisMatches": [{"token": "0xZAPS / KLED / WTH", "evidenceUrl": "https://fomolens.app/trader/DineroDom0", "thesis": "FomoLens records a 0xZAPS staking and fee-buyback thesis, a KLED data-narrative call, and a WTH upside call. Preserve these as captured thesis context, not recommendations.", "sourceUrls": ["https://fomolens.app/trader/DineroDom0", "https://fomolens.app/token/robinhood/0xdd90bfa4adc7f4401e611abac692d939f9f4cb07", "https://fomolens.app/token/solana/1zJX5gRnjLgmTpq5sVwkq69mNDQkCemqoasyjaPW6jm", "https://x.com/DineroDom0"], "updatedAt": "2026-10-17"}],
     "updatedAt": "2026-10-17"
+  },
+  "0xstanczyk": {
+    "xHandle": "0xstanczyk",
+    "xUrl": "https://x.com/0xstanczyk",
+    "status": "LIKELY",
+    "note": "The public @0xstanczyk profile identifies as a jester on chain and uses the same handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. No Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/0xstanczyk", "https://fomolens.app/trader/0xstanczyk", "https://fomolens.app/token/solana/DFMt2FyLpB6ekPNAzVErLXgpSnJ9CRf1VnxBAkTLpump", "https://fomo.family/profile/0xstanczyk"],
+    "thesisMatches": [{"token": "FTR / VEIL / BOTCOIN", "evidenceUrl": "https://fomolens.app/trader/0xstanczyk", "thesis": "FomoLens records an FTR hold thesis, repeated VEIL rebound calls, and a BOTCOIN privacy/Anoncoin launchpad narrative. Preserve these as captured thesis context, not recommendations.", "sourceUrls": ["https://fomolens.app/trader/0xstanczyk", "https://fomolens.app/token/solana/DFMt2FyLpB6ekPNAzVErLXgpSnJ9CRf1VnxBAkTLpump", "https://fomolens.app/token/solana/HgTGdc29D5bDMrDvsCLnorxz899VyDj7ZN7FPa6vpump", "https://x.com/0xstanczyk"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "0xx_Hammy": {
+    "xHandle": "0xx_Hammy",
+    "xUrl": "https://x.com/0xx_Hammy",
+    "status": "LIKELY",
+    "note": "The public @0xx_Hammy profile links to @labyrinth_alpha and uses the same handle, while FomoLens links a direct X post and the FOMO profile exposes the matching resolver-backed trader. No Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/0xx_Hammy", "https://x.com/0xx_Hammy/status/2111181102564213010?s=20", "https://fomolens.app/trader/0xx_Hammy", "https://fomo.family/profile/0xx_Hammy"],
+    "thesisMatches": [{"token": "LINDY / HADES / FILLED", "evidenceUrl": "https://x.com/0xx_Hammy/status/2111181102564213010?s=20", "thesis": "FomoLens records a direct LINDY X post, a HADES privacy-superapp thesis with Starknet/Polyhedge context, and a FILLED TCG/game thesis. Preserve these as captured public thesis evidence, not recommendations.", "sourceUrls": ["https://x.com/0xx_Hammy/status/2111181102564213010?s=20", "https://fomolens.app/trader/0xx_Hammy", "https://fomolens.app/token/solana/L1NDYkXzdVm5VYNC58SUuZJWKkGfg3RQGaAfxSQQar6", "https://fomolens.app/token/robinhood/0x923d915ddf0fe60c04addac68e13f0d5af03164f"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "AssetAngus": {
+    "xHandle": "AssetAngus",
+    "xUrl": "https://x.com/AssetAngus",
+    "status": "LIKELY",
+    "note": "The public @AssetAngus profile identifies an internet-magic-beans and JPEGs operator and uses the same handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. No Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/AssetAngus", "https://fomolens.app/trader/AssetAngus", "https://fomolens.app/token/solana/4MMQY9bwkxxTtsK3W227Q5ABT6yFY8Pmn9Ze7wmAXKY8", "https://fomo.family/profile/AssetAngus"],
+    "thesisMatches": [{"token": "ALLINU", "evidenceUrl": "https://fomolens.app/trader/AssetAngus", "thesis": "FomoLens records an ALLINU Solana thesis centered on community strength through a correction and a possible move from a $4M floor toward a larger valuation. Preserve this as captured thesis context, not a recommendation.", "sourceUrls": ["https://fomolens.app/trader/AssetAngus", "https://fomolens.app/token/solana/4MMQY9bwkxxTtsK3W227Q5ABT6yFY8Pmn9Ze7wmAXKY8", "https://x.com/AssetAngus"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
   }
 }

@@ -793,6 +793,8 @@ function renderWorkspaceInPlace() {
   document.querySelector<HTMLElement>(".workspace-page")?.classList.toggle("has-selection", Boolean(state.selectedPool));
   syncEvidenceBackdrop();
   bindWorkspaceDynamic();
+  bindCandleTooltips();
+  bindWorkspaceTableHeaderOffset();
   return true;
 }
 function render(mode: "full" | "data" = "full") {

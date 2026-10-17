@@ -973,5 +973,32 @@
     "sourceUrls": ["https://x.com/Plottwisst", "https://fomolens.app/trader/plottwisst", "https://fomolens.app/token/robinhood/0xedbf91223639800bcd5756815caf908df3b890be", "https://fomo.family/profile/plottwisst"],
     "thesisMatches": [{"token": "PRIORS", "evidenceUrl": "https://fomolens.app/trader/plottwisst", "thesis": "FomoLens records a Robinhood Chain PRIORS call with a concise entry thesis. Preserve this as captured call context, not a recommendation or independent proof of wallet ownership.", "sourceUrls": ["https://fomolens.app/trader/plottwisst", "https://fomolens.app/token/robinhood/0xedbf91223639800bcd5756815caf908df3b890be", "https://x.com/Plottwisst"], "updatedAt": "2026-10-17"}],
     "updatedAt": "2026-10-17"
+  },
+  "drews888": {
+    "xHandle": "drews888",
+    "xUrl": "https://x.com/drews888",
+    "status": "LIKELY",
+    "note": "The public @drews888 profile describes speculative market thoughts and resolves to the same handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. No Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/drews888", "https://fomolens.app/trader/drews888", "https://fomolens.app/token/solana/CARDSccUMFKoPRZxt5vt3ksUbxEFEcnZ3H2pd3dKxYjp", "https://fomo.family/profile/drews888"],
+    "thesisMatches": [{"token": "CARDS / BONER / AI", "evidenceUrl": "https://fomolens.app/trader/drews888", "thesis": "FomoLens records a CARDS conviction call, a Robinhood Chain BONER call framed as a possible large move, and an AI/RH-chain bottom call. Preserve these as captured thesis context, not recommendations.", "sourceUrls": ["https://fomolens.app/trader/drews888", "https://fomolens.app/token/solana/CARDSccUMFKoPRZxt5vt3ksUbxEFEcnZ3H2pd3dKxYjp", "https://x.com/drews888"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "GuavaGuy2001": {
+    "xHandle": "GuavaGuy2001",
+    "xUrl": "https://x.com/GuavaGuy2001",
+    "status": "LIKELY",
+    "note": "The public @GuavaGuy2001 profile is live with a sparse finance-oriented bio and resolves to the same handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. No Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/GuavaGuy2001", "https://fomolens.app/trader/GuavaGuy2001", "https://fomolens.app/token/solana/2Q3RhyE3u9qWf4ZNMebsWBkUJjCuQiYT62b15zu2LtCD", "https://fomo.family/profile/GuavaGuy2001"],
+    "thesisMatches": [{"token": "CLAWD", "evidenceUrl": "https://fomolens.app/trader/GuavaGuy2001", "thesis": "FomoLens records a Solana CLAWD call describing it as a leading AI token. Preserve this as captured thesis context, not a recommendation or independent proof of wallet ownership.", "sourceUrls": ["https://fomolens.app/trader/GuavaGuy2001", "https://fomolens.app/token/solana/2Q3RhyE3u9qWf4ZNMebsWBkUJjCuQiYT62b15zu2LtCD", "https://x.com/GuavaGuy2001"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "kenobi_wif": {
+    "xHandle": "kenobi_wif",
+    "xUrl": "https://x.com/kenobi_wif",
+    "status": "LIKELY",
+    "note": "The public @kenobi_wif profile resolves to the same crypto-themed handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. Its bio is generic and no Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/kenobi_wif", "https://fomolens.app/trader/kenobi_wif", "https://fomolens.app/token/solana/BVdbH7PLTSQxBssqvWTxVDoA8qfsztdVtMsZQSS9CScZ", "https://fomo.family/profile/kenobi_wif"],
+    "thesisMatches": [{"token": "GHOSTCAT", "evidenceUrl": "https://fomolens.app/trader/kenobi_wif", "thesis": "FomoLens records a Solana GHOSTCAT call with a concise speculative entry note. Preserve this as captured call context, not a recommendation or independent proof of wallet ownership.", "sourceUrls": ["https://fomolens.app/trader/kenobi_wif", "https://fomolens.app/token/solana/BVdbH7PLTSQxBssqvWTxVDoA8qfsztdVtMsZQSS9CScZ", "https://x.com/kenobi_wif"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
   }
 }

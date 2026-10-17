@@ -669,7 +669,14 @@ body.has-modal-selection { overflow-y: hidden !important; }
   max-height: min(68vh, 720px);
   overflow: auto;
   scrollbar-gutter: stable;
+  touch-action: pan-x pan-y;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
 }
+.table-scroll-controls { display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin: 6px 0 0; color: var(--ledger-muted); font: 8px var(--ledger-mono); letter-spacing: .1em; }
+.table-scroll-controls span { margin-right: 3px; }
+.table-scroll-controls button { min-width: 30px; min-height: 26px; padding: 3px 8px; border: 1px solid var(--ledger-line-strong); border-radius: 2px; background: var(--ledger-paper); color: var(--ledger-action-dark); font: 13px/1 var(--ledger-mono); cursor: pointer; }
+.table-scroll-controls button:hover, .table-scroll-controls button:focus-visible { border-color: var(--ledger-action); background: var(--taste-accent-wash); }
 .workspace-page table { border-spacing: 0; }
 .workspace-page thead th {
   position: sticky !important;
@@ -717,4 +724,6 @@ body.has-modal-selection { overflow-y: hidden !important; }
 .workspace-page .screen-score { min-width: 34px; height: 26px; font-size: 10px; }
 @media (max-width: 800px) {
   .workspace-page .table-wrap { max-height: calc(100vh - 250px); }
+  .table-scroll-controls { justify-content: space-between; padding: 2px 0 0; }
+  .table-scroll-controls span { flex: 1; }
 }

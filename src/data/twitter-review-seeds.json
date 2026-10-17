@@ -1378,5 +1378,14 @@
     "sourceUrls": ["https://x.com/pain", "https://fomolens.app/trader/pain", "https://fomolens.app/token/solana/Ai66LHZG9MCzg1WKdawwqduVAXpNDUuV8M3uyq5ppump", "https://fomo.family/profile/pain"],
     "thesisMatches": [{"token": "CATE / UU", "evidenceUrl": "https://fomolens.app/trader/pain", "thesis": "FomoLens records repeated Solana CATE calls and a BNB Chain UU call linked to a public external post. Preserve these as captured thesis context, not recommendations or independent proof of wallet ownership.", "sourceUrls": ["https://fomolens.app/trader/pain", "https://fomolens.app/token/solana/Ai66LHZG9MCzg1WKdawwqduVAXpNDUuV8M3uyq5ppump", "https://fomolens.app/token/bsc/0xc5127b2338dbe220d188d6fbaa4b526f9f877777", "https://x.com/pain"], "updatedAt": "2026-10-17"}],
     "updatedAt": "2026-10-17"
+  },
+  "frenchiela": {
+    "xHandle": "FrenchieLa",
+    "xUrl": "https://x.com/FrenchieLa",
+    "status": "LIKELY",
+    "note": "The FOMO handle `frenchiela` and public X handle @FrenchieLa normalize to the same identity, while FomoLens and the FOMO profile expose matching current calls. The X bio is personal and no Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/FrenchieLa", "https://fomolens.app/trader/frenchiela", "https://fomolens.app/token/solana/33jENUQnjoitkMFpvNJcSHyLAHFWJuHwT6E3E8CNpump", "https://fomo.family/profile/frenchiela"],
+    "thesisMatches": [{"token": "DOPE / HYDX / OTCI", "evidenceUrl": "https://fomolens.app/trader/frenchiela", "thesis": "FomoLens records a DOPE S-tier meme thesis, HYDX delivery/aggregator commentary, and OTCI calls about trimming and upside. Preserve these as captured thesis context, not recommendations.", "sourceUrls": ["https://fomolens.app/trader/frenchiela", "https://fomolens.app/token/solana/33jENUQnjoitkMFpvNJcSHyLAHFWJuHwT6E3E8CNpump", "https://fomolens.app/token/robinhood/0xaa5751ff3fb61e613993b2eb4eab1fce017081fc", "https://x.com/FrenchieLa"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
   }
 }

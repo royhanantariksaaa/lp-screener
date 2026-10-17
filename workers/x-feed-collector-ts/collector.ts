@@ -1,8 +1,8 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
+import { chromium, type Browser, type Page } from "playwright";
 
 type JsonRecord = Record<string, unknown>;
-
 type XPostEvidence = {
   id: string;
   xHandle: string;
@@ -16,19 +16,11 @@ type XPostEvidence = {
   publicMetrics: { replies: number; likes: number; reposts: number; quotes: number };
   authorConfidence: "EXACT";
 };
-
 type XProfile = {
   xHandle: string;
   posts: XPostEvidence[];
-  summary: {
-    postCount: number;
-    replyCount: number;
-    contractCount: number;
-    engagement: number;
-    latestAt?: string;
-  };
+  summary: { postCount: number; replyCount: number; contractCount: number; engagement: number; latestAt?: string };
 };
-
 type XFeedSnapshot = {
   status: "LIVE";
   source: string;
@@ -39,8 +31,8 @@ type XFeedSnapshot = {
   stale: false;
   note?: string;
 };
-
 type CursorState = { cursor: number };
+type ScrapedTweet = { id: string; xHandle: string; url: string; text: string; createdAt?: string; labels: string[]; isReply: boolean };
 
 const ROOT = process.cwd();
 const value = (key: string, fallback = "") => String(process.env[key] ?? fallback).trim();
@@ -70,37 +62,40 @@ const unique = (items: string[]) => [...new Set(items.filter(Boolean))];
 const safeHandle = (handle: string) => handle.trim().replace(/^@+/, "").slice(0, 15);
 const handleKey = (handle: string) => safeHandle(handle).toLowerCase();
 
-function extractPost(tweet: JsonRecord, users: Map<string, JsonRecord>): XPostEvidence | undefined {
-  const author = users.get(String(tweet.author_id ?? ""));
-  const username = safeHandle(String(author?.username ?? ""));
-  const id = String(tweet.id ?? "").trim();
-  if (!username || !id) return undefined;
-  const text = String(tweet.text ?? "").trim();
+function extractEvidence(text: string) {
   const solana = text.match(/(?<![A-Za-z0-9])[1-9A-HJ-NP-Za-km-z]{32,44}(?![A-Za-z0-9])/g) ?? [];
   const evm = text.match(/(?<![A-Za-z0-9])0x[a-fA-F0-9]{40}(?![A-Za-z0-9])/g) ?? [];
   const dollar = text.match(/\$[A-Za-z][A-Za-z0-9_]{1,14}/g) ?? [];
   const hashtag = text.match(/#[A-Za-z][A-Za-z0-9_]{1,14}/g) ?? [];
   const uppercase = text.match(/\b[A-Z][A-Z0-9_]{2,14}\b/g) ?? [];
   const stopwords = new Set(["THE", "AND", "FOR", "NOT", "THIS", "THAT", "WITH", "FROM", "JUST", "SOL", "USD", "USDC", "LFG", "DYOR", "ATH", "ATL", "CA"]);
-  const tokenMentions = unique([...dollar, ...hashtag, ...uppercase].map((token) => token.replace(/^[#$]/, "").toUpperCase()).filter((token) => token.length >= 2 && !stopwords.has(token)));
-  const metrics = (tweet.public_metrics as JsonRecord | undefined) ?? {};
-  const referenced = Array.isArray(tweet.referenced_tweets) ? tweet.referenced_tweets as JsonRecord[] : [];
-  const isReply = Boolean(tweet.in_reply_to_user_id || referenced.some((item) => item.type === "replied_to"));
   return {
-    id,
-    xHandle: username,
-    url: `https://x.com/${encodeURIComponent(username)}/status/${encodeURIComponent(id)}`,
-    text: text.slice(0, 560),
-    createdAt: typeof tweet.created_at === "string" ? tweet.created_at : undefined,
     contractAddresses: unique([...solana, ...evm]).slice(0, 8),
-    tokenMentions: tokenMentions.slice(0, 16),
-    isReply,
-    replyToUserId: tweet.in_reply_to_user_id ? String(tweet.in_reply_to_user_id) : undefined,
+    tokenMentions: unique([...dollar, ...hashtag, ...uppercase].map((token) => token.replace(/^[#$]/, "").toUpperCase()).filter((token) => token.length >= 2 && !stopwords.has(token))).slice(0, 16),
+  };
+}
+
+function parseMetric(labels: string[], pattern: RegExp) {
+  const label = labels.find((candidate) => pattern.test(candidate));
+  const match = label?.match(/([\d,.]+)\s*/);
+  return match ? Number(match[1].replace(/,/g, "")) : 0;
+}
+
+function normalizeScrapedTweet(raw: { id: string; xHandle: string; url: string; text: string; createdAt?: string; labels: string[]; isReply: boolean }): XPostEvidence {
+  const evidence = extractEvidence(raw.text);
+  return {
+    id: raw.id,
+    xHandle: safeHandle(raw.xHandle),
+    url: raw.url,
+    text: raw.text.slice(0, 560),
+    createdAt: raw.createdAt,
+    ...evidence,
+    isReply: raw.isReply,
     publicMetrics: {
-      replies: Number(metrics.reply_count ?? 0),
-      likes: Number(metrics.like_count ?? 0),
-      reposts: Number(metrics.retweet_count ?? 0),
-      quotes: Number(metrics.quote_count ?? 0),
+      replies: parseMetric(raw.labels, /repl(?:y|ies)/i),
+      likes: parseMetric(raw.labels, /like/i),
+      reposts: parseMetric(raw.labels, /repost|retweet/i),
+      quotes: parseMetric(raw.labels, /quote/i),
     },
     authorConfidence: "EXACT",
   };
@@ -114,29 +109,6 @@ function summarize(posts: XPostEvidence[]): XProfile["summary"] {
     engagement: posts.reduce((count, post) => count + post.publicMetrics.replies + post.publicMetrics.likes + post.publicMetrics.reposts + post.publicMetrics.quotes, 0),
     latestAt: posts.map((post) => post.createdAt).filter(Boolean).sort().at(-1),
   };
-}
-
-async function fetchJson(url: string, init: RequestInit, retries = 2): Promise<JsonRecord> {
-  let lastError: unknown;
-  for (let attempt = 0; attempt <= retries; attempt += 1) {
-    try {
-      const response = await fetch(url, init);
-      const body = await response.json().catch(() => ({})) as JsonRecord;
-      if (response.ok) return body;
-      const detail = String(body.detail ?? body.title ?? body.error ?? body.message ?? `HTTP ${response.status}`);
-      const error = new Error(detail);
-      (error as Error & { status?: number }).status = response.status;
-      if (response.status !== 429 && response.status < 500) throw error;
-      lastError = error;
-    } catch (error) {
-      const status = (error as Error & { status?: number }).status;
-      if (status !== undefined && status !== 429 && status < 500) throw error;
-      lastError = error;
-      if (attempt === retries) break;
-    }
-    await new Promise((resolve) => setTimeout(resolve, 750 * 2 ** attempt));
-  }
-  throw lastError instanceof Error ? lastError : new Error("Request failed");
 }
 
 async function readHandles() {
@@ -167,60 +139,87 @@ function selectHandles(handles: string[], cursor: CursorState, count: number) {
   return { selected, nextCursor: (start + selected.length) % handles.length };
 }
 
-async function queryBatch(handles: string[], bearer: string, recentDays: number): Promise<XPostEvidence[]> {
-  const query = `(${handles.map((handle) => `from:${handle}`).join(" OR ")}) -is:retweet`;
-  const params = new URLSearchParams({
-    query,
-    max_results: "100",
-    start_time: new Date(Date.now() - recentDays * 86_400_000).toISOString(),
-    "tweet.fields": "created_at,author_id,conversation_id,in_reply_to_user_id,public_metrics,referenced_tweets,entities",
-    expansions: "author_id",
-    "user.fields": "username,name,profile_image_url,public_metrics",
-  });
-  const apiBase = value("X_API_BASE_URL", "https://api.x.com").replace(/\/$/, "");
-  const payload = await fetchJson(`${apiBase}/2/tweets/search/recent?${params}`, { headers: { accept: "application/json", authorization: `Bearer ${bearer}` } });
-  const users = new Map<string, JsonRecord>();
-  const includes = (payload.includes as JsonRecord | undefined) ?? {};
-  for (const user of Array.isArray(includes.users) ? includes.users as JsonRecord[] : []) users.set(String(user.id ?? ""), user);
-  const posts = (Array.isArray(payload.data) ? payload.data as JsonRecord[] : []).map((tweet) => extractPost(tweet, users)).filter((post): post is XPostEvidence => Boolean(post));
-  return posts;
+async function scrapeBatch(page: Page, handles: string[], recentDays: number): Promise<XPostEvidence[]> {
+  const query = `(${handles.map((handle) => `from:${handle}`).join(" OR ")}) -filter:replies`;
+  const url = `https://x.com/search?q=${encodeURIComponent(query)}&src=typed_query&f=live`;
+  await page.goto(url, { waitUntil: "domcontentloaded", timeout: 45_000 });
+  await page.waitForTimeout(3_000);
+  for (let index = 0; index < 2; index += 1) {
+    await page.evaluate(() => window.scrollBy(0, window.innerHeight * 1.4));
+    await page.waitForTimeout(1_000);
+  }
+  const rawTweets = await page.locator('article[data-testid="tweet"]').evaluateAll((nodes) => nodes.map((node) => {
+    const article = node as HTMLElement;
+    const links = Array.from(article.querySelectorAll<HTMLAnchorElement>('a[href]')).map((link) => link.href);
+    const statusLink = links.find((link) => /\/[^/]+\/status\/\d+/.test(link));
+    const match = statusLink?.match(/https?:\/\/[^/]+\/([^/]+)\/status\/(\d+)/);
+    const labels = Array.from(article.querySelectorAll<HTMLElement>("[aria-label]")).map((element) => element.getAttribute("aria-label") ?? "");
+    const time = article.querySelector("time")?.getAttribute("datetime") ?? undefined;
+    const text = (article.innerText ?? "").trim();
+    return match && text ? { id: match[2], xHandle: match[1], url: statusLink, text, createdAt: time, labels, isReply: /^@[A-Za-z0-9_]{1,15}\b/.test(text) } : undefined;
+  })) as Array<ScrapedTweet | undefined>;
+  const tweets = rawTweets.filter((tweet): tweet is ScrapedTweet => Boolean(tweet));
+  if (!tweets.length) {
+    const bodyText = await page.locator("body").innerText().catch(() => "");
+    if (/log in|sign up|something went wrong|try again/i.test(bodyText)) throw new Error("X session cookies are invalid, expired, or blocked; refresh auth_token and ct0");
+  }
+  const cutoff = Date.now() - recentDays * 86_400_000;
+  return tweets.map((tweet) => normalizeScrapedTweet(tweet)).filter((post) => !post.createdAt || Date.parse(post.createdAt) >= cutoff);
+}
+
+async function scrapeWithCookies(handles: string[], authToken: string, ct0: string, recentDays: number, batchSize: number) {
+  const browserPath = value("X_BROWSER_PATH");
+  const browser: Browser = await chromium.launch({ headless: value("X_HEADLESS", "1") !== "0", executablePath: browserPath || undefined });
+  const context = await browser.newContext({ locale: "en-US", viewport: { width: 1440, height: 1000 }, userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/131 Safari/537.36" });
+  await context.addCookies([
+    { name: "auth_token", value: authToken, domain: ".x.com", path: "/", httpOnly: true, secure: true },
+    { name: "ct0", value: ct0, domain: ".x.com", path: "/", httpOnly: false, secure: true },
+  ]);
+  const page = await context.newPage();
+  const posts: XPostEvidence[] = [];
+  try {
+    for (let index = 0; index < handles.length; index += batchSize) {
+      const batch = handles.slice(index, index + batchSize);
+      console.log(`Scraping ${batch.length} handles (${index + 1}-${index + batch.length}/${handles.length})`);
+      posts.push(...await scrapeBatch(page, batch, recentDays));
+    }
+  } finally {
+    await context.close();
+    await browser.close();
+  }
+  return [...new Map(posts.map((post) => [post.id, post])).values()].sort((a, b) => String(b.createdAt ?? "").localeCompare(String(a.createdAt ?? "")));
 }
 
 async function main() {
   await loadDotEnv(path.join(ROOT, ".env.local"));
   const publishUrl = value("PUBLISH_URL");
   const publishToken = value("PUBLISH_TOKEN");
-  const bearer = value("X_BEARER_TOKEN");
+  const authToken = value("X_AUTH_TOKEN", value("AUTH_TOKEN", value("auth_token")));
+  const ct0 = value("X_CT0", value("CT0", value("ct0")));
   if (!publishUrl || !publishToken) throw new Error("PUBLISH_URL and PUBLISH_TOKEN are required in .env.local");
-  if (!bearer) throw new Error("X_BEARER_TOKEN is required for the official X API v2 feed");
+  if (!authToken || !ct0) throw new Error("X_AUTH_TOKEN and X_CT0 are required; these are your auth_token and ct0 X session cookies");
   const handles = await readHandles();
   const stateFile = path.resolve(ROOT, value("X_STATE_FILE", "./data/cursor.json"));
   const snapshotFile = path.resolve(ROOT, value("X_SNAPSHOT_FILE", "./data/x-feed-snapshot.json"));
   const cursor = await readCursor(stateFile);
   const { selected, nextCursor } = selectHandles(handles, cursor, numberValue("X_HANDLES_PER_RUN", 20, 1, handles.length));
-  const batchSize = numberValue("X_BATCH_SIZE", 10, 1, 20);
   const recentDays = numberValue("X_RECENT_DAYS", 7, 1, 7);
-  const posts: XPostEvidence[] = [];
-  for (let index = 0; index < selected.length; index += batchSize) {
-    const batch = selected.slice(index, index + batchSize);
-    console.log(`Querying ${batch.length} handles (${index + 1}-${index + batch.length}/${selected.length})`);
-    posts.push(...await queryBatch(batch, bearer, recentDays));
-  }
-  const deduped = [...new Map(posts.map((post) => [post.id, post])).values()].sort((a, b) => String(b.createdAt ?? "").localeCompare(String(a.createdAt ?? "")));
-  if (!deduped.length && value("X_ALLOW_EMPTY_PUBLISH", "0") !== "1") {
+  const batchSize = numberValue("X_BATCH_SIZE", 10, 1, 20);
+  const posts = await scrapeWithCookies(selected, authToken, ct0, recentDays, batchSize);
+  if (!posts.length && value("X_ALLOW_EMPTY_PUBLISH", "0") !== "1") {
     console.log("No posts returned; preserving the last Vercel snapshot and cursor.");
     return;
   }
   const profiles: Record<string, XProfile> = {};
   for (const handle of selected) {
-    const profilePosts = deduped.filter((post) => handleKey(post.xHandle) === handleKey(handle));
+    const profilePosts = posts.filter((post) => handleKey(post.xHandle) === handleKey(handle));
     profiles[handleKey(handle)] = { xHandle: handle, posts: profilePosts, summary: summarize(profilePosts) };
   }
   const snapshot: XFeedSnapshot = {
     status: "LIVE",
-    source: "Official X API v2 · local Windows Task Scheduler worker",
+    source: "X web session · local Windows Task Scheduler worker",
     profiles,
-    posts: deduped,
+    posts,
     fetchedAt: new Date().toISOString(),
     window: `${recentDays}d`,
     stale: false,
@@ -229,18 +228,14 @@ async function main() {
   await writeJson(snapshotFile, snapshot);
   if (value("X_DRY_RUN", "0") === "1") {
     await writeJson(stateFile, { cursor: nextCursor });
-    console.log(`Dry run complete: ${deduped.length} posts, cursor ${nextCursor}.`);
+    console.log(`Dry run complete: ${posts.length} posts, cursor ${nextCursor}.`);
     return;
   }
-  const response = await fetch(publishUrl, {
-    method: "POST",
-    headers: { accept: "application/json", "content-type": "application/json", authorization: `Bearer ${publishToken}`, "user-agent": "lp-screener-x-feed-collector/1.0" },
-    body: JSON.stringify(snapshot),
-  });
+  const response = await fetch(publishUrl, { method: "POST", headers: { accept: "application/json", "content-type": "application/json", authorization: `Bearer ${publishToken}`, "user-agent": "lp-screener-x-session-collector/1.0" }, body: JSON.stringify(snapshot) });
   const result = await response.json().catch(() => ({})) as JsonRecord;
   if (!response.ok) throw new Error(`Vercel publish failed (${response.status}): ${String(result.error ?? result.message ?? "unknown error")}`);
   await writeJson(stateFile, { cursor: nextCursor });
-  console.log(`Published ${deduped.length} posts for ${selected.length} handles; next cursor ${nextCursor}.`);
+  console.log(`Published ${posts.length} posts for ${selected.length} handles; next cursor ${nextCursor}.`);
 }
 
 main().catch((error: unknown) => {

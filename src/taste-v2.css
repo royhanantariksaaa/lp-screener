@@ -832,7 +832,7 @@ footer b { color: var(--ui-muted) !important; }
 }
 
 @media (max-width: 680px) {
-  .workspace-page .table-scroll-viewport.table-header-offset .table-sticky-spacer th { height: 54px !important; }
+  .workspace-page .table-scroll-viewport.table-header-offset .table-sticky-spacer th { height: 60px !important; }
   .workspace-page .table-scroll-viewport table { width: 1160px !important; min-width: 1160px !important; }
   .workspace-page .table-scroll-viewport thead th { top: 54px !important; }
   .workspace-page table th:nth-child(2),

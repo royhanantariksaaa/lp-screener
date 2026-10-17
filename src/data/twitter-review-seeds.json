@@ -1297,5 +1297,23 @@
     "sourceUrls": ["https://x.com/0xFalcs", "https://fomolens.app/trader/0xFalcs", "https://fomolens.app/token/base/0xc52aedec3374422d7510e294cfaa90799595cba3", "https://fomo.family/profile/0xFalcs"],
     "thesisMatches": [{"token": "Surplus", "evidenceUrl": "https://fomolens.app/trader/0xFalcs", "thesis": "FomoLens records a Base Surplus call with a stated intention to publish a thesis at a higher market-cap milestone. Preserve this as captured call context, not a recommendation.", "sourceUrls": ["https://fomolens.app/trader/0xFalcs", "https://fomolens.app/token/base/0xc52aedec3374422d7510e294cfaa90799595cba3", "https://x.com/0xFalcs"], "updatedAt": "2026-10-17"}],
     "updatedAt": "2026-10-17"
+  },
+  "JackPine": {
+    "xHandle": "JackPine",
+    "xUrl": "https://x.com/JackPine",
+    "status": "LIKELY",
+    "note": "The public @JackPine profile is live and uses the same handle, while FomoLens links a current MINECAT call and the FOMO profile exposes the matching resolver-backed trader. Its X bio is sparse and no Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/JackPine", "https://fomolens.app/trader/JackPine", "https://fomolens.app/token/solana/4ZnJ72JoEVazMe7nvbek7CfSKh7eTtR3nikyAua6EkiE", "https://fomo.family/profile/JackPine"],
+    "thesisMatches": [{"token": "MINECAT", "evidenceUrl": "https://fomolens.app/trader/JackPine", "thesis": "FomoLens records a Solana MINECAT buy thesis at a small market cap and links a public PineAnalytics post as context. Preserve this as captured thesis evidence, not a recommendation or proof of authorship.", "sourceUrls": ["https://fomolens.app/trader/JackPine", "https://fomolens.app/token/solana/4ZnJ72JoEVazMe7nvbek7CfSKh7eTtR3nikyAua6EkiE", "https://x.com/PineAnalytics/status/2105747621901906355", "https://x.com/JackPine"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "PlugC": {
+    "xHandle": "plugc",
+    "xUrl": "https://x.com/plugc",
+    "status": "LIKELY",
+    "note": "The public @plugc profile is live and uses the same normalized handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. Its X display name is Korean-language 김도영 and no Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/plugc", "https://fomolens.app/trader/PlugC", "https://fomolens.app/token/solana/B32ocrADBEo1XHsGVnxqP81SaK2NiZkQmmAoTnmT8Ybu", "https://fomo.family/profile/PlugC"],
+    "thesisMatches": [{"token": "BANKROLL", "evidenceUrl": "https://fomolens.app/trader/PlugC", "thesis": "FomoLens records a Solana BANKROLL call framed as a digital-asset recommendation to share with friends and family. Preserve this as captured thesis context, not a recommendation.", "sourceUrls": ["https://fomolens.app/trader/PlugC", "https://fomolens.app/token/solana/B32ocrADBEo1XHsGVnxqP81SaK2NiZkQmmAoTnmT8Ybu", "https://x.com/plugc"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
   }
 }

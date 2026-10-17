@@ -1054,5 +1054,32 @@
     "sourceUrls": ["https://x.com/DonnyDicey", "https://x.com/DonnyDicey/status/2111199878965834226?s=20", "https://fomolens.app/trader/DonnyDicey", "https://fomo.family/profile/DonnyDicey"],
     "thesisMatches": [{"token": "旺柴", "evidenceUrl": "https://x.com/DonnyDicey/status/2111199878965834226?s=20", "thesis": "FomoLens records a BNB Chain 旺柴 call that links directly to a DonnyDicey X post, plus macro/tape commentary around BTC demand and the token narrative. Preserve this as captured public thesis evidence, not a recommendation.", "sourceUrls": ["https://x.com/DonnyDicey/status/2111199878965834226?s=20", "https://fomolens.app/trader/DonnyDicey", "https://fomolens.app/token/bsc/0x14f6a94909c407854390aa2d2462a3095d317777", "https://x.com/DonnyDicey"], "updatedAt": "2026-10-17"}],
     "updatedAt": "2026-10-17"
+  },
+  "clickl3ss": {
+    "xHandle": "clickl3ss",
+    "xUrl": "https://x.com/clickl3ss",
+    "status": "LIKELY",
+    "note": "The public @clickl3ss profile links to @wagmiwarriors and uses the same handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. No Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/clickl3ss", "https://fomolens.app/trader/clickl3ss", "https://fomolens.app/token/robinhood/0x92d176ccbeeffecd8089e841d09ea17b6c22d969", "https://fomo.family/profile/clickl3ss"],
+    "thesisMatches": [{"token": "VLAD / PIPPIN", "evidenceUrl": "https://fomolens.app/trader/clickl3ss", "thesis": "FomoLens records repeated Robinhood Chain VLAD calls with staged sell/hold sizing and a Solana PIPPIN gut call. Preserve these as captured call context, not recommendations.", "sourceUrls": ["https://fomolens.app/trader/clickl3ss", "https://fomolens.app/token/robinhood/0x92d176ccbeeffecd8089e841d09ea17b6c22d969", "https://x.com/clickl3ss"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "naP0Liano": {
+    "xHandle": "naP0Liano",
+    "xUrl": "https://x.com/naP0Liano",
+    "status": "LIKELY",
+    "note": "The public @naP0Liano profile resolves to the same handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. Its X display name is SpaceHart and no Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/naP0Liano", "https://fomolens.app/trader/naP0Liano", "https://fomolens.app/token/robinhood/0x01e6301bc1118be90cc6bc2d1b5c0c44bb883111", "https://fomo.family/profile/naP0Liano"],
+    "thesisMatches": [{"token": "IGNITION / HRX / CRAWL", "evidenceUrl": "https://fomolens.app/trader/naP0Liano", "thesis": "FomoLens records IGNITION as a hook-and-stock meta thesis, HRX as agentic trading aligned with Robinhood users, and CRAWL as an AI bet on Solana. Preserve these as captured thesis context, not recommendations.", "sourceUrls": ["https://fomolens.app/trader/naP0Liano", "https://fomolens.app/token/robinhood/0x01e6301bc1118be90cc6bc2d1b5c0c44bb883111", "https://x.com/naP0Liano"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "Guden": {
+    "xHandle": "guden",
+    "xUrl": "https://x.com/guden",
+    "status": "LIKELY",
+    "note": "The public @guden profile is live and uses the same normalized handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. Its X display name is Guden auj and no Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/guden", "https://fomolens.app/trader/Guden", "https://fomolens.app/token/solana/9piNCtrdv2KC9V2uQ2ECFUvqw8m6xmnipC2QBXjHpump", "https://fomo.family/profile/Guden"],
+    "thesisMatches": [{"token": "Prometheus", "evidenceUrl": "https://fomolens.app/trader/Guden", "thesis": "FomoLens records a Solana Prometheus call tied to a forthcoming Starbase statue reveal. Preserve this as captured call context, not a recommendation or independent proof of wallet ownership.", "sourceUrls": ["https://fomolens.app/trader/Guden", "https://fomolens.app/token/solana/9piNCtrdv2KC9V2uQ2ECFUvqw8m6xmnipC2QBXjHpump", "https://x.com/guden"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
   }
 }

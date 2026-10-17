@@ -566,7 +566,7 @@ const normalizeSnapshotFeed = (payload, handles) => {
     posts,
     fetchedAt: String(payload?.fetchedAt ?? payload?.capturedAt ?? new Date().toISOString()),
     window: String(payload?.window ?? "7d"),
-    stale: true,
+    stale: Boolean(payload?.stale),
     note: payload?.note ? String(payload.note) : "Snapshot imported by a separate authorized collector.",
   };
 };

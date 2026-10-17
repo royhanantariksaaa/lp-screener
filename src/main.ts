@@ -622,13 +622,28 @@ function poolRow(p: Pool) {
   const metricLabel = state.metricMode === "mcap" ? "MCAP" : "PRICE";
   return `<tr class="pool-row" data-pool="${key}"><td data-label="POOL"><div class="pool-name">${tokenAvatar}<strong>${p.name}</strong><button class="row-watch ${state.watchlist.includes(key) ? "active" : ""}" data-watch="${key}" title="Toggle watchlist">${state.watchlist.includes(key) ? "★" : "☆"}</button><button class="row-compare ${state.compareList.includes(key) ? "active" : ""}" data-compare="${key}" title="Compare candidate">${state.compareList.includes(key) ? "✓" : "+"}</button></div><small>${p.symbol} · pair ${p.address} · ${capTier}</small><div class="pool-contract">${contract}</div></td><td data-label="VENUE">${p.dex}</td><td data-label="${metricLabel}">${metricValue}</td><td data-label="LIQUIDITY">${money(p.liquidity)}</td><td data-label="24H VOLUME">${money(p.volume24h)}</td><td data-label="AGE">${p.ageDays}d</td><td data-label="15M SETUP"><div class="signal-stack">${technical}${eligibilitySignal}<span class="status-pill ${statusClass(signal?.status)}">${statusLabel(signal?.status)}</span></div></td><td data-label="SIGNALS"><div class="signal-stack">${wallets}${trackedWallets}${kol}${safety}${publicSignal}${launch}</div></td><td data-label="CHART"><div class="pool-chart-cell">${poolSparkline(p)}</div></td><td data-label="SCORE"><span class="screen-score ${displayedScore >= 75 ? "high" : displayedScore >= 55 ? "mid" : "low"}">${displayedScore}</span><small class="score-meta">${capTier} · CONF ${snapshot.evidenceConfidence}${isRunnerTier(p.marketCap) ? ` · RUNNER ${runner} · FLOW ${flow}` : ` · FLOW ${flow}`}</small><span class="decision-pill ${decision.className}">${decision.label}</span></td></tr>`;
 }
-type WorkspaceScrollPosition = { pageY: number; tableLeft: number; tableTop: number };
+type WorkspaceScrollPosition = { pageY: number; tableLeft: number; tableTop: number; anchor?: { key: string; offset: number } };
 function captureWorkspaceScroll(): WorkspaceScrollPosition {
   const table = document.querySelector<HTMLDivElement>(".table-scroll-viewport");
-  return { pageY: window.scrollY, tableLeft: table?.scrollLeft ?? 0, tableTop: table?.scrollTop ?? 0 };
+  const visible = Array.from(document.querySelectorAll<HTMLElement>(".pool-row[data-pool]"))
+    .map((element) => ({ element, rect: element.getBoundingClientRect() }))
+    .filter(({ rect }) => rect.bottom > 54 && rect.top < window.innerHeight)
+    .sort((a, b) => a.rect.top - b.rect.top)[0];
+  return { pageY: window.scrollY, tableLeft: table?.scrollLeft ?? 0, tableTop: table?.scrollTop ?? 0, anchor: visible?.element.dataset.pool ? { key: visible.element.dataset.pool, offset: visible.rect.top } : undefined };
 }
 function restoreWorkspaceScroll(position: WorkspaceScrollPosition) {
-  window.scrollTo({ top: position.pageY, left: 0, behavior: "auto" });
+  if (position.anchor) {
+    const target = Array.from(document.querySelectorAll<HTMLElement>(".pool-row[data-pool]"))
+      .find((element) => element.dataset.pool === position.anchor?.key);
+    if (target) {
+      const delta = target.getBoundingClientRect().top - position.anchor.offset;
+      if (Math.abs(delta) > 0.5) window.scrollBy({ top: delta, left: 0, behavior: "auto" });
+    } else {
+      window.scrollTo({ top: position.pageY, left: 0, behavior: "auto" });
+    }
+  } else {
+    window.scrollTo({ top: position.pageY, left: 0, behavior: "auto" });
+  }
   const table = document.querySelector<HTMLDivElement>(".table-scroll-viewport");
   if (table) {
     table.scrollLeft = position.tableLeft;
@@ -718,7 +733,11 @@ function renderWorkspaceInPlace() {
   if (!body || !root) return false;
   const pools = filtered();
   const nextRows = pools.map(poolRow).join("") || `<tr><td colspan="10" class="empty">${emptyWorkspaceState()}</td></tr>`;
-  if (body.innerHTML !== nextRows) body.innerHTML = nextRows;
+  if (body.innerHTML !== nextRows) {
+    const previousScroll = captureWorkspaceScroll();
+    body.innerHTML = nextRows;
+    restoreWorkspaceScroll(previousScroll);
+  }
   const count = root.querySelector<HTMLElement>("#workspace-count");
   if (count) count.textContent = `${pools.length} candidates`;
   const candleReady = state.pools.filter((pool) => (pool.candles?.length ?? 0) >= 2).length;

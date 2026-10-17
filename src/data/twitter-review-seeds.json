@@ -1270,5 +1270,32 @@
     "sourceUrls": ["https://x.com/EarlyBurry", "https://fomolens.app/trader/EarlyBurry", "https://fomolens.app/token/solana/BsbsB3WLq7vbY5En3MBCAsTrcwaCxNKY2Mp5pGuLpump", "https://fomo.family/profile/EarlyBurry"],
     "thesisMatches": [{"token": "GTA / Macca / HOTBOT", "evidenceUrl": "https://fomolens.app/trader/EarlyBurry", "thesis": "FomoLens records a GTA attention/catalyst thesis, a Macca front-running thesis for streamer attention, and a HOTBOT call tied to winning the Ansem Hack and Colosseum Crypto World’s Fair. Preserve these as captured thesis context, not recommendations.", "sourceUrls": ["https://fomolens.app/trader/EarlyBurry", "https://fomolens.app/token/solana/BsbsB3WLq7vbY5En3MBCAsTrcwaCxNKY2Mp5pGuLpump", "https://fomolens.app/token/solana/AKotzk1dhcNangAJBtvNKtT9bhbSVZc2mMhRFgkFpump", "https://x.com/EarlyBurry"], "updatedAt": "2026-10-17"}],
     "updatedAt": "2026-10-17"
+  },
+  "escobarpablo": {
+    "xHandle": "escobarpablo",
+    "xUrl": "https://x.com/escobarpablo",
+    "status": "LIKELY",
+    "note": "The public @escobarpablo profile is live and uses the same handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. Its X bio is sparse and no Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/escobarpablo", "https://fomolens.app/trader/escobarpablo", "https://fomolens.app/token/solana/Adv1f8fukVk6iLQr6H8T5ySvpzPyFYYbVWK9o2P4D6Ba", "https://fomo.family/profile/escobarpablo"],
+    "thesisMatches": [{"token": "PROGLET / CROWN / Givepixel", "evidenceUrl": "https://fomolens.app/trader/escobarpablo", "thesis": "FomoLens records a PROGLET entry call, a detailed CROWN gaming/creator-fee and buyback thesis, and a Givepixel call linked to a public post. Preserve these as captured thesis context, not recommendations.", "sourceUrls": ["https://fomolens.app/trader/escobarpablo", "https://fomolens.app/token/solana/Adv1f8fukVk6iLQr6H8T5ySvpzPyFYYbVWK9o2P4D6Ba", "https://fomolens.app/token/solana/F57KqEazb6X9wzZ7aFFu3ubmFmf25tBCM9S6RSXDpump", "https://x.com/escobarpablo"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "vascodicaprio": {
+    "xHandle": "vascodicaprio",
+    "xUrl": "https://x.com/vascodicaprio",
+    "status": "LIKELY",
+    "note": "The public @vascodicaprio profile is live and uses the same handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. Its X bio is explicitly informal and no Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/vascodicaprio", "https://fomolens.app/trader/vascodicaprio", "https://fomolens.app/token/bsc/0xee9fcc99971e3da8dd8c97557387bd7b88927777", "https://fomo.family/profile/vascodicaprio"],
+    "thesisMatches": [{"token": "Neo1 / Glow / AI / DUO", "evidenceUrl": "https://fomolens.app/trader/vascodicaprio", "thesis": "FomoLens records a Neo1 flying-Tesla/Gundam narrative, a Solana mascot Glow call, an anti-AI AI call, and a DUO comparison. Preserve these as captured thesis context, not recommendations.", "sourceUrls": ["https://fomolens.app/trader/vascodicaprio", "https://fomolens.app/token/bsc/0xee9fcc99971e3da8dd8c97557387bd7b88927777", "https://fomolens.app/token/solana/9KDhovVA2kdjngkFooqEn5FoKkuZeDMYiQtVk7Lbm9up", "https://x.com/vascodicaprio"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "0xFalcs": {
+    "xHandle": "0xFalcs",
+    "xUrl": "https://x.com/0xFalcs",
+    "status": "LIKELY",
+    "note": "The public @0xFalcs profile is live and uses the same handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. The public X bio is sparse and no Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/0xFalcs", "https://fomolens.app/trader/0xFalcs", "https://fomolens.app/token/base/0xc52aedec3374422d7510e294cfaa90799595cba3", "https://fomo.family/profile/0xFalcs"],
+    "thesisMatches": [{"token": "Surplus", "evidenceUrl": "https://fomolens.app/trader/0xFalcs", "thesis": "FomoLens records a Base Surplus call with a stated intention to publish a thesis at a higher market-cap milestone. Preserve this as captured call context, not a recommendation.", "sourceUrls": ["https://fomolens.app/trader/0xFalcs", "https://fomolens.app/token/base/0xc52aedec3374422d7510e294cfaa90799595cba3", "https://x.com/0xFalcs"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
   }
 }

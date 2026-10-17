@@ -499,7 +499,8 @@ footer b { color: var(--ui-muted) !important; }
   .kol-hero { grid-template-columns: 1fr !important; padding: 42px !important; }
   .kol-hero-signal { justify-content: flex-start; }
   .kol-layout,
-  .academy-layout { grid-template-columns: 1fr !important; }
+  .academy-layout,
+  .workspace-layout { grid-template-columns: 1fr !important; }
   .list-sidebar,
   .kol-filters { position: static !important; }
   .lesson-card { grid-template-columns: 1fr !important; }
@@ -691,6 +692,7 @@ footer b { color: var(--ui-muted) !important; }
   .workspace-page .status-pill { white-space: nowrap; }
   .workspace-page .pool-chart-cell { min-width: 0 !important; width: 100%; }
   .workspace-page .table-scroll-controls { margin-top: 6px !important; }
+
   .screen-method { margin-top: 14px !important; padding-top: 12px !important; }
   .screen-method p { font-size: 12px !important; line-height: 1.45 !important; }
 
@@ -755,6 +757,103 @@ footer b { color: var(--ui-muted) !important; }
   .research-stack { margin-top: 10px !important; padding: 10px !important; }
   .playbook-check { padding: 7px !important; }
   .research-stack a { padding: 6px 7px !important; }
+}
+
+/* Narrow screens keep the Defined-style table grammar: a readable identity
+   column, stable numeric columns, and intentional horizontal panning. */
+@media (max-width: 800px) {
+  .workspace-page .table-scroll-viewport {
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    max-height: none !important;
+    touch-action: pan-x !important;
+    overscroll-behavior-x: contain !important;
+  }
+  .workspace-page .table-scroll-viewport table {
+    width: 1240px !important;
+    min-width: 1240px !important;
+    table-layout: fixed !important;
+  }
+  .workspace-page .table-scroll-viewport thead th { padding: 11px 12px !important; }
+  .workspace-page .table-scroll-viewport tbody td {
+    padding: 15px 12px !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .workspace-page .table-scroll-viewport tbody td:first-child {
+    overflow: visible;
+    white-space: normal;
+  }
+  .workspace-page table th:nth-child(2),
+  .workspace-page table td:nth-child(2),
+  .workspace-page table th:nth-child(6),
+  .workspace-page table td:nth-child(6),
+  .workspace-page tbody tr.pool-row td:nth-child(2),
+  .workspace-page tbody tr.pool-row td:nth-child(6) { display: none !important; }
+  .workspace-page table th:nth-child(1),
+  .workspace-page table td:nth-child(1) { width: 330px; }
+  .workspace-page table th:nth-child(2),
+  .workspace-page table td:nth-child(2) { width: 104px; }
+  .workspace-page table th:nth-child(3),
+  .workspace-page table td:nth-child(3) { width: 122px; }
+  .workspace-page table th:nth-child(4),
+  .workspace-page table td:nth-child(4),
+  .workspace-page table th:nth-child(5),
+  .workspace-page table td:nth-child(5) { width: 126px; }
+  .workspace-page table th:nth-child(6),
+  .workspace-page table td:nth-child(6) { width: 82px; }
+  .workspace-page table th:nth-child(7),
+  .workspace-page table td:nth-child(7) { width: 154px; }
+  .workspace-page table th:nth-child(8),
+  .workspace-page table td:nth-child(8) { width: 210px; }
+  .workspace-page table th:nth-child(9),
+  .workspace-page table td:nth-child(9) { width: 132px; }
+  .workspace-page table th:nth-child(10),
+  .workspace-page table td:nth-child(10) { width: 102px; }
+  .workspace-page .pool-name { min-width: 0 !important; gap: 8px; }
+  .workspace-page .pool-name strong { max-width: 226px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .workspace-page tbody tr.pool-row td[data-label="POOL"] > small { display: block; max-width: 285px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .workspace-page .pool-contract { max-width: 285px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .workspace-page .signal-stack { min-width: 0 !important; max-width: 100%; white-space: normal !important; }
+  .workspace-page .stack-badge,
+  .workspace-page .flow-badge,
+  .workspace-page .status-pill { white-space: nowrap; }
+  .workspace-page .pool-chart-cell { min-width: 0 !important; width: 100%; }
+}
+
+@media (min-width: 681px) and (max-width: 800px) {
+  .workspace-page .table-scroll-viewport thead th { top: 72px !important; }
+}
+
+@media (max-width: 680px) {
+  .workspace-page .table-scroll-viewport table { width: 1160px !important; min-width: 1160px !important; }
+  .workspace-page .table-scroll-viewport thead th { top: 54px !important; }
+  .workspace-page table th:nth-child(2),
+  .workspace-page table td:nth-child(2),
+  .workspace-page table th:nth-child(6),
+  .workspace-page table td:nth-child(6),
+  .workspace-page tbody tr.pool-row td:nth-child(2),
+  .workspace-page tbody tr.pool-row td:nth-child(6) { display: none !important; }
+  .workspace-page table th:nth-child(1),
+  .workspace-page table td:nth-child(1) { width: 260px; }
+  .workspace-page table th:nth-child(3),
+  .workspace-page table td:nth-child(3) { width: 112px; }
+  .workspace-page table th:nth-child(4),
+  .workspace-page table td:nth-child(4),
+  .workspace-page table th:nth-child(5),
+  .workspace-page table td:nth-child(5) { width: 120px; }
+  .workspace-page table th:nth-child(7),
+  .workspace-page table td:nth-child(7) { width: 146px; }
+  .workspace-page table th:nth-child(8),
+  .workspace-page table td:nth-child(8) { width: 196px; }
+  .workspace-page table th:nth-child(9),
+  .workspace-page table td:nth-child(9) { width: 124px; }
+  .workspace-page table th:nth-child(10),
+  .workspace-page table td:nth-child(10) { width: 96px; }
+  .workspace-page .pool-name strong { max-width: 220px; }
+  .workspace-page tbody tr.pool-row td[data-label="POOL"] > small,
+  .workspace-page .pool-contract { max-width: 225px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

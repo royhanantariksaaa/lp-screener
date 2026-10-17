@@ -1108,5 +1108,32 @@
     "sourceUrls": ["https://x.com/Izakalon", "https://fomolens.app/trader/Izakalon", "https://fomolens.app/token/solana/6hjaMcRPvB4DEGpHqgHxmgipb2vrGQWMewZBAVSLpump", "https://fomo.family/profile/Izakalon"],
     "thesisMatches": [{"token": "STATE / DACITY / VRAX", "evidenceUrl": "https://fomolens.app/trader/Izakalon", "thesis": "FomoLens records STATE, Dacity, and VRAX calls; the display label preserves the token references while omitting offensive wording from the source notes. Treat this as captured call context, not a recommendation.", "sourceUrls": ["https://fomolens.app/trader/Izakalon", "https://fomolens.app/token/solana/6hjaMcRPvB4DEGpHqgHxmgipb2vrGQWMewZBAVSLpump", "https://fomolens.app/token/solana/nxPqZ4F7ux8Vph5NFu25rEP6Kx9Gr1U6Fmj36Rjpump", "https://x.com/Izakalon"], "updatedAt": "2026-10-17"}],
     "updatedAt": "2026-10-17"
+  },
+  "teepanddestroy": {
+    "xHandle": "teepanddestroy",
+    "xUrl": "https://x.com/teepanddestroy",
+    "status": "LIKELY",
+    "note": "The public @teepanddestroy profile identifies as a Cyphercapitalist and uses the same handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. No Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/teepanddestroy", "https://fomolens.app/trader/teepanddestroy", "https://fomolens.app/token/robinhood/0x42afa2124ca5a2b83898e46b2da9a190995b1e18", "https://fomo.family/profile/teepanddestroy"],
+    "thesisMatches": [{"token": "SCHIFFY", "evidenceUrl": "https://fomolens.app/trader/teepanddestroy", "thesis": "FomoLens records a Robinhood Chain SCHIFFY call centered on chart momentum and a short-term continuation thesis. Preserve this as captured call context, not a recommendation or independent proof of wallet ownership.", "sourceUrls": ["https://fomolens.app/trader/teepanddestroy", "https://fomolens.app/token/robinhood/0x42afa2124ca5a2b83898e46b2da9a190995b1e18", "https://x.com/teepanddestroy"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "davidonchainx": {
+    "xHandle": "davidonchainx",
+    "xUrl": "https://x.com/davidonchainx",
+    "status": "LIKELY",
+    "note": "The public @davidonchainx profile identifies trading, building, and AI/crypto brand work, while FomoLens and the FOMO profile expose the matching resolver-backed trader. No Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/davidonchainx", "https://fomolens.app/trader/davidonchainx", "https://fomolens.app/token/solana/6Mix12LiHrQFojaQEnfPUC65Qkwd6X4Y5Qg93oFbordr", "https://fomo.family/profile/davidonchainx"],
+    "thesisMatches": [{"token": "BORDR / DUO", "evidenceUrl": "https://fomolens.app/trader/davidonchainx", "thesis": "FomoLens records a detailed BORDR thesis about customizable token logic at the trade layer and a DUO call framed as an impulsive cat-and-dog buy. Preserve the product thesis as captured context, not a recommendation.", "sourceUrls": ["https://fomolens.app/trader/davidonchainx", "https://fomolens.app/token/solana/6Mix12LiHrQFojaQEnfPUC65Qkwd6X4Y5Qg93oFbordr", "https://fomolens.app/token/solana/ADkd6izPxJtKueHAzKsDEnGRNEq5ERu1g3ses1wKpump", "https://x.com/davidonchainx"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
+  },
+  "DineroDom0": {
+    "xHandle": "DineroDom0",
+    "xUrl": "https://x.com/DineroDom0",
+    "status": "LIKELY",
+    "note": "The public @DineroDom0 profile explicitly references trading on Fomo and uses the same handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. No Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/DineroDom0", "https://fomolens.app/trader/DineroDom0", "https://fomolens.app/token/robinhood/0xdd90bfa4adc7f4401e611abac692d939f9f4cb07", "https://fomo.family/profile/DineroDom0"],
+    "thesisMatches": [{"token": "0xZAPS / KLED / WTH", "evidenceUrl": "https://fomolens.app/trader/DineroDom0", "thesis": "FomoLens records a 0xZAPS staking and fee-buyback thesis, a KLED data-narrative call, and a WTH upside call. Preserve these as captured thesis context, not recommendations.", "sourceUrls": ["https://fomolens.app/trader/DineroDom0", "https://fomolens.app/token/robinhood/0xdd90bfa4adc7f4401e611abac692d939f9f4cb07", "https://fomolens.app/token/solana/1zJX5gRnjLgmTpq5sVwkq69mNDQkCemqoasyjaPW6jm", "https://x.com/DineroDom0"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
   }
 }

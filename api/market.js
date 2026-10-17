@@ -4,6 +4,7 @@ import evmWalletClusters from "./evm-wallet-clusters.json" with { type: "json" }
 import walletGraph from "./wallet-graph.json" with { type: "json" };
 
 const GECKO_OHLCV = "https://api.geckoterminal.com/api/v2/networks/solana/pools";
+const METEORA_DLMM_API = "https://dlmm.datapi.meteora.ag";
 const DEXPAPRIKA_API = "https://api.dexpaprika.com";
 const CODEX_API = "https://graph.codex.io/graphql";
 const SOLANA_NETWORK_ID = 1399811149;
@@ -15,6 +16,7 @@ const OCULA_FEED = "https://vwpzmuprmqwqwshqiyhl.supabase.co/functions/v1/codex-
 const NANSEN_API = "https://api.nansen.ai/api/v1";
 const KAITO_MCP = "https://bff.kaito.ai/api/mcp";
 const MADEONSOL_API = "https://madeonsol.com/api/v1";
+const RUGCHECK_API = "https://api.rugcheck.xyz/v1";
 // MadeOnSol documents this read-only demo key for testing. Production deployments
 // should set MADEONSOL_API_KEY to their own key; the demo feed is delayed and rate limited.
 const MADEONSOL_DEMO_KEY = "msk_demo_try_the_solana_api_2026";
@@ -34,6 +36,54 @@ const withTimeout = async (url, init = {}, timeoutMs = 12000) => {
   } finally {
     clearTimeout(timeout);
   }
+};
+
+// Meteora's public DLMM data API exposes native 5m candles at 30 RPS. We
+// aggregate those venue-native bars into the 15m shape used by the screener.
+// The API limits a single time range, so fetch adjacent windows and merge by
+// bucket before returning the latest requested candles.
+const meteoraOhlcv = async (pool, limit) => {
+  const end = Math.floor(Date.now() / 1000 / 300) * 300;
+  const targetSeconds = Math.max(4 * 60 * 60, limit * 15 * 60 + 15 * 60);
+  const windowSeconds = 4 * 60 * 60;
+  const windows = [];
+  let cursor = end;
+  const startTarget = end - targetSeconds;
+  while (cursor > startTarget) {
+    const start = Math.max(startTarget, cursor - windowSeconds);
+    windows.push({ start, end: cursor });
+    cursor = start - 300;
+  }
+  const payloads = await Promise.all(windows.map(async ({ start, end: windowEnd }) => {
+    const query = new URLSearchParams({ timeframe: "5m", start_time: String(start), end_time: String(windowEnd) });
+    const response = await withTimeout(`${METEORA_DLMM_API}/pools/${encodeURIComponent(pool)}/ohlcv?${query.toString()}`, { headers: { accept: "application/json" } }, 12000);
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(`meteora (${response.status})`);
+    return Array.isArray(payload?.data) ? payload.data : [];
+  }));
+  const buckets = new Map();
+  payloads.flat().forEach((row) => {
+    const timestamp = Number(row?.timestamp ?? row?.time ?? 0);
+    const open = Number(row?.open);
+    const high = Number(row?.high);
+    const low = Number(row?.low);
+    const close = Number(row?.close);
+    const volume = Number(row?.volume ?? 0);
+    if (!timestamp || ![open, high, low, close].every(Number.isFinite)) return;
+    const bucket = Math.floor(timestamp / 900) * 900;
+    const prior = buckets.get(bucket);
+    if (!prior) buckets.set(bucket, { time: bucket, open, high, low, close, volume: Number.isFinite(volume) ? volume : 0, first: timestamp, last: timestamp });
+    else {
+      if (timestamp < prior.first) { prior.open = open; prior.first = timestamp; }
+      if (timestamp > prior.last) { prior.close = close; prior.last = timestamp; }
+      prior.high = Math.max(prior.high, high);
+      prior.low = Math.min(prior.low, low);
+      prior.volume += Number.isFinite(volume) ? volume : 0;
+    }
+  });
+  const rows = [...buckets.values()].sort((a, b) => a.time - b.time).slice(-limit).map((row) => [row.time, row.open, row.high, row.low, row.close, row.volume]);
+  if (!rows.length) throw new Error("meteora returned no 5m candles");
+  return { body: { data: { attributes: { ohlcv_list: rows } } }, source: "meteora-dlmm" };
 };
 
 const dexPaprikaOhlcv = async (pool, apiKey, limit) => {
@@ -327,6 +377,26 @@ const birdeyeJson = async (path, apiKey) => {
   return payload;
 };
 
+const rugcheckSummary = async (mint) => {
+  try {
+    const response = await withTimeout(`${RUGCHECK_API}/tokens/${encodeURIComponent(mint)}/report/summary`, { headers: { accept: "application/json" } }, 12000);
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(`rugcheck (${response.status})`);
+    const score = Number(payload?.score_normalised ?? payload?.scoreNormalized ?? payload?.score);
+    const risks = Array.isArray(payload?.risks) ? payload.risks : [];
+    return {
+      status: "LIVE",
+      source: "RugCheck public summary",
+      score: Number.isFinite(score) ? score : undefined,
+      risk: risks.some((risk) => String(risk?.level ?? "").toLowerCase() === "danger") ? "DANGER" : risks.some((risk) => String(risk?.level ?? "").toLowerCase() === "warn") ? "WARN" : "CLEAR",
+      risks: risks.slice(0, 4).map((risk) => String(risk?.name ?? risk?.description ?? "")).filter(Boolean),
+      lpLockedPct: Number.isFinite(Number(payload?.lpLockedPct)) ? Number(payload.lpLockedPct) : undefined,
+    };
+  } catch {
+    return { status: "UNAVAILABLE", source: "RugCheck unavailable" };
+  }
+};
+
 const birdeyeHolderProfile = async (mint) => {
   const apiKey = String(process.env.BIRDEYE_API_KEY ?? "").trim();
   if (!apiKey) return { status: "UNAVAILABLE", source: "Birdeye key required" };
@@ -510,28 +580,37 @@ const kolSignal = async (symbol, mint) => {
 
 const tokenSignal = async (mint) => {
   const safeRpc = (method, params) => rpc(method, params).catch(() => undefined);
-  const [account, supply, largest] = await Promise.all([
+  const [account, supply, largest, rugcheck] = await Promise.all([
     safeRpc("getAccountInfo", [mint, { encoding: "jsonParsed" }]),
     safeRpc("getTokenSupply", [mint]),
     safeRpc("getTokenLargestAccounts", [mint]),
+    rugcheckSummary(mint),
   ]);
   const info = account?.value?.data?.parsed?.info ?? {};
-  if (!account && !supply) throw new Error("token safety rpc unavailable");
+  const hasRpc = Boolean(account?.value || supply?.value);
+  if (!hasRpc && rugcheck?.status !== "LIVE") throw new Error("token safety sources unavailable");
   const totalAmount = Number(supply?.value?.amount ?? info.supply ?? 0);
   const largestRows = Array.isArray(largest?.value) ? largest.value : [];
   const top10Amount = largestRows.reduce((sum, row) => sum + Number(row?.amount ?? 0), 0);
   const holderTop10Pct = totalAmount > 0 && largestRows.length ? (top10Amount / totalAmount) * 100 : undefined;
-  const mintAuthority = Boolean(info.mintAuthority);
-  const freezeAuthority = Boolean(info.freezeAuthority);
+  const mintAuthority = hasRpc ? Boolean(info.mintAuthority) : undefined;
+  const freezeAuthority = hasRpc ? Boolean(info.freezeAuthority) : undefined;
   const holderProfile = await birdeyeHolderProfile(mint);
+  const rpcSafety = mintAuthority === false && freezeAuthority === false && (holderTop10Pct === undefined || holderTop10Pct <= 45);
+  const rugWarn = rugcheck?.status === "LIVE" && (rugcheck.risk === "DANGER" || Number(rugcheck.score ?? 0) >= 50);
+  const sourceParts = [hasRpc ? "Solana RPC · mint + holder checks" : "", rugcheck?.status === "LIVE" ? rugcheck.source : ""].filter(Boolean);
   return {
     status: "LIVE",
-    source: "Solana RPC · mint + holder checks",
+    source: sourceParts.join(" + ") || "RugCheck public summary",
     mintAuthority,
     freezeAuthority,
     holderTop10Pct: Number.isFinite(holderTop10Pct) ? Number(holderTop10Pct.toFixed(2)) : undefined,
     decimals: Number(info.decimals ?? supply?.value?.decimals ?? 0),
-    safety: !mintAuthority && !freezeAuthority && (holderTop10Pct === undefined || holderTop10Pct <= 45) ? "PASS" : "WARN",
+    safety: rpcSafety && !rugWarn ? "PASS" : "WARN",
+    rugCheckScore: rugcheck?.score,
+    rugCheckRisk: rugcheck?.risk,
+    rugCheckRisks: rugcheck?.risks,
+    rugCheckLpLockedPct: rugcheck?.lpLockedPct,
     holderProfileStatus: holderProfile.status,
     holderProfileSource: holderProfile.source,
     holderCount: holderProfile.holderCount,
@@ -544,10 +623,13 @@ const providerHealth = () => {
   return {
     providers: [
       { key: "dexscreener", label: "Dexscreener", status: "LIVE", mode: "PUBLIC", source: "Live pair discovery + token profiles" },
-      { key: "codex", label: "Codex · Defined data", status: configured("CODEX_API_KEY") ? "LIVE" : "KEY_REQUIRED", mode: "15M_OHLCV", source: configured("CODEX_API_KEY") ? "Pair/token 15m OHLCV · primary" : "Defined-style pair/token 15m OHLCV · server key required" },
-      { key: "dexpaprika", label: "DexPaprika", status: configured("DEXPAPRIKA_API_KEY") ? "LIVE" : "KEY_REQUIRED", mode: "15M_OHLCV", source: configured("DEXPAPRIKA_API_KEY") ? "Pool-specific 15m OHLCV · primary" : "Pool-specific 15m OHLCV · server key required" },
+      { key: "meteora-dlmm", label: "Meteora DLMM", status: "LIVE", mode: "15M_OHLCV", source: "Venue-native 5m OHLCV aggregated to 15m · public 30 RPS" },
+      { key: "raydium", label: "Raydium", status: "LIVE", mode: "PUBLIC_METADATA", source: "Venue-native pool metadata · public API" },
+      { key: "codex", label: "Codex · Defined data", status: configured("CODEX_API_KEY") ? "LIVE" : "KEY_REQUIRED", mode: "15M_OHLCV", source: configured("CODEX_API_KEY") ? "Selected-pool pair/token 15m OHLCV · optional" : "Selected-pool Defined-style bars · server key required" },
+      { key: "dexpaprika", label: "DexPaprika", status: configured("DEXPAPRIKA_API_KEY") ? "LIVE" : "KEY_REQUIRED", mode: "15M_OHLCV", source: configured("DEXPAPRIKA_API_KEY") ? "Pool-specific 15m OHLCV · optional fallback" : "Pool-specific 15m OHLCV · server key required" },
       { key: "geckoterminal", label: "GeckoTerminal", status: "LIVE", mode: "FALLBACK", source: "15m OHLCV fallback · public rate limited" },
       { key: "solana-rpc", label: "Solana RPC", status: "LIVE", mode: "PUBLIC", source: "Wallet activity + token safety + on-demand related-wallet scans" },
+      { key: "rugcheck", label: "RugCheck", status: "LIVE", mode: "TOKEN_SAFETY", source: "Public Solana token report summary" },
       { key: "blockscout", label: "Blockscout indexes", status: "LIVE", mode: "INDEXED_EVM", source: "Persisted Ethereum + Base + Robinhood wallet history · BNB key required" },
       { key: "defillama", label: "DeFiLlama", status: "LIVE", mode: "PUBLIC", source: "Chain TVL context" },
       { key: "lunarcrush", label: "LunarCrush", status: configured("LUNARCRUSH_API_KEY") ? "LIVE" : "KEY_REQUIRED", mode: "KOL", source: "Topic mentions + creators" },
@@ -635,12 +717,14 @@ export default async function handler(req, res) {
     if (kind === "ohlcv") {
       const pool = String(req.query?.pool ?? "");
       const token = String(req.query?.token ?? "");
+      const dex = String(req.query?.dex ?? "").trim().toLowerCase();
+      const allowCodex = String(req.query?.codex ?? "") === "1";
       if (!/^[1-9A-HJ-NP-Za-km-z]{32,50}$/.test(pool) && !/^[1-9A-HJ-NP-Za-km-z]{32,50}$/.test(token)) return res.status(400).json({ error: "invalid_pool" });
       const codexKey = String(process.env.CODEX_API_KEY ?? "").trim();
       const dexPaprikaKey = String(process.env.DEXPAPRIKA_API_KEY ?? "").trim();
-      const cachePrefix = codexKey ? "codex" : dexPaprikaKey ? "dexpaprika" : "gecko";
+      const cachePrefix = allowCodex && codexKey ? "codex" : dexPaprikaKey ? "dexpaprika" : dex.includes("meteora") ? "meteora" : "gecko";
       const cacheKey = `${cachePrefix}:${pool || "token"}:${token}`;
-      const cacheTtl = codexKey ? 60_000 : dexPaprikaKey ? 90_000 : 180_000;
+      const cacheTtl = allowCodex && codexKey ? 60_000 : dexPaprikaKey ? 90_000 : dex.includes("meteora") ? 120_000 : 180_000;
       const cached = ohlcvCache.get(cacheKey);
       if (cached && Date.now() - cached.fetchedAt < cacheTtl) {
         res.setHeader("Cache-Control", `s-maxage=${Math.round(cacheTtl / 1000)}, stale-while-revalidate=${Math.round(cacheTtl * 2 / 1000)}`);
@@ -649,7 +733,18 @@ export default async function handler(req, res) {
         return res.status(200).json(cached.body);
       }
       const limit = Math.max(24, Math.min(100, Number(req.query?.limit ?? 48)));
-      if (codexKey) {
+      if (dex.includes("meteora") && pool) {
+        try {
+          const result = await meteoraOhlcv(pool, limit);
+          ohlcvCache.set(cacheKey, { body: result.body, fetchedAt: Date.now(), source: result.source });
+          res.setHeader("Cache-Control", `s-maxage=${Math.round(cacheTtl / 1000)}, stale-while-revalidate=${Math.round(cacheTtl * 2 / 1000)}`);
+          res.setHeader("X-OHLCV-Source", result.source);
+          return res.status(200).json(result.body);
+        } catch (error) {
+          console.warn("Meteora native 15m candle request failed", pool, error);
+        }
+      }
+      if (allowCodex && codexKey) {
         try {
           const result = await codexOhlcv(pool, token, codexKey, limit);
           ohlcvCache.set(cacheKey, { body: result.body, fetchedAt: Date.now(), source: result.source });

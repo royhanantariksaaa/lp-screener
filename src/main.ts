@@ -21,7 +21,7 @@ type LaunchObservation = {
 
 type Pool = {
   id?: string; pairAddress?: string; sourceUrl?: string; name: string; symbol: string; dex: string; address: string; price: number; liquidity: number; volume24h: number; ageDays: number; fee: number; tvl: number; change24h: number; risk: "LOW" | "MEDIUM" | "HIGH";
-  marketCap?: number; createdAt?: number; quoteTokenAddress?: string; imageUrl?: string; smartWallets?: number; trackedWalletHits?: number; trackedWalletHandles?: string[]; trackedWalletConfidence?: KolWallet["confidence"]; walletFlow?: "INFLOW" | "OUTFLOW" | "MIXED" | "UNAVAILABLE"; walletIntelligence?: "DEMO" | "LIVE" | "UNAVAILABLE"; walletSource?: string; walletEvents?: number; walletAddresses?: string[]; smartMoneyLabels?: string[]; kolMentions?: number; kolRecency?: string; kolCreators?: number; kolPosts?: number; kolTrend?: string; kolSentiment?: number; kolIntelligence?: "DEMO" | "LIVE" | "UNAVAILABLE"; kolSource?: string; screenScore?: number; intelligence?: "DEMO" | "LIVE" | "UNAVAILABLE"; publicLinks?: number; profileUrl?: string; discovery?: string; launch?: LaunchObservation; oculaStatus?: "LIVE" | "UNAVAILABLE"; oculaSource?: string; oculaVolume1h?: number; oculaChange1h?: number; oculaHolders?: number; oculaBuyCount1h?: number; oculaSellCount1h?: number; oculaSocialLinks?: number; oculaSocialUrls?: string[]; tokenAddress?: string; tokenStatus?: "LIVE" | "UNAVAILABLE"; tokenSource?: string; tokenSafety?: "PASS" | "WARN" | "UNAVAILABLE"; mintAuthority?: boolean; freezeAuthority?: boolean; holderTop10Pct?: number; holderProfileStatus?: "LIVE" | "UNAVAILABLE"; holderProfileSource?: string; holderCount?: number; eligibility?: EligibilityAnalysis; candles?: Candle[]; technical?: TechnicalAnalysis; playbooks?: PlaybookSignal[]; primaryPlaybook?: PlaybookSignal; enrichmentLoading?: boolean;
+  marketCap?: number; createdAt?: number; quoteTokenAddress?: string; imageUrl?: string; smartWallets?: number; trackedWalletHits?: number; trackedWalletHandles?: string[]; trackedWalletConfidence?: KolWallet["confidence"]; walletFlow?: "INFLOW" | "OUTFLOW" | "MIXED" | "UNAVAILABLE"; walletIntelligence?: "DEMO" | "LIVE" | "UNAVAILABLE"; walletSource?: string; walletEvents?: number; walletAddresses?: string[]; smartMoneyLabels?: string[]; kolMentions?: number; kolRecency?: string; kolCreators?: number; kolPosts?: number; kolTrend?: string; kolSentiment?: number; kolIntelligence?: "DEMO" | "LIVE" | "UNAVAILABLE"; kolSource?: string; screenScore?: number; intelligence?: "DEMO" | "LIVE" | "UNAVAILABLE"; publicLinks?: number; profileUrl?: string; discovery?: string; launch?: LaunchObservation; oculaStatus?: "LIVE" | "UNAVAILABLE"; oculaSource?: string; oculaVolume1h?: number; oculaChange1h?: number; oculaHolders?: number; oculaBuyCount1h?: number; oculaSellCount1h?: number; oculaSocialLinks?: number; oculaSocialUrls?: string[]; tokenAddress?: string; tokenStatus?: "LIVE" | "UNAVAILABLE"; tokenSource?: string; tokenSafety?: "PASS" | "WARN" | "UNAVAILABLE"; mintAuthority?: boolean; freezeAuthority?: boolean; holderTop10Pct?: number; rugCheckScore?: number; rugCheckRisk?: string; rugCheckRisks?: string[]; rugCheckLpLockedPct?: number; holderProfileStatus?: "LIVE" | "UNAVAILABLE"; holderProfileSource?: string; holderCount?: number; eligibility?: EligibilityAnalysis; candles?: Candle[]; technical?: TechnicalAnalysis; playbooks?: PlaybookSignal[]; primaryPlaybook?: PlaybookSignal; enrichmentLoading?: boolean;
 };
 
 
@@ -539,7 +539,7 @@ async function loadTokenSafety() {
     .filter((pool) => pool.tokenStatus !== "LIVE" && pool.tokenAddress).slice(0, 12);
   const results = await mapConcurrent(targets, 4, async (pool) => {
     try {
-      const payload = await fetchJson<{ status?: "LIVE" | "UNAVAILABLE"; source?: string; mintAuthority?: boolean; freezeAuthority?: boolean; holderTop10Pct?: number; safety?: "PASS" | "WARN"; holderProfileStatus?: "LIVE" | "UNAVAILABLE"; holderProfileSource?: string; holderCount?: number }>(liveApi("token", { mint: pool.tokenAddress! }), 20000);
+      const payload = await fetchJson<{ status?: "LIVE" | "UNAVAILABLE"; source?: string; mintAuthority?: boolean; freezeAuthority?: boolean; holderTop10Pct?: number; safety?: "PASS" | "WARN"; rugCheckScore?: number; rugCheckRisk?: string; rugCheckRisks?: string[]; rugCheckLpLockedPct?: number; holderProfileStatus?: "LIVE" | "UNAVAILABLE"; holderProfileSource?: string; holderCount?: number }>(liveApi("token", { mint: pool.tokenAddress! }), 20000);
       return payload.status === "LIVE" ? { key: poolKey(pool), payload } : undefined;
     } catch (error) {
       console.warn("token safety request failed", pool.tokenAddress, error);
@@ -550,7 +550,7 @@ async function loadTokenSafety() {
   const byKey = new Map(results.map((result) => [result.key, result.payload]));
   state.pools = state.pools.map((pool) => {
     const payload = byKey.get(poolKey(pool));
-    return payload ? { ...pool, tokenStatus: "LIVE", tokenSource: payload.source ?? "Solana RPC · mint + holder checks", tokenSafety: payload.safety ?? "WARN", mintAuthority: payload.mintAuthority, freezeAuthority: payload.freezeAuthority, holderTop10Pct: payload.holderTop10Pct, holderProfileStatus: payload.holderProfileStatus, holderProfileSource: payload.holderProfileSource, holderCount: payload.holderCount } : pool;
+    return payload ? { ...pool, tokenStatus: "LIVE", tokenSource: payload.source ?? "Solana RPC · mint + holder checks", tokenSafety: payload.safety ?? "WARN", mintAuthority: payload.mintAuthority, freezeAuthority: payload.freezeAuthority, holderTop10Pct: payload.holderTop10Pct, rugCheckScore: payload.rugCheckScore, rugCheckRisk: payload.rugCheckRisk, rugCheckRisks: payload.rugCheckRisks, rugCheckLpLockedPct: payload.rugCheckLpLockedPct, holderProfileStatus: payload.holderProfileStatus, holderProfileSource: payload.holderProfileSource, holderCount: payload.holderCount } : pool;
   });
   refreshEligibility();
 }
@@ -958,10 +958,11 @@ async function mapConcurrent<T, R>(items: T[], limit: number, worker: (item: T) 
   return output;
 }
 
-async function fetchCandles(pool: Pool) {
+async function fetchCandles(pool: Pool, preferCodex = false) {
   if (!pool.pairAddress) return undefined;
   const key = pool.pairAddress;
-  const inFlight = candleRequestInFlight.get(key);
+  const requestKey = `${key}:${preferCodex ? "codex" : "free"}`;
+  const inFlight = candleRequestInFlight.get(requestKey);
   if (inFlight) return inFlight;
   const request = (async () => {
     const cached = candleCache.get(key);
@@ -972,7 +973,7 @@ async function fetchCandles(pool: Pool) {
     await waitForCandleSlot();
     let serverRateLimited = false;
     try {
-      const payload = await fetchJson<unknown>(liveApi("ohlcv", { pool: key, token: pool.tokenAddress ?? "", limit: "48" }), 12000);
+      const payload = await fetchJson<unknown>(liveApi("ohlcv", { pool: key, token: pool.tokenAddress ?? "", dex: pool.dex, codex: preferCodex ? "1" : "0", limit: "48" }), 12000);
       const candles = parseOhlcv(payload);
       if (candles.length) { candleCache.set(key, { candles, fetchedAt: Date.now() }); persistCandleCache(); return candles; }
     } catch (error) {
@@ -1003,11 +1004,11 @@ async function fetchCandles(pool: Pool) {
     markFailure(30_000);
     return cached?.candles;
   })();
-  candleRequestInFlight.set(key, request);
+  candleRequestInFlight.set(requestKey, request);
   try {
     return await request;
   } finally {
-    if (candleRequestInFlight.get(key) === request) candleRequestInFlight.delete(key);
+    if (candleRequestInFlight.get(requestKey) === request) candleRequestInFlight.delete(requestKey);
   }
 }
 
@@ -1073,7 +1074,7 @@ async function enrichSelectedPool(key: string) {
   render();
   try {
     if (needsTechnical) {
-      const candles = await fetchCandles(initial);
+      const candles = await fetchCandles(initial, true);
       if (candles?.length) {
         const technical = analyzeCandles(candles);
         const playbooks = derivePlaybooks(initial, technical);
@@ -1111,7 +1112,7 @@ async function enrichSelectedPool(key: string) {
         const tracked = trackedWalletMatches(walletAddresses);
         patchPool(key, { smartWallets: Number(payload.smartWallets ?? 0), walletFlow: payload.walletFlow as Pool["walletFlow"] ?? "MIXED", walletEvents: Number(payload.walletEvents ?? 0), walletAddresses, trackedWalletHits: tracked.hits, trackedWalletHandles: tracked.handles, trackedWalletConfidence: tracked.confidence, walletIntelligence: "LIVE", walletSource: String(payload.source ?? "Solana RPC · recent pool traders"), intelligence: "LIVE" });
       } else if (request.kind === "token") {
-        patchPool(key, { tokenStatus: "LIVE", tokenSource: String(payload.source ?? "Solana RPC · mint + holder checks"), tokenSafety: payload.safety as Pool["tokenSafety"] ?? "WARN", mintAuthority: Boolean(payload.mintAuthority), freezeAuthority: Boolean(payload.freezeAuthority), holderTop10Pct: typeof payload.holderTop10Pct === "number" ? payload.holderTop10Pct : undefined, holderProfileStatus: payload.holderProfileStatus as Pool["holderProfileStatus"], holderProfileSource: typeof payload.holderProfileSource === "string" ? payload.holderProfileSource : undefined, holderCount: typeof payload.holderCount === "number" ? payload.holderCount : undefined });
+        patchPool(key, { tokenStatus: "LIVE", tokenSource: String(payload.source ?? "Solana RPC · mint + holder checks"), tokenSafety: payload.safety as Pool["tokenSafety"] ?? "WARN", mintAuthority: typeof payload.mintAuthority === "boolean" ? payload.mintAuthority : undefined, freezeAuthority: typeof payload.freezeAuthority === "boolean" ? payload.freezeAuthority : undefined, holderTop10Pct: typeof payload.holderTop10Pct === "number" ? payload.holderTop10Pct : undefined, rugCheckScore: typeof payload.rugCheckScore === "number" ? payload.rugCheckScore : undefined, rugCheckRisk: typeof payload.rugCheckRisk === "string" ? payload.rugCheckRisk : undefined, rugCheckRisks: Array.isArray(payload.rugCheckRisks) ? payload.rugCheckRisks.map(String) : undefined, rugCheckLpLockedPct: typeof payload.rugCheckLpLockedPct === "number" ? payload.rugCheckLpLockedPct : undefined, holderProfileStatus: payload.holderProfileStatus as Pool["holderProfileStatus"], holderProfileSource: typeof payload.holderProfileSource === "string" ? payload.holderProfileSource : undefined, holderCount: typeof payload.holderCount === "number" ? payload.holderCount : undefined });
       } else {
         patchPool(key, { kolMentions: Number(payload.kolMentions ?? 0), kolRecency: String(payload.kolRecency ?? "—"), kolCreators: Number(payload.kolCreators ?? payload.kolMentions ?? 0), kolPosts: Number(payload.kolPosts ?? payload.kolMentions ?? 0), kolTrend: typeof payload.kolTrend === "string" ? payload.kolTrend : undefined, kolSentiment: typeof payload.kolSentiment === "number" ? payload.kolSentiment : undefined, kolIntelligence: "LIVE", kolSource: String(payload.source ?? "KOL provider"), intelligence: "LIVE" });
       }

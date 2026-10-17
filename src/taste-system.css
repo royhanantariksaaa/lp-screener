@@ -600,3 +600,65 @@ body.has-modal-selection { overflow-y: hidden !important; }
   .kol-summary>div { padding: 17px 15px; }
   .kol-hero h1, .academy-intro h1 { font-size: 49px; }
 }
+
+/* Keep the screening workspace a token table on narrow screens too. The
+   table scrolls horizontally so every pool remains one comparable row rather
+   than collapsing into a stack of isolated cards. The first column stays in
+   view while the metrics move underneath the finger. */
+@media (max-width: 1200px) {
+  .workspace-page .table-wrap {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: clip;
+    border: 1px solid var(--ledger-line);
+    border-radius: 2px;
+    background: var(--ledger-paper);
+    -webkit-overflow-scrolling: touch;
+    scrollbar-color: var(--ledger-action) var(--ledger-paper-2);
+  }
+  .workspace-page table {
+    width: max-content;
+    min-width: 1160px;
+  }
+  .workspace-page tbody tr.pool-row td[data-label="POOL"] {
+    min-width: 245px;
+    padding: 13px 14px;
+  }
+  .workspace-page tbody tr.pool-row td[data-label="15M SETUP"],
+  .workspace-page tbody tr.pool-row td[data-label="SIGNALS"] {
+    min-width: 190px;
+  }
+  .workspace-page tbody tr.pool-row td[data-label="CHART"] { min-width: 132px; }
+  .workspace-page tbody tr.pool-row td:first-child {
+    position: sticky;
+    left: 0;
+  }
+  .workspace-page tbody tr.pool-row td:first-child {
+    z-index: 4;
+    background: var(--ledger-paper);
+    box-shadow: 8px 0 14px rgba(36, 44, 36, .06);
+  }
+  .workspace-page .pool-name { min-width: 210px; }
+  .workspace-page .pool-name strong { max-width: 190px; overflow-wrap: normal; }
+  .workspace-page .signal-stack { min-width: max-content; }
+  .workspace-page .stack-badge,
+  .workspace-page .status-pill { white-space: nowrap; }
+}
+/* Container-query card rules from the legacy responsive layer must not change
+   the semantics of the screening workspace. Keep the pool list tabular at
+   every width; the narrow rules above provide the horizontal viewport. */
+.workspace-page .table-wrap { overflow-x: auto; overflow-y: clip; }
+.workspace-page table { display: table !important; width: 100%; }
+.workspace-page thead { display: table-header-group !important; position: static !important; }
+.workspace-page thead th { position: static !important; z-index: 20; background: var(--ledger-paper-2) !important; }
+.workspace-page tbody { display: table-row-group !important; width: auto; }
+.workspace-page tbody tr.pool-row { display: table-row !important; border: 0; border-radius: 0; background: transparent; overflow: visible; box-shadow: none; }
+.workspace-page tbody tr.pool-row td { display: table-cell !important; min-width: 0; vertical-align: middle; white-space: nowrap; overflow-wrap: normal; }
+.workspace-page tbody tr.pool-row td::before { content: none; display: none !important; }
+.workspace-page tbody tr.pool-row td[data-label="POOL"],
+.workspace-page tbody tr.pool-row td[data-label="15M SETUP"],
+.workspace-page tbody tr.pool-row td[data-label="SIGNALS"] { display: table-cell !important; grid-column: auto; }
+@media (max-width: 1200px) {
+  .workspace-page table { width: max-content; min-width: 1160px; }
+}

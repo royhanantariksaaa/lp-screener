@@ -1369,5 +1369,14 @@
     "sourceUrls": ["https://x.com/PennyLane", "https://fomolens.app/trader/pennylane", "https://fomolens.app/token/solana/Ai66LHZG9MCzg1WKdawwqduVAXpNDUuV8M3uyq5ppump", "https://fomo.family/profile/pennylane"],
     "thesisMatches": [{"token": "CATE / ZEC", "evidenceUrl": "https://fomolens.app/trader/pennylane", "thesis": "FomoLens records CATE conviction through market turbulence and a ZEC entry/average-entry call. Preserve these as captured thesis context, not recommendations.", "sourceUrls": ["https://fomolens.app/trader/pennylane", "https://fomolens.app/token/solana/Ai66LHZG9MCzg1WKdawwqduVAXpNDUuV8M3uyq5ppump", "https://fomolens.app/token/solana/A7bdiYdS5GjqGFtxf17ppRHtDKPkkRqbKtR27dxvQXaS", "https://x.com/PennyLane"], "updatedAt": "2026-10-17"}],
     "updatedAt": "2026-10-17"
+  },
+  "pain": {
+    "xHandle": "pain",
+    "xUrl": "https://x.com/pain",
+    "status": "LIKELY",
+    "note": "The public @pain profile exposes a CA in its bio and uses the same handle, while FomoLens and the FOMO profile expose the matching resolver-backed trader. No Provadata record is present, so the mapping remains likely.",
+    "sourceUrls": ["https://x.com/pain", "https://fomolens.app/trader/pain", "https://fomolens.app/token/solana/Ai66LHZG9MCzg1WKdawwqduVAXpNDUuV8M3uyq5ppump", "https://fomo.family/profile/pain"],
+    "thesisMatches": [{"token": "CATE / UU", "evidenceUrl": "https://fomolens.app/trader/pain", "thesis": "FomoLens records repeated Solana CATE calls and a BNB Chain UU call linked to a public external post. Preserve these as captured thesis context, not recommendations or independent proof of wallet ownership.", "sourceUrls": ["https://fomolens.app/trader/pain", "https://fomolens.app/token/solana/Ai66LHZG9MCzg1WKdawwqduVAXpNDUuV8M3uyq5ppump", "https://fomolens.app/token/bsc/0xc5127b2338dbe220d188d6fbaa4b526f9f877777", "https://x.com/pain"], "updatedAt": "2026-10-17"}],
+    "updatedAt": "2026-10-17"
   }
 }

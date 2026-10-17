@@ -565,13 +565,33 @@ function poolRow(p: Pool) {
   const contract = p.tokenAddress ? `<button class="copy-ca" data-copy-ca="${p.tokenAddress}" title="Copy token contract address">CA ${shortAddress(p.tokenAddress)}</button>` : `<span class="ca-missing">CA unavailable</span>`;
   return `<tr class="pool-row" data-pool="${key}"><td data-label="POOL"><div class="pool-name">${tokenAvatar}<strong>${p.name}</strong><button class="row-watch ${state.watchlist.includes(key) ? "active" : ""}" data-watch="${key}" title="Toggle watchlist">${state.watchlist.includes(key) ? "★" : "☆"}</button><button class="row-compare ${state.compareList.includes(key) ? "active" : ""}" data-compare="${key}" title="Compare candidate">${state.compareList.includes(key) ? "✓" : "+"}</button></div><small>${p.symbol} · pair ${p.address}</small><div class="pool-contract">${contract}</div></td><td data-label="VENUE">${p.dex}</td><td data-label="PRICE">$${formatPrice(p.price)}</td><td data-label="LIQUIDITY">${money(p.liquidity)}</td><td data-label="24H VOLUME">${money(p.volume24h)}</td><td data-label="AGE">${p.ageDays}d</td><td data-label="15M SETUP"><div class="signal-stack">${technical}${eligibilitySignal}<span class="status-pill ${statusClass(signal?.status)}">${statusLabel(signal?.status)}</span></div></td><td data-label="SIGNALS"><div class="signal-stack">${wallets}${trackedWallets}${kol}${safety}${publicSignal}${launch}</div></td><td data-label="CHART"><div class="pool-chart-cell">${poolSparkline(p)}</div></td><td data-label="SCORE"><span class="screen-score ${scoreFor(p) >= 75 ? "high" : scoreFor(p) >= 55 ? "mid" : "low"}">${scoreFor(p)}</span></td></tr>`;
 }
-type WorkspaceScrollPosition = { pageY: number; tableLeft: number; tableTop: number };
+type WorkspaceScrollAnchor = { kind: "pool" | "kol" | "evidence"; key: string; offset: number };
+type WorkspaceScrollPosition = { pageY: number; tableLeft: number; tableTop: number; anchor?: WorkspaceScrollAnchor };
 function captureWorkspaceScroll(): WorkspaceScrollPosition {
   const table = document.querySelector<HTMLDivElement>(".table-wrap");
-  return { pageY: window.scrollY, tableLeft: table?.scrollLeft ?? 0, tableTop: table?.scrollTop ?? 0 };
+  const candidates: Array<{ element: HTMLElement; anchor: Omit<WorkspaceScrollAnchor, "offset"> }> = [];
+  document.querySelectorAll<HTMLElement>(".pool-row[data-pool]").forEach((element) => candidates.push({ element, anchor: { kind: "pool", key: element.dataset.pool ?? "" } }));
+  document.querySelectorAll<HTMLElement>(".kol-card").forEach((element) => {
+    const key = element.querySelector<HTMLButtonElement>("[data-kol-select]")?.dataset.kolSelect ?? "";
+    if (key) candidates.push({ element, anchor: { kind: "kol", key } });
+  });
+  const evidence = document.querySelector<HTMLElement>(".evidence-panel");
+  if (evidence) candidates.push({ element: evidence, anchor: { kind: "evidence", key: state.selectedPool } });
+  const visible = candidates.map(({ element, anchor }) => ({ element, anchor, rect: element.getBoundingClientRect() })).filter(({ rect }) => rect.bottom > 72 && rect.top < window.innerHeight);
+  const firstVisible = visible.find(({ rect }) => rect.top >= 72) ?? visible[0];
+  return { pageY: window.scrollY, tableLeft: table?.scrollLeft ?? 0, tableTop: table?.scrollTop ?? 0, anchor: firstVisible ? { ...firstVisible.anchor, offset: firstVisible.rect.top } : undefined };
 }
 function restoreWorkspaceScroll(position: WorkspaceScrollPosition) {
-  window.scrollTo({ top: position.pageY, left: 0, behavior: "auto" });
+  let restored = false;
+  if (position.anchor) {
+    const { kind, key, offset } = position.anchor;
+    const target = kind === "pool" ? Array.from(document.querySelectorAll<HTMLElement>(".pool-row[data-pool]")).find((element) => element.dataset.pool === key) : kind === "kol" ? Array.from(document.querySelectorAll<HTMLElement>(".kol-card")).find((element) => element.querySelector("[data-kol-select]")?.getAttribute("data-kol-select") === key) : document.querySelector<HTMLElement>(".evidence-panel");
+    if (target) {
+      window.scrollTo({ top: Math.max(0, window.scrollY + target.getBoundingClientRect().top - offset), left: 0, behavior: "auto" });
+      restored = true;
+    }
+  }
+  if (!restored) window.scrollTo({ top: position.pageY, left: 0, behavior: "auto" });
   const table = document.querySelector<HTMLDivElement>(".table-wrap");
   if (table) { table.scrollLeft = position.tableLeft; table.scrollTop = position.tableTop; }
 }

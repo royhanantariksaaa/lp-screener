@@ -162,7 +162,7 @@ const readTwitterReviews = (): Record<string, TwitterReview> => {
 type LaunchHistoryRecord = { name: string; symbol: string; firstSeenAt: number; lastSeenAt: number; sightings: number; nameReuse: number; publicLinks: number };
 type LaunchHistoryStore = { records: Record<string, LaunchHistoryRecord>; names: Record<string, number> };
 const readLaunchHistory = (): LaunchHistoryStore => { try { const value = JSON.parse(localStorage.getItem("lp-screener-launch-history-v1") ?? "{}"); return { records: value.records ?? {}, names: value.names ?? {} }; } catch { return { records: {}, names: {} }; } };
-const state = { pools: signalPools, trackedWallets: readLocalList("lp-screener-wallets"), trackedKols: readLocalList("lp-screener-kols"), watchlist: readLocalList("lp-screener-watchlist"), kolWatchlist: readLocalList("lp-screener-kol-watchlist"), twitterReviews: readTwitterReviews(), xFeeds: {} as Record<string, XProfileFeed>, xSyncing: false, xLastSync: 0, sourcesOpen: false, mobileNavOpen: false, query: "", kolQuery: "", minLiquidity: 5000, minVolume: 2000, maxAge: 365, top10: 15, source: "Loading live feed…", list: "eligible", lab: "spot", academy: "bins", walletFilter: "all", kolFilter: "all", kolChain: "all", kolConfidence: "all", kolSort: "score", decisionFilter: "all", scoreMin: 0, metricMode: "price" as "price" | "mcap", selectedPool: "", selectedKol: "", compareList: [] as string[], sort: "score", sortDir: "desc" as "asc" | "desc", loading: true, lastUpdated: 0, liveError: "", liveReady: false, chainTvl: { Solana: 0, Ethereum: 0, Base: 0 }, providers: [] as ProviderStatus[], walletScan: { active: false, complete: 0, total: 0 }, walletCluster: { address: "", chain: "solana", loading: false, error: "", result: undefined as WalletClusterPayload | undefined }, walletGraph: { scope: "overview" as "overview" | "profile", handle: "", loading: false, error: "", result: undefined as WalletGraphPayload | undefined } };
+const state = { pools: signalPools, trackedWallets: readLocalList("lp-screener-wallets"), trackedKols: readLocalList("lp-screener-kols"), watchlist: readLocalList("lp-screener-watchlist"), kolWatchlist: readLocalList("lp-screener-kol-watchlist"), twitterReviews: readTwitterReviews(), xFeeds: {} as Record<string, XProfileFeed>, xSyncing: false, xLastSync: 0, sourcesOpen: false, mobileNavOpen: false, query: "", kolQuery: "", minLiquidity: 5000, minVolume: 2000, maxAge: 365, top10: 15, source: "Loading live feed…", list: "all", lab: "spot", academy: "bins", walletFilter: "all", kolFilter: "all", kolChain: "all", kolConfidence: "all", kolSort: "score", decisionFilter: "all", scoreMin: 0, metricMode: "price" as "price" | "mcap", selectedPool: "", selectedKol: "", compareList: [] as string[], sort: "score", sortDir: "desc" as "asc" | "desc", loading: true, lastUpdated: 0, liveError: "", liveReady: false, chainTvl: { Solana: 0, Ethereum: 0, Base: 0 }, providers: [] as ProviderStatus[], walletScan: { active: false, complete: 0, total: 0 }, walletCluster: { address: "", chain: "solana", loading: false, error: "", result: undefined as WalletClusterPayload | undefined }, walletGraph: { scope: "overview" as "overview" | "profile", handle: "", loading: false, error: "", result: undefined as WalletGraphPayload | undefined } };
 const money = (n: number) => n >= 1_000_000 ? `$${(n / 1_000_000).toFixed(1)}M` : `$${Math.round(n / 1000)}K`;
 const formatTvl = (n: number) => n >= 1_000_000_000 ? `${(n / 1_000_000_000).toFixed(1)}B` : n >= 1_000_000 ? `${(n / 1_000_000).toFixed(1)}M` : n > 0 ? `${Math.round(n / 1000)}K` : "—";
 const providerStatusLabel = (status: ProviderStatus["status"]) => status === "LIVE" ? "LIVE" : status === "CONFIGURED" ? "CONFIGURED" : status === "LINK_ONLY" ? "LINK ONLY" : "KEY REQUIRED";
@@ -368,10 +368,10 @@ const listCount = (kind: string) => kind === "eligible" ? state.pools.filter((p)
 const gateCount = (status: EligibilityAnalysis["status"]) => state.pools.filter((pool) => pool.eligibility?.status === status).length;
 const gateSummary = () => `<div id="workspace-gate-summary" class="gate-summary"><span><i class="gate-dot open"></i><b>${gateCount("OPEN_NOW")}</b> OPEN NOW</span><span><i class="gate-dot wait"></i><b>${gateCount("ELIGIBLE_WAIT")}</b> ELIGIBLE · WAIT</span><span><i class="gate-dot screening"></i><b>${gateCount("PENDING")}</b> SCREENING</span><span><i class="gate-dot rejected"></i><b>${gateCount("REJECTED")}</b> REJECTED</span><small>Hard gates: liquidity · volume · 15m history · wallet evidence · attention evidence · token safety</small></div>`;
 const decisionFilterLabel = (value: string) => value === "lp" ? "LP candidates" : value === "runner" ? "Runner candidates" : value === "flow" ? "Flow upside" : value === "rejected" ? "Rejected" : "All decisions";
-const workspaceFiltersDirty = () => state.list !== "eligible" || Boolean(state.query.trim()) || state.minLiquidity !== 5000 || state.minVolume !== 2000 || state.maxAge !== 365 || state.scoreMin !== 0 || state.sort !== "score" || state.walletFilter !== "all" || state.kolFilter !== "all" || state.decisionFilter !== "all";
+const workspaceFiltersDirty = () => state.list !== "all" || Boolean(state.query.trim()) || state.minLiquidity !== 5000 || state.minVolume !== 2000 || state.maxAge !== 365 || state.scoreMin !== 0 || state.sort !== "score" || state.walletFilter !== "all" || state.kolFilter !== "all" || state.decisionFilter !== "all";
 function workspaceFilterState(pools: Pool[], heading: string) {
   const chips = [
-    state.list !== "eligible" ? heading : "Eligibility view",
+    state.list !== "all" ? heading : "All pools",
     state.query.trim() ? `Search: ${state.query.trim()}` : "",
     state.minLiquidity !== 5000 ? `Liquidity ≥ ${money(state.minLiquidity)}` : "",
     state.minVolume !== 2000 ? `Volume ≥ ${money(state.minVolume)}` : "",
@@ -381,7 +381,7 @@ function workspaceFilterState(pools: Pool[], heading: string) {
     state.kolFilter !== "all" ? `KOL: ${state.kolFilter}` : "",
     state.decisionFilter !== "all" ? `Decision: ${decisionFilterLabel(state.decisionFilter)}` : "",
   ].filter(Boolean).map((chip) => `<span class="filter-chip">${escapeHtml(chip)}</span>`).join("");
-  return `<div class="workspace-filter-state"><div class="workspace-filter-copy"><span>WORKSPACE STATE</span><strong>${pools.length} shown</strong><small>${workspaceFiltersDirty() ? "Custom filters are active" : "Default eligibility view"}</small></div><div class="filter-chip-list">${chips}</div>${workspaceFiltersDirty() ? `<button class="filter-reset" data-preset="reset">Reset filters</button>` : ""}</div>`;
+  return `<div class="workspace-filter-state"><div class="workspace-filter-copy"><span>WORKSPACE STATE</span><strong>${pools.length} shown</strong><small>${workspaceFiltersDirty() ? "Custom filters are active" : "Default all-pools view"}</small></div><div class="filter-chip-list">${chips}</div>${workspaceFiltersDirty() ? `<button class="filter-reset" data-preset="reset">Reset filters</button>` : ""}</div>`;
 }
 function emptyWorkspaceState() {
   if (state.loading) return `<div class="empty-state"><strong>Loading market data</strong><p>Waiting for the feed and 15m candle history to finish.</p></div>`;
@@ -499,7 +499,7 @@ function poolEvidence() {
 }
 const workspaceTableHeader = (label: string, key?: WorkspaceSort) => key ? `<th scope="col" class="${state.sort === key ? "is-sorted" : ""}" aria-sort="${state.sort === key ? (state.sortDir === "asc" ? "ascending" : "descending") : "none"}"><button type="button" class="table-sort" data-table-sort="${key}" aria-label="Sort by ${label}"><span>${label}</span><i aria-hidden="true">${workspaceSortIndicator(key)}</i></button></th>` : `<th scope="col">${label}</th>`;
 const workspaceTableScrollControls = () => `<div class="table-scroll-controls" aria-label="Horizontal table navigation"><span>SCROLL COLUMNS</span><button type="button" data-table-scroll="left" aria-label="Scroll table left">←</button><button type="button" data-table-scroll="right" aria-label="Scroll table right">→</button></div>`;
-const workspaceTableStickySpacer = () => `<tr class="table-sticky-spacer" aria-hidden="true"><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th></tr>`;
+const workspaceTableStickySpacer = () => "";
 function renderWorkspace() {
   const pools = filtered();
   const walletReady = state.pools.some((pool) => pool.walletIntelligence === "LIVE");
@@ -622,70 +622,18 @@ function poolRow(p: Pool) {
   const metricLabel = state.metricMode === "mcap" ? "MCAP" : "PRICE";
   return `<tr class="pool-row" data-pool="${key}"><td data-label="POOL"><div class="pool-name">${tokenAvatar}<strong>${p.name}</strong><button class="row-watch ${state.watchlist.includes(key) ? "active" : ""}" data-watch="${key}" title="Toggle watchlist">${state.watchlist.includes(key) ? "★" : "☆"}</button><button class="row-compare ${state.compareList.includes(key) ? "active" : ""}" data-compare="${key}" title="Compare candidate">${state.compareList.includes(key) ? "✓" : "+"}</button></div><small>${p.symbol} · pair ${p.address} · ${capTier}</small><div class="pool-contract">${contract}</div></td><td data-label="VENUE">${p.dex}</td><td data-label="${metricLabel}">${metricValue}</td><td data-label="LIQUIDITY">${money(p.liquidity)}</td><td data-label="24H VOLUME">${money(p.volume24h)}</td><td data-label="AGE">${p.ageDays}d</td><td data-label="15M SETUP"><div class="signal-stack">${technical}${eligibilitySignal}<span class="status-pill ${statusClass(signal?.status)}">${statusLabel(signal?.status)}</span></div></td><td data-label="SIGNALS"><div class="signal-stack">${wallets}${trackedWallets}${kol}${safety}${publicSignal}${launch}</div></td><td data-label="CHART"><div class="pool-chart-cell">${poolSparkline(p)}</div></td><td data-label="SCORE"><span class="screen-score ${displayedScore >= 75 ? "high" : displayedScore >= 55 ? "mid" : "low"}">${displayedScore}</span><small class="score-meta">${capTier} · CONF ${snapshot.evidenceConfidence}${isRunnerTier(p.marketCap) ? ` · RUNNER ${runner} · FLOW ${flow}` : ` · FLOW ${flow}`}</small><span class="decision-pill ${decision.className}">${decision.label}</span></td></tr>`;
 }
-type WorkspaceScrollAnchor = { kind: "pool" | "kol" | "evidence"; key: string; offset: number };
-type WorkspaceScrollPosition = { pageY: number; tableLeft: number; tableTop: number; anchor?: WorkspaceScrollAnchor };
-let scrollRestoreToken = 0;
-let scrollRestoreFrame: number | undefined;
-let scrollRestoreTimer: number | undefined;
-let lastScrollInputAt = 0;
-const markScrollInput = () => { lastScrollInputAt = performance.now(); };
+type WorkspaceScrollPosition = { pageY: number; tableLeft: number; tableTop: number };
 function captureWorkspaceScroll(): WorkspaceScrollPosition {
   const table = document.querySelector<HTMLDivElement>(".table-scroll-viewport");
-  const candidates: Array<{ element: HTMLElement; anchor: Omit<WorkspaceScrollAnchor, "offset"> }> = [];
-  document.querySelectorAll<HTMLElement>(".pool-row[data-pool]").forEach((element) => candidates.push({ element, anchor: { kind: "pool", key: element.dataset.pool ?? "" } }));
-  document.querySelectorAll<HTMLElement>(".kol-card").forEach((element) => {
-    const key = element.querySelector<HTMLButtonElement>("[data-kol-select]")?.dataset.kolSelect ?? "";
-    if (key) candidates.push({ element, anchor: { kind: "kol", key } });
-  });
-  const evidence = document.querySelector<HTMLElement>(".evidence-panel");
-  if (evidence) candidates.push({ element: evidence, anchor: { kind: "evidence", key: state.selectedPool } });
-  const visible = candidates.map(({ element, anchor }) => ({ element, anchor, rect: element.getBoundingClientRect() })).filter(({ rect }) => rect.bottom > 72 && rect.top < window.innerHeight);
-  const firstVisible = visible.find(({ rect }) => rect.top >= 72) ?? visible[0];
-  return { pageY: window.scrollY, tableLeft: table?.scrollLeft ?? 0, tableTop: table?.scrollTop ?? 0, anchor: firstVisible ? { ...firstVisible.anchor, offset: firstVisible.rect.top } : undefined };
+  return { pageY: window.scrollY, tableLeft: table?.scrollLeft ?? 0, tableTop: table?.scrollTop ?? 0 };
 }
 function restoreWorkspaceScroll(position: WorkspaceScrollPosition) {
-  const token = ++scrollRestoreToken;
-  if (scrollRestoreFrame !== undefined) window.cancelAnimationFrame(scrollRestoreFrame);
-  if (scrollRestoreTimer !== undefined) window.clearTimeout(scrollRestoreTimer);
-  const apply = () => {
-    if (token !== scrollRestoreToken || performance.now() - lastScrollInputAt < 350) return;
-    window.scrollTo({ top: position.pageY, left: 0, behavior: "auto" });
-    let restored = Math.abs(window.scrollY - position.pageY) <= 8;
-    if (!restored && position.anchor) {
-      const { kind, key, offset } = position.anchor;
-      const target = kind === "pool" ? Array.from(document.querySelectorAll<HTMLElement>(".pool-row[data-pool]")).find((element) => element.dataset.pool === key) : kind === "kol" ? Array.from(document.querySelectorAll<HTMLElement>(".kol-card")).find((element) => element.querySelector("[data-kol-select]")?.getAttribute("data-kol-select") === key) : document.querySelector<HTMLElement>(".evidence-panel");
-      if (target) { window.scrollTo({ top: Math.max(0, window.scrollY + target.getBoundingClientRect().top - offset), left: 0, behavior: "auto" }); restored = true; }
-    }
-    if (!restored) window.scrollTo({ top: position.pageY, left: 0, behavior: "auto" });
-    const table = document.querySelector<HTMLDivElement>(".table-scroll-viewport");
-    if (table) { table.scrollLeft = position.tableLeft; table.scrollTop = position.tableTop; }
-  };
-  apply();
-  scrollRestoreFrame = window.requestAnimationFrame(() => { scrollRestoreFrame = undefined; apply(); });
-  scrollRestoreTimer = window.setTimeout(() => { scrollRestoreTimer = undefined; apply(); }, 180);
-}
-let workspaceTableOffsetBound = false;
-function syncWorkspaceTableHeaderOffset() {
-  const viewport = document.querySelector<HTMLElement>(".table-scroll-viewport");
-  if (!viewport || !viewport.querySelector(".table-sticky-spacer")) return;
-  const topbarHeight = Math.round(document.querySelector<HTMLElement>(".topbar")?.getBoundingClientRect().height ?? (window.innerWidth <= 680 ? 54 : 72));
-  const shouldOffset = viewport.getBoundingClientRect().top <= topbarHeight + 1;
-  const wasOffset = viewport.classList.contains("table-header-offset");
-  viewport.classList.toggle("table-header-offset", shouldOffset);
-  if (shouldOffset && !wasOffset) {
-    window.requestAnimationFrame(() => {
-      const top = viewport.getBoundingClientRect().top;
-      if (top < -1 && top > -topbarHeight * 1.5) window.scrollBy({ top, left: 0, behavior: "auto" });
-    });
+  window.scrollTo({ top: position.pageY, left: 0, behavior: "auto" });
+  const table = document.querySelector<HTMLDivElement>(".table-scroll-viewport");
+  if (table) {
+    table.scrollLeft = position.tableLeft;
+    table.scrollTop = position.tableTop;
   }
-}
-function bindWorkspaceTableHeaderOffset() {
-  if (!workspaceTableOffsetBound) {
-    window.addEventListener("scroll", syncWorkspaceTableHeaderOffset, { passive: true });
-    window.addEventListener("resize", syncWorkspaceTableHeaderOffset);
-    workspaceTableOffsetBound = true;
-  }
-  window.requestAnimationFrame(syncWorkspaceTableHeaderOffset);
 }
 let lastRenderedRoute = "";
 function syncEvidenceBackdrop() {
@@ -745,7 +693,7 @@ function bindWorkspaceDynamic() {
       if (button.dataset.preset === "all") {
         state.list = "all"; state.query = ""; state.minLiquidity = 0; state.minVolume = 0; state.maxAge = 365; state.scoreMin = 0; state.walletFilter = "all"; state.kolFilter = "all"; state.sort = "score"; state.decisionFilter = "all";
       } else {
-        state.list = "eligible"; state.query = ""; state.minLiquidity = 5000; state.minVolume = 2000; state.maxAge = 365; state.scoreMin = 0; state.walletFilter = "all"; state.kolFilter = "all"; state.sort = "score"; state.decisionFilter = "all";
+        state.list = "all"; state.query = ""; state.minLiquidity = 5000; state.minVolume = 2000; state.maxAge = 365; state.scoreMin = 0; state.walletFilter = "all"; state.kolFilter = "all"; state.sort = "score"; state.decisionFilter = "all";
       }
       render();
     });
@@ -762,7 +710,6 @@ function renderEvidenceInPlace() {
   syncEvidenceBackdrop();
   bindWorkspaceDynamic();
   bindCandleTooltips();
-  bindWorkspaceTableHeaderOffset();
   return true;
 }
 function renderWorkspaceInPlace() {
@@ -771,11 +718,7 @@ function renderWorkspaceInPlace() {
   if (!body || !root) return false;
   const pools = filtered();
   const nextRows = pools.map(poolRow).join("") || `<tr><td colspan="10" class="empty">${emptyWorkspaceState()}</td></tr>`;
-  if (body.innerHTML !== nextRows) {
-    const previousScroll = captureWorkspaceScroll();
-    body.innerHTML = nextRows;
-    restoreWorkspaceScroll(previousScroll);
-  }
+  if (body.innerHTML !== nextRows) body.innerHTML = nextRows;
   const count = root.querySelector<HTMLElement>("#workspace-count");
   if (count) count.textContent = `${pools.length} candidates`;
   const candleReady = state.pools.filter((pool) => (pool.candles?.length ?? 0) >= 2).length;
@@ -804,7 +747,6 @@ function renderWorkspaceInPlace() {
   syncEvidenceBackdrop();
   bindWorkspaceDynamic();
   bindCandleTooltips();
-  bindWorkspaceTableHeaderOffset();
   return true;
 }
 function render(mode: "full" | "data" = "full") {
@@ -881,7 +823,7 @@ function bindDecisionFilters() {
   });
 }
 function bind() {
-  bindDecisionFilters(); document.querySelector<HTMLButtonElement>("#mobileNavToggle")?.addEventListener("click", () => { state.mobileNavOpen = !state.mobileNavOpen; render(); }); document.querySelectorAll<HTMLAnchorElement>(".mobile-menu a").forEach((link) => link.addEventListener("click", () => { state.mobileNavOpen = false; })); document.querySelectorAll<HTMLButtonElement>("[data-academy]").forEach((button) => button.addEventListener("click", () => { state.academy = button.dataset.academy ?? "bins"; render(); })); document.querySelector<HTMLButtonElement>("[data-academy-next]")?.addEventListener("click", () => { const order = ["bins", "shapes", "fees", "risk", "safety", "opportunities", "manage", "performance"]; state.academy = order[(order.indexOf(state.academy) + 1) % order.length]; render(); }); document.querySelectorAll<HTMLButtonElement>("[data-lab]").forEach((button) => button.addEventListener("click", () => { state.lab = button.dataset.lab ?? "spot"; render(); })); document.querySelector<HTMLInputElement>("#query")?.addEventListener("input", (e) => { state.query = (e.target as HTMLInputElement).value; render(); document.querySelector<HTMLInputElement>("#query")?.focus({ preventScroll: true }); }); (["minLiquidity", "minVolume", "maxAge", "scoreMin"] as const).forEach((id) => document.querySelector<HTMLInputElement>(`#${id}`)?.addEventListener("change", (e) => { state[id] = Number((e.target as HTMLInputElement).value); render(); })); document.querySelectorAll<HTMLButtonElement>("[data-preset]").forEach((button) => { if (button.dataset.bound === "1") return; button.dataset.bound = "1"; button.addEventListener("click", () => { const preset = button.dataset.preset; state.sortDir = "desc"; if (preset === "conviction") { state.list = "eligible"; state.scoreMin = 75; state.walletFilter = "active"; state.kolFilter = "recent"; state.sort = "score"; } if (preset === "wallet") { state.list = "smart"; state.scoreMin = 0; state.walletFilter = "inflow"; state.kolFilter = "all"; state.sort = "wallets"; } if (preset === "attention") { state.list = "kol"; state.scoreMin = 0; state.walletFilter = "all"; state.kolFilter = "recent"; state.sort = "kol"; } if (preset === "liquidity") { state.list = "liquidity"; state.scoreMin = 50; state.walletFilter = "all"; state.kolFilter = "all"; state.sort = "liquidity"; } if (preset === "all") { state.list = "all"; state.query = ""; state.minLiquidity = 0; state.minVolume = 0; state.maxAge = 365; state.scoreMin = 0; state.walletFilter = "all"; state.kolFilter = "all"; state.sort = "score"; state.decisionFilter = "all"; } if (preset === "reset") { state.list = "eligible"; state.query = ""; state.minLiquidity = 5000; state.minVolume = 2000; state.maxAge = 365; state.scoreMin = 0; state.walletFilter = "all"; state.kolFilter = "all"; state.sort = "score"; state.decisionFilter = "all"; } render(); }); }); document.querySelector<HTMLButtonElement>("#sourcesToggle")?.addEventListener("click", () => { state.sourcesOpen = !state.sourcesOpen; render(); }); document.querySelector<HTMLButtonElement>("#saveSources")?.addEventListener("click", () => { const parse = (id: string) => (document.querySelector<HTMLTextAreaElement>(id)?.value ?? "").split(/[\n,]/).map((value) => value.trim()).filter(Boolean); state.trackedWallets = parse("#walletSources"); state.trackedKols = parse("#kolSources"); localStorage.setItem("lp-screener-wallets", JSON.stringify(state.trackedWallets)); localStorage.setItem("lp-screener-kols", JSON.stringify(state.trackedKols)); state.sourcesOpen = false; render(); }); document.querySelector<HTMLSelectElement>("#sort")?.addEventListener("change", (e) => { state.sort = (e.target as HTMLSelectElement).value; state.sortDir = "desc"; render(); }); document.querySelector<HTMLButtonElement>("#metricToggle")?.addEventListener("click", () => { state.metricMode = state.metricMode === "mcap" ? "price" : "mcap"; render(); }); document.querySelector<HTMLSelectElement>("#walletFilter")?.addEventListener("change", (e) => { state.walletFilter = (e.target as HTMLSelectElement).value; render(); }); document.querySelector<HTMLSelectElement>("#kolFilter")?.addEventListener("change", (e) => { state.kolFilter = (e.target as HTMLSelectElement).value; render(); }); document.querySelectorAll<HTMLButtonElement>("[data-watch]").forEach((button) => { if (button.dataset.bound === "1") return; button.dataset.bound = "1"; button.addEventListener("click", (event) => { event.stopPropagation(); const symbol = button.dataset.watch ?? ""; state.watchlist = state.watchlist.includes(symbol) ? state.watchlist.filter((item) => item !== symbol) : [...state.watchlist, symbol]; localStorage.setItem("lp-screener-watchlist", JSON.stringify(state.watchlist)); render(); }); }); document.querySelectorAll<HTMLButtonElement>("[data-compare]").forEach((button) => { if (button.dataset.bound === "1") return; button.dataset.bound = "1"; button.addEventListener("click", (event) => { event.stopPropagation(); const symbol = button.dataset.compare ?? ""; state.compareList = state.compareList.includes(symbol) ? state.compareList.filter((item) => item !== symbol) : [...state.compareList, symbol].slice(-4); render(); }); }); document.querySelector<HTMLButtonElement>("[data-clear-compare]")?.addEventListener("click", () => { state.compareList = []; render(); }); document.querySelectorAll<HTMLButtonElement>("[data-table-scroll]").forEach((button) => button.addEventListener("click", (event) => { event.stopPropagation(); const table = document.querySelector<HTMLDivElement>(".table-scroll-viewport"); if (!table) return; const amount = Math.max(220, Math.round(table.clientWidth * 0.72)); table.scrollBy({ left: button.dataset.tableScroll === "right" ? amount : -amount, behavior: "smooth" }); })); document.querySelectorAll<HTMLButtonElement>("[data-table-sort]").forEach((button) => button.addEventListener("click", (event) => { event.stopPropagation(); chooseWorkspaceSort(button.dataset.tableSort ?? ""); })); document.querySelectorAll<HTMLTableRowElement>("[data-pool]").forEach((row) => { if (row.dataset.bound === "1") return; row.dataset.bound = "1"; row.addEventListener("click", () => { selectEvidencePool(row.dataset.pool ?? ""); }); }); const evidenceClose = document.querySelector<HTMLButtonElement>("[data-close-evidence]"); if (evidenceClose && evidenceClose.dataset.bound !== "1") { evidenceClose.dataset.bound = "1"; evidenceClose.addEventListener("click", closeEvidence); } document.querySelectorAll<HTMLButtonElement>("[data-evidence-prev], [data-evidence-next]").forEach((button) => { if (button.dataset.bound === "1") return; button.dataset.bound = "1"; button.addEventListener("click", (event) => { event.stopPropagation(); selectEvidencePool(button.dataset.evidencePrev ?? button.dataset.evidenceNext ?? ""); }); }); document.querySelectorAll<HTMLButtonElement>("[data-list]").forEach((button) => button.addEventListener("click", () => { state.list = button.dataset.list ?? "all"; render(); })); document.querySelector("#refresh")?.addEventListener("click", async (e) => { const button = e.currentTarget as HTMLButtonElement; button.disabled = true; button.textContent = "↻ Refreshing…"; await loadLive(); render("data"); });
+  bindDecisionFilters(); document.querySelector<HTMLButtonElement>("#mobileNavToggle")?.addEventListener("click", () => { state.mobileNavOpen = !state.mobileNavOpen; render(); }); document.querySelectorAll<HTMLAnchorElement>(".mobile-menu a").forEach((link) => link.addEventListener("click", () => { state.mobileNavOpen = false; })); document.querySelectorAll<HTMLButtonElement>("[data-academy]").forEach((button) => button.addEventListener("click", () => { state.academy = button.dataset.academy ?? "bins"; render(); })); document.querySelector<HTMLButtonElement>("[data-academy-next]")?.addEventListener("click", () => { const order = ["bins", "shapes", "fees", "risk", "safety", "opportunities", "manage", "performance"]; state.academy = order[(order.indexOf(state.academy) + 1) % order.length]; render(); }); document.querySelectorAll<HTMLButtonElement>("[data-lab]").forEach((button) => button.addEventListener("click", () => { state.lab = button.dataset.lab ?? "spot"; render(); })); document.querySelector<HTMLInputElement>("#query")?.addEventListener("input", (e) => { state.query = (e.target as HTMLInputElement).value; render(); document.querySelector<HTMLInputElement>("#query")?.focus({ preventScroll: true }); }); (["minLiquidity", "minVolume", "maxAge", "scoreMin"] as const).forEach((id) => document.querySelector<HTMLInputElement>(`#${id}`)?.addEventListener("change", (e) => { state[id] = Number((e.target as HTMLInputElement).value); render(); })); document.querySelectorAll<HTMLButtonElement>("[data-preset]").forEach((button) => { if (button.dataset.bound === "1") return; button.dataset.bound = "1"; button.addEventListener("click", () => { const preset = button.dataset.preset; state.sortDir = "desc"; if (preset === "conviction") { state.list = "eligible"; state.scoreMin = 75; state.walletFilter = "active"; state.kolFilter = "recent"; state.sort = "score"; } if (preset === "wallet") { state.list = "smart"; state.scoreMin = 0; state.walletFilter = "inflow"; state.kolFilter = "all"; state.sort = "wallets"; } if (preset === "attention") { state.list = "kol"; state.scoreMin = 0; state.walletFilter = "all"; state.kolFilter = "recent"; state.sort = "kol"; } if (preset === "liquidity") { state.list = "liquidity"; state.scoreMin = 50; state.walletFilter = "all"; state.kolFilter = "all"; state.sort = "liquidity"; } if (preset === "all") { state.list = "all"; state.query = ""; state.minLiquidity = 0; state.minVolume = 0; state.maxAge = 365; state.scoreMin = 0; state.walletFilter = "all"; state.kolFilter = "all"; state.sort = "score"; state.decisionFilter = "all"; } if (preset === "reset") { state.list = "all"; state.query = ""; state.minLiquidity = 5000; state.minVolume = 2000; state.maxAge = 365; state.scoreMin = 0; state.walletFilter = "all"; state.kolFilter = "all"; state.sort = "score"; state.decisionFilter = "all"; } render(); }); }); document.querySelector<HTMLButtonElement>("#sourcesToggle")?.addEventListener("click", () => { state.sourcesOpen = !state.sourcesOpen; render(); }); document.querySelector<HTMLButtonElement>("#saveSources")?.addEventListener("click", () => { const parse = (id: string) => (document.querySelector<HTMLTextAreaElement>(id)?.value ?? "").split(/[\n,]/).map((value) => value.trim()).filter(Boolean); state.trackedWallets = parse("#walletSources"); state.trackedKols = parse("#kolSources"); localStorage.setItem("lp-screener-wallets", JSON.stringify(state.trackedWallets)); localStorage.setItem("lp-screener-kols", JSON.stringify(state.trackedKols)); state.sourcesOpen = false; render(); }); document.querySelector<HTMLSelectElement>("#sort")?.addEventListener("change", (e) => { state.sort = (e.target as HTMLSelectElement).value; state.sortDir = "desc"; render(); }); document.querySelector<HTMLButtonElement>("#metricToggle")?.addEventListener("click", () => { state.metricMode = state.metricMode === "mcap" ? "price" : "mcap"; render(); }); document.querySelector<HTMLSelectElement>("#walletFilter")?.addEventListener("change", (e) => { state.walletFilter = (e.target as HTMLSelectElement).value; render(); }); document.querySelector<HTMLSelectElement>("#kolFilter")?.addEventListener("change", (e) => { state.kolFilter = (e.target as HTMLSelectElement).value; render(); }); document.querySelectorAll<HTMLButtonElement>("[data-watch]").forEach((button) => { if (button.dataset.bound === "1") return; button.dataset.bound = "1"; button.addEventListener("click", (event) => { event.stopPropagation(); const symbol = button.dataset.watch ?? ""; state.watchlist = state.watchlist.includes(symbol) ? state.watchlist.filter((item) => item !== symbol) : [...state.watchlist, symbol]; localStorage.setItem("lp-screener-watchlist", JSON.stringify(state.watchlist)); render(); }); }); document.querySelectorAll<HTMLButtonElement>("[data-compare]").forEach((button) => { if (button.dataset.bound === "1") return; button.dataset.bound = "1"; button.addEventListener("click", (event) => { event.stopPropagation(); const symbol = button.dataset.compare ?? ""; state.compareList = state.compareList.includes(symbol) ? state.compareList.filter((item) => item !== symbol) : [...state.compareList, symbol].slice(-4); render(); }); }); document.querySelector<HTMLButtonElement>("[data-clear-compare]")?.addEventListener("click", () => { state.compareList = []; render(); }); document.querySelectorAll<HTMLButtonElement>("[data-table-scroll]").forEach((button) => button.addEventListener("click", (event) => { event.stopPropagation(); const table = document.querySelector<HTMLDivElement>(".table-scroll-viewport"); if (!table) return; const amount = Math.max(220, Math.round(table.clientWidth * 0.72)); table.scrollBy({ left: button.dataset.tableScroll === "right" ? amount : -amount, behavior: "smooth" }); })); document.querySelectorAll<HTMLButtonElement>("[data-table-sort]").forEach((button) => button.addEventListener("click", (event) => { event.stopPropagation(); chooseWorkspaceSort(button.dataset.tableSort ?? ""); })); document.querySelectorAll<HTMLTableRowElement>("[data-pool]").forEach((row) => { if (row.dataset.bound === "1") return; row.dataset.bound = "1"; row.addEventListener("click", () => { selectEvidencePool(row.dataset.pool ?? ""); }); }); const evidenceClose = document.querySelector<HTMLButtonElement>("[data-close-evidence]"); if (evidenceClose && evidenceClose.dataset.bound !== "1") { evidenceClose.dataset.bound = "1"; evidenceClose.addEventListener("click", closeEvidence); } document.querySelectorAll<HTMLButtonElement>("[data-evidence-prev], [data-evidence-next]").forEach((button) => { if (button.dataset.bound === "1") return; button.dataset.bound = "1"; button.addEventListener("click", (event) => { event.stopPropagation(); selectEvidencePool(button.dataset.evidencePrev ?? button.dataset.evidenceNext ?? ""); }); }); document.querySelectorAll<HTMLButtonElement>("[data-list]").forEach((button) => button.addEventListener("click", () => { state.list = button.dataset.list ?? "all"; render(); })); document.querySelector("#refresh")?.addEventListener("click", async (e) => { const button = e.currentTarget as HTMLButtonElement; button.disabled = true; button.textContent = "↻ Refreshing…"; await loadLive(); render("data"); });
   document.querySelector<HTMLInputElement>("#kolQuery")?.addEventListener("input", (event) => { state.kolQuery = (event.target as HTMLInputElement).value; render(); document.querySelector<HTMLInputElement>("#kolQuery")?.focus({ preventScroll: true }); });
   document.querySelector<HTMLSelectElement>("#kolChain")?.addEventListener("change", (event) => { state.kolChain = (event.target as HTMLSelectElement).value; render(); });
   document.querySelector<HTMLSelectElement>("#kolConfidence")?.addEventListener("change", (event) => { state.kolConfidence = (event.target as HTMLSelectElement).value; render(); });
@@ -896,7 +838,6 @@ function bind() {
   document.querySelectorAll<HTMLButtonElement>("[data-wallet-cluster]").forEach((button) => button.addEventListener("click", async (event) => { event.stopPropagation(); const address = button.dataset.walletCluster ?? ""; const chain = button.dataset.walletChain ?? "solana"; if (!address) return; state.walletCluster = { address, chain, loading: true, error: "", result: undefined }; render(); try { const result = await fetchJson<WalletClusterPayload>(liveApi("wallet-clusters", { address, chain }), 45000); if (state.walletCluster.address === address && state.walletCluster.chain === chain) state.walletCluster = { address, chain, loading: false, error: result.status === "UNAVAILABLE" || result.status === "KEY_REQUIRED" ? (result.note ?? "This chain requires indexed history.") : "", result: { ...result, chain } }; } catch (error) { if (state.walletCluster.address === address) state.walletCluster = { address, chain, loading: false, error: error instanceof Error ? error.message : "Persisted wallet scan unavailable", result: undefined }; } render(); }));
   document.querySelectorAll<HTMLButtonElement>("[data-copy-ca]").forEach((button) => button.addEventListener("click", async (event) => { event.stopPropagation(); const address = button.dataset.copyCa ?? ""; try { await navigator.clipboard.writeText(address); button.textContent = "Copied"; setTimeout(() => { button.textContent = `CA ${shortAddress(address)}`; }, 1400); } catch { button.textContent = "Select"; } }));
   bindCandleTooltips();
-  bindWorkspaceTableHeaderOffset();
 }
 async function loadChainContext() {
   try {
@@ -1645,9 +1586,6 @@ async function loadLive() {
     render("data");
   }
 }
-window.addEventListener("wheel", markScrollInput, { passive: true });
-window.addEventListener("touchmove", markScrollInput, { passive: true });
-window.addEventListener("keydown", (event) => { if (["ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End", " "].includes(event.key)) markScrollInput(); });
 window.addEventListener("hashchange", () => { state.mobileNavOpen = false; render(); if (route() === "kol") void loadXRadarFeed(); });
 render();
 void loadLive();

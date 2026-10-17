@@ -567,6 +567,11 @@ function poolRow(p: Pool) {
 }
 type WorkspaceScrollAnchor = { kind: "pool" | "kol" | "evidence"; key: string; offset: number };
 type WorkspaceScrollPosition = { pageY: number; tableLeft: number; tableTop: number; anchor?: WorkspaceScrollAnchor };
+let scrollRestoreToken = 0;
+let scrollRestoreFrame: number | undefined;
+let scrollRestoreTimer: number | undefined;
+let lastScrollInputAt = 0;
+const markScrollInput = () => { lastScrollInputAt = performance.now(); };
 function captureWorkspaceScroll(): WorkspaceScrollPosition {
   const table = document.querySelector<HTMLDivElement>(".table-wrap");
   const candidates: Array<{ element: HTMLElement; anchor: Omit<WorkspaceScrollAnchor, "offset"> }> = [];
@@ -582,19 +587,25 @@ function captureWorkspaceScroll(): WorkspaceScrollPosition {
   return { pageY: window.scrollY, tableLeft: table?.scrollLeft ?? 0, tableTop: table?.scrollTop ?? 0, anchor: firstVisible ? { ...firstVisible.anchor, offset: firstVisible.rect.top } : undefined };
 }
 function restoreWorkspaceScroll(position: WorkspaceScrollPosition) {
-  window.scrollTo({ top: position.pageY, left: 0, behavior: "auto" });
-  let restored = Math.abs(window.scrollY - position.pageY) <= 8;
-  if (!restored && position.anchor) {
-    const { kind, key, offset } = position.anchor;
-    const target = kind === "pool" ? Array.from(document.querySelectorAll<HTMLElement>(".pool-row[data-pool]")).find((element) => element.dataset.pool === key) : kind === "kol" ? Array.from(document.querySelectorAll<HTMLElement>(".kol-card")).find((element) => element.querySelector("[data-kol-select]")?.getAttribute("data-kol-select") === key) : document.querySelector<HTMLElement>(".evidence-panel");
-    if (target) {
-      window.scrollTo({ top: Math.max(0, window.scrollY + target.getBoundingClientRect().top - offset), left: 0, behavior: "auto" });
-      restored = true;
+  const token = ++scrollRestoreToken;
+  if (scrollRestoreFrame !== undefined) window.cancelAnimationFrame(scrollRestoreFrame);
+  if (scrollRestoreTimer !== undefined) window.clearTimeout(scrollRestoreTimer);
+  const apply = () => {
+    if (token !== scrollRestoreToken || performance.now() - lastScrollInputAt < 350) return;
+    window.scrollTo({ top: position.pageY, left: 0, behavior: "auto" });
+    let restored = Math.abs(window.scrollY - position.pageY) <= 8;
+    if (!restored && position.anchor) {
+      const { kind, key, offset } = position.anchor;
+      const target = kind === "pool" ? Array.from(document.querySelectorAll<HTMLElement>(".pool-row[data-pool]")).find((element) => element.dataset.pool === key) : kind === "kol" ? Array.from(document.querySelectorAll<HTMLElement>(".kol-card")).find((element) => element.querySelector("[data-kol-select]")?.getAttribute("data-kol-select") === key) : document.querySelector<HTMLElement>(".evidence-panel");
+      if (target) { window.scrollTo({ top: Math.max(0, window.scrollY + target.getBoundingClientRect().top - offset), left: 0, behavior: "auto" }); restored = true; }
     }
-  }
-  if (!restored) window.scrollTo({ top: position.pageY, left: 0, behavior: "auto" });
-  const table = document.querySelector<HTMLDivElement>(".table-wrap");
-  if (table) { table.scrollLeft = position.tableLeft; table.scrollTop = position.tableTop; }
+    if (!restored) window.scrollTo({ top: position.pageY, left: 0, behavior: "auto" });
+    const table = document.querySelector<HTMLDivElement>(".table-wrap");
+    if (table) { table.scrollLeft = position.tableLeft; table.scrollTop = position.tableTop; }
+  };
+  apply();
+  scrollRestoreFrame = window.requestAnimationFrame(() => { scrollRestoreFrame = undefined; apply(); });
+  scrollRestoreTimer = window.setTimeout(() => { scrollRestoreTimer = undefined; apply(); }, 180);
 }
 let lastRenderedRoute = "";
 function syncEvidenceBackdrop() {
@@ -1407,6 +1418,9 @@ async function loadLive() {
     render();
   }
 }
+window.addEventListener("wheel", markScrollInput, { passive: true });
+window.addEventListener("touchmove", markScrollInput, { passive: true });
+window.addEventListener("keydown", (event) => { if (["ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End", " "].includes(event.key)) markScrollInput(); });
 window.addEventListener("hashchange", () => { state.mobileNavOpen = false; render(); if (route() === "kol") void loadXRadarFeed(); });
 render();
 void loadLive();

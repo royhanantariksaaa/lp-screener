@@ -994,3 +994,70 @@ footer b { color: var(--ui-muted) !important; }
 .primary .inline-icon,
 .lesson-next .inline-icon,
 .academy-source .inline-icon { margin-left: 4px; }
+
+/* Desktop tables should use the available workspace width like Defined's
+   dense market view. The prior auto layout expanded to the widest signal
+   content, leaving the right columns outside the visible viewport. */
+@media (min-width: 801px) {
+  .workspace-page .table-scroll-viewport table {
+    width: 100% !important;
+    min-width: 0 !important;
+    table-layout: fixed !important;
+  }
+  .workspace-page .table-scroll-viewport th:nth-child(1),
+  .workspace-page .table-scroll-viewport td:nth-child(1) { width: 24%; }
+  .workspace-page .table-scroll-viewport th:nth-child(2),
+  .workspace-page .table-scroll-viewport td:nth-child(2) { width: 6%; }
+  .workspace-page .table-scroll-viewport th:nth-child(3),
+  .workspace-page .table-scroll-viewport td:nth-child(3) { width: 8%; }
+  .workspace-page .table-scroll-viewport th:nth-child(4),
+  .workspace-page .table-scroll-viewport td:nth-child(4) { width: 8%; }
+  .workspace-page .table-scroll-viewport th:nth-child(5),
+  .workspace-page .table-scroll-viewport td:nth-child(5) { width: 8%; }
+  .workspace-page .table-scroll-viewport th:nth-child(6),
+  .workspace-page .table-scroll-viewport td:nth-child(6) { width: 6%; }
+  .workspace-page .table-scroll-viewport th:nth-child(7),
+  .workspace-page .table-scroll-viewport td:nth-child(7) { width: 13%; }
+  .workspace-page .table-scroll-viewport th:nth-child(8),
+  .workspace-page .table-scroll-viewport td:nth-child(8) { width: 13%; }
+  .workspace-page .table-scroll-viewport th:nth-child(9),
+  .workspace-page .table-scroll-viewport td:nth-child(9) { width: 6%; }
+  .workspace-page .table-scroll-viewport th:nth-child(10),
+  .workspace-page .table-scroll-viewport td:nth-child(10) { width: 8%; }
+  .workspace-page .table-scroll-viewport tbody td {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .workspace-page .table-scroll-viewport tbody td:first-child,
+  .workspace-page .table-scroll-viewport tbody td[data-label="15M SETUP"],
+  .workspace-page .table-scroll-viewport tbody td[data-label="SIGNALS"],
+  .workspace-page .table-scroll-viewport tbody td[data-label="SCORE"] {
+    white-space: normal;
+  }
+  .workspace-page .table-scroll-viewport tbody td:first-child { overflow: visible; }
+  .workspace-page .table-scroll-viewport .signal-stack,
+  .workspace-page .table-scroll-viewport .pool-chart-cell,
+  .workspace-page .table-scroll-viewport .score-meta,
+  .workspace-page .table-scroll-viewport .decision-pill {
+    max-width: 100%;
+    min-width: 0;
+  }
+  .workspace-page .table-scroll-viewport .signal-stack { overflow: hidden; }
+  .workspace-page .table-scroll-viewport .stack-badge,
+  .workspace-page .table-scroll-viewport .flow-badge,
+  .workspace-page .table-scroll-viewport .status-pill,
+  .workspace-page .table-scroll-viewport .decision-pill {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .workspace-page .table-scroll-viewport .score-meta,
+  .workspace-page .table-scroll-viewport .decision-pill {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}

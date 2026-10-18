@@ -1458,7 +1458,7 @@ async function fetchFeed() {
 
 let previewRequestInFlight: Promise<void> | undefined;
 async function loadChartPreviews(pools: Pool[]) {
-  const candidates = pools.filter((pool) => pool.pairAddress && pool.tokenAddress).sort((a, b) => (b.liquidity + b.volume24h) - (a.liquidity + a.volume24h)).slice(0, 12);
+  const candidates = pools.filter((pool) => pool.pairAddress && pool.tokenAddress).slice(0, 12);
   if (!candidates.length || previewRequestInFlight) return previewRequestInFlight;
   previewRequestInFlight = (async () => {
     try {
@@ -1774,7 +1774,7 @@ async function loadLive() {
     state.pools = recordLaunchObservations(state.pools);
     render("data");
     state.lastUpdated = Date.now();
-    void loadChartPreviews(state.pools);
+    void loadChartPreviews(filtered());
   } catch (error) {
     state.liveError = error instanceof Error ? `${error.message}. Showing the last available snapshot.` : "Live feed unavailable. Showing the last available snapshot.";
     if (!state.liveReady) state.source = "Demo snapshot · live feed unavailable";

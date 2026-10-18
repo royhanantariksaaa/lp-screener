@@ -153,23 +153,34 @@ const dexPaprikaPair = (row, chainId, metadata) => {
 
 const buildFeed = async (chain) => {
   const config = CHAIN_CONFIG[chain] ?? CHAIN_CONFIG.solana;
-  if (!config.ocula) {
-    try {
-      const paprika = await dexPaprikaPools(config.dexChain);
-      if (paprika?.rows?.length) {
-        const addresses = [...new Set(paprika.rows.flatMap((row) => (Array.isArray(row?.tokens) ? row.tokens : [row?.token_0, row?.token_1].filter(Boolean)).map(tokenAddressFrom).map((address) => String(address).trim()).filter(Boolean)))].slice(0, 150);
-        const metadata = await fetchTokenPairs(config.dexChain, addresses);
-        const pairs = paprika.rows.map((row) => dexPaprikaPair(row, config.dexChain, metadata)).filter(Boolean);
-        const stats = await dexPaprikaNetworkStats(config.dexChain).catch(() => undefined);
-        return { status: "LIVE", source: `Server feed · DexPaprika network pools + Dexscreener metadata · ${chain}`, chain, pairs, fetchedAt: new Date().toISOString(), discovery: "network-pool-search", discoveryHasMore: paprika.hasNextPage, totalAvailable: stats?.poolCount };
-      }
-    } catch {
-      // Keep the public Dexscreener search fallback when the optional network index is unavailable.
+  // Use the same indexed pool discovery for every supported chain. Solana still
+  // enriches rows with Ocula's holder/social metadata when it is available, but
+  // Ocula is no longer the discovery boundary that caps Solana at a small sample.
+  const [paprikaResult, oculaResult] = await Promise.allSettled([
+    dexPaprikaPools(config.dexChain),
+    config.ocula ? oculaRows() : Promise.resolve([]),
+  ]);
+  const paprika = paprikaResult.status === "fulfilled" ? paprikaResult.value : undefined;
+  const oculaRowsData = oculaResult.status === "fulfilled" ? oculaResult.value : [];
+  if (paprika?.rows?.length) {
+    const addresses = [...new Set(paprika.rows.flatMap((row) => (Array.isArray(row?.tokens) ? row.tokens : [row?.token_0, row?.token_1].filter(Boolean)).map(tokenAddressFrom).map((address) => String(address).trim()).filter(Boolean)))].slice(0, 150);
+    const metadata = await fetchTokenPairs(config.dexChain, addresses);
+    const oculaByToken = new Map(oculaRowsData.map((row) => [String(row?.token?.address ?? "").trim().toLowerCase(), row]).filter(([address]) => address));
+    const pairs = paprika.rows.map((row) => {
+      const pair = dexPaprikaPair(row, config.dexChain, metadata);
+      if (!pair) return undefined;
+      const tokenAddress = String(pair.baseToken?.address ?? "").trim().toLowerCase();
+      const oculaRow = oculaByToken.get(tokenAddress);
+      return { ...pair, ...(oculaRow ? { ocula: oculaRow } : {}), discovery: oculaRow ? "DexPaprika network pool + Ocula metadata" : "DexPaprika network pool" };
+    }).filter(Boolean);
+    if (pairs.length) {
+      const stats = await dexPaprikaNetworkStats(config.dexChain).catch(() => undefined);
+      return { status: "LIVE", source: `Server feed · DexPaprika network pools + Dexscreener metadata${config.ocula ? " + Ocula enrichment" : ""} · ${chain}`, chain, pairs, fetchedAt: new Date().toISOString(), discovery: "network-pool-search", discoveryHasMore: paprika.hasNextPage, totalAvailable: stats?.poolCount };
     }
   }
   const [searchPairs, ocula] = await Promise.all([
     Promise.all(config.search.map((term) => fetchPairs(term, config.dexChain).catch(() => []))),
-    config.ocula ? oculaRows() : Promise.resolve([]),
+    Promise.resolve(oculaRowsData),
   ]);
   const byToken = new Map();
   ocula.forEach((row) => {

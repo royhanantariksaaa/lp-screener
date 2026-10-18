@@ -1615,7 +1615,7 @@ function mapLivePair(pair: Record<string, unknown>): Pool {
     kolIntelligence: madeOnSol ? "LIVE" : "UNAVAILABLE",
     kolSource: madeOnSol?.source ?? "Provider key required",
     publicLinks: Math.max(publicLinks, oculaLinks),
-    discovery: ocula ? "Ocula public feed + Dexscreener pair" : "Dexscreener market feed",
+    discovery: String(pair.discovery ?? (ocula ? "Ocula public feed + Dexscreener pair" : "Dexscreener market feed")),
     oculaStatus: ocula ? "LIVE" : "UNAVAILABLE",
     oculaSource: ocula ? "Ocula public feed · holders + social links" : "Ocula discovery unavailable",
     oculaVolume1h: Number(ocula?.volume1 ?? 0) || undefined,

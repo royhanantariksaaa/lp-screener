@@ -1,0 +1,141 @@
+const SOLANA_ADDRESS = /^[1-9A-HJ-NP-Za-km-z]{32,50}$/;
+const DEEP_CACHE_TTL = 45_000;
+const deepCache = new Map();
+const deepInFlight = new Map();
+const usageEvents = [];
+let activeScans = 0;
+const scanQueue = [];
+
+const withTimeout = async (url, init = {}, timeoutMs = 25000) => {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...init, signal: controller.signal });
+  } finally {
+    clearTimeout(timeout);
+  }
+};
+
+const originFor = (req) => {
+  const protocol = String(req.headers?.["x-forwarded-proto"] ?? "https").split(",")[0];
+  const host = String(req.headers?.host ?? process.env.VERCEL_URL ?? "lp-screener-ivory.vercel.app");
+  return `${protocol}://${host}`;
+};
+
+const runWithLimit = (task) => new Promise((resolve, reject) => {
+  scanQueue.push({ task, resolve, reject });
+  const drain = () => {
+    while (activeScans < 3 && scanQueue.length) {
+      const item = scanQueue.shift();
+      activeScans += 1;
+      Promise.resolve().then(item.task).then(item.resolve, item.reject).finally(() => { activeScans -= 1; drain(); });
+    }
+  };
+  drain();
+});
+
+const recordUsage = (source) => {
+  const now = Date.now();
+  usageEvents.push({ at: now, source });
+  while (usageEvents.length && now - usageEvents[0].at > 60_000) usageEvents.shift();
+};
+
+const usageSnapshot = () => {
+  const now = Date.now();
+  while (usageEvents.length && now - usageEvents[0].at > 60_000) usageEvents.shift();
+  return {
+    monthlyBudget: 100_000,
+    creditsUsedEstimate: usageEvents.length,
+    requestsLastMinute: usageEvents.length,
+    rateLimitPerMinute: 30,
+    source: "server-instance estimate",
+    lastProvider: usageEvents.at(-1)?.source ?? "none",
+  };
+};
+
+const marketUrl = (req, kind, params) => {
+  const url = new URL(`${originFor(req)}/api/market`);
+  url.search = new URLSearchParams({ kind, ...params }).toString();
+  return url.toString();
+};
+
+const callMarket = async (req, kind, params) => {
+  const response = await withTimeout(marketUrl(req, kind, params), { headers: { accept: "application/json" } }, 30000);
+  const source = response.headers.get("x-ohlcv-source") ?? "";
+  if (kind === "ohlcv" && /dexpaprika/i.test(source)) recordUsage(source);
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(String(body?.error ?? `${kind} (${response.status})`));
+  return { body, source };
+};
+
+const parseRows = (body) => {
+  const rows = body?.data?.attributes?.ohlcv_list;
+  return Array.isArray(rows) ? rows : [];
+};
+
+const choosePair = (payload, requestedToken) => {
+  const rows = Array.isArray(payload?.pairs) ? payload.pairs : [];
+  return rows.filter((row) => String(row?.baseToken?.address ?? "").toLowerCase() === requestedToken.toLowerCase())
+    .sort((a, b) => Number(b?.liquidity?.usd ?? 0) - Number(a?.liquidity?.usd ?? 0) || Number(b?.volume?.h24 ?? 0) - Number(a?.volume?.h24 ?? 0))[0];
+};
+
+const performDeepScan = async (req, token, requestedPool) => {
+  const scan = await callMarket(req, "scan", { token });
+  const pair = requestedPool
+    ? (scan.body?.pairs ?? []).find((row) => String(row?.pairAddress ?? "") === requestedPool) ?? choosePair(scan.body, token)
+    : choosePair(scan.body, token);
+  if (!pair) throw new Error("No indexed Solana pool was found for that token.");
+  const pool = String(pair.pairAddress ?? "");
+  const symbol = String(pair?.baseToken?.symbol ?? token).slice(0, 64);
+  const [ohlcv, wallet, safety, kol] = await Promise.allSettled([
+    callMarket(req, "ohlcv", { pool, token, dex: String(pair.dexId ?? ""), codex: "0", timeframe: "15m", limit: "48" }),
+    callMarket(req, "wallets", { pool, base: token, limit: "12", scan: "50" }),
+    callMarket(req, "token", { mint: token }),
+    callMarket(req, "kol", { symbol, mint: token }),
+  ]);
+  const payload = {
+    status: "LIVE",
+    source: "Server deep scan · bounded provider fan-out",
+    capturedAt: new Date().toISOString(),
+    pair,
+    candles: ohlcv.status === "fulfilled" ? parseRows(ohlcv.value.body) : [],
+    candleSource: ohlcv.status === "fulfilled" ? ohlcv.value.source : "unavailable",
+    wallet: wallet.status === "fulfilled" ? wallet.value.body : { status: "UNAVAILABLE", source: wallet.reason?.message ?? "wallet scan unavailable" },
+    token: safety.status === "fulfilled" ? safety.value.body : { status: "UNAVAILABLE", source: safety.reason?.message ?? "token safety unavailable" },
+    kol: kol.status === "fulfilled" ? kol.value.body : { status: "UNAVAILABLE", source: kol.reason?.message ?? "KOL scan unavailable" },
+    usage: usageSnapshot(),
+  };
+  const fulfilled = [payload.candles.length >= 2, payload.wallet?.status === "LIVE", payload.token?.status === "LIVE", payload.kol?.status === "LIVE"].filter(Boolean).length;
+  payload.status = fulfilled === 4 ? "LIVE" : "PARTIAL";
+  return payload;
+};
+
+export default async function handler(req, res) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  if (req.method === "OPTIONS") return res.status(204).end();
+  if (req.method !== "GET") return res.status(405).json({ error: "method_not_allowed" });
+  const token = String(req.query?.token ?? "").trim();
+  const requestedPool = String(req.query?.pool ?? "").trim();
+  if (!SOLANA_ADDRESS.test(token)) return res.status(400).json({ error: "invalid_solana_token" });
+  if (requestedPool && !SOLANA_ADDRESS.test(requestedPool)) return res.status(400).json({ error: "invalid_pool" });
+  const key = `${token}:${requestedPool}`;
+  const cached = deepCache.get(key);
+  if (cached && Date.now() - cached.fetchedAt < DEEP_CACHE_TTL) {
+    res.setHeader("Cache-Control", "s-maxage=30, stale-while-revalidate=90");
+    res.setHeader("X-Deep-Scan-Cache", "hit");
+    return res.status(200).json(cached.body);
+  }
+  if (!deepInFlight.has(key)) {
+    deepInFlight.set(key, runWithLimit(() => performDeepScan(req, token, requestedPool)).then((body) => { deepCache.set(key, { body, fetchedAt: Date.now() }); return body; }).finally(() => deepInFlight.delete(key)));
+  }
+  try {
+    const body = await deepInFlight.get(key);
+    res.setHeader("Cache-Control", "s-maxage=30, stale-while-revalidate=90");
+    res.setHeader("X-Deep-Scan-Cache", "miss");
+    return res.status(200).json(body);
+  } catch (error) {
+    return res.status(502).json({ error: "deep_scan_unavailable", message: error instanceof Error ? error.message : "deep_scan_unavailable", usage: usageSnapshot() });
+  }
+}

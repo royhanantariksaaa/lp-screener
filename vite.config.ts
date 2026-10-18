@@ -5,6 +5,22 @@ import { defineConfig, type Plugin } from "vite";
 const localMarketProxy = (): Plugin => ({
   name: "local-market-proxy",
   configureServer(server) {
+    server.middlewares.use(async (request, response, next) => {
+      const requestPath = request.url ?? "/";
+      if (!["/api/feed", "/api/deep-scan", "/api/chart-previews"].some((path) => requestPath.startsWith(path))) {
+        next();
+        return;
+      }
+      try {
+        const origin = process.env.LOCAL_API_ORIGIN?.trim() || "https://lp-screener-ivory.vercel.app";
+        const upstream = await fetch(`${origin}${requestPath}`, { headers: { accept: "application/json" } });
+        response.statusCode = upstream.status;
+        response.setHeader("Content-Type", upstream.headers.get("content-type") ?? "application/json; charset=utf-8");
+        response.end(await upstream.text());
+      } catch {
+        next();
+      }
+    });
     server.middlewares.use("/api/market", async (request, response, next) => {
       try {
         const query = new URL(request.url ?? "/", "http://localhost").searchParams;

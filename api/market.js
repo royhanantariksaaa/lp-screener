@@ -31,6 +31,7 @@ let madeOnSolFeedPromise;
 const xFeedCache = new Map();
 const xFeedInFlight = new Map();
 const ohlcvCache = new Map();
+const ohlcvBackoff = new Map();
 const geckoPoolCache = new Map();
 const trackedWalletIndex = new Map((Array.isArray(trackedWalletMap) ? trackedWalletMap : []).map((row) => [String(row.address ?? "").toLowerCase(), Array.isArray(row.matches) ? row.matches : []]));
 const confidenceRank = (confidence) => confidence === "verified" ? 3 : confidence === "likely" ? 2 : 1;
@@ -46,12 +47,12 @@ const withTimeout = async (url, init = {}, timeoutMs = 12000) => {
 };
 
 // Meteora's public DLMM data API exposes native 5m candles at 30 RPS. We
-// aggregate those venue-native bars into the 15m shape used by the screener.
+// aggregate those venue-native bars into the requested preview or 15m shape.
 // The API limits a single time range, so fetch adjacent windows and merge by
 // bucket before returning the latest requested candles.
-const meteoraOhlcv = async (pool, limit) => {
+const meteoraOhlcv = async (pool, limit, aggregateMinutes = 15) => {
   const end = Math.floor(Date.now() / 1000 / 300) * 300;
-  const targetSeconds = Math.max(4 * 60 * 60, limit * 15 * 60 + 15 * 60);
+  const targetSeconds = Math.max(4 * 60 * 60, limit * aggregateMinutes * 60 + aggregateMinutes * 60);
   const windowSeconds = 4 * 60 * 60;
   const windows = [];
   let cursor = end;
@@ -77,7 +78,7 @@ const meteoraOhlcv = async (pool, limit) => {
     const close = Number(row?.close);
     const volume = Number(row?.volume ?? 0);
     if (!timestamp || ![open, high, low, close].every(Number.isFinite)) return;
-    const bucket = Math.floor(timestamp / 900) * 900;
+    const bucket = Math.floor(timestamp / (aggregateMinutes * 60)) * (aggregateMinutes * 60);
     const prior = buckets.get(bucket);
     if (!prior) buckets.set(bucket, { time: bucket, open, high, low, close, volume: Number.isFinite(volume) ? volume : 0, first: timestamp, last: timestamp });
     else {
@@ -93,8 +94,8 @@ const meteoraOhlcv = async (pool, limit) => {
   return { body: { data: { attributes: { ohlcv_list: rows } } }, source: "meteora-dlmm" };
 };
 
-const dexPaprikaOhlcv = async (pool, apiKey, limit) => {
-  const response = await withTimeout(`${DEXPAPRIKA_API}/networks/solana/pools/${encodeURIComponent(pool)}/ohlcv?start=-12h&interval=15m&limit=${limit}`, {
+const dexPaprikaOhlcv = async (pool, apiKey, limit, interval = "15m") => {
+  const response = await withTimeout(`${DEXPAPRIKA_API}/networks/solana/pools/${encodeURIComponent(pool)}/ohlcv?start=-12h&interval=${encodeURIComponent(interval)}&limit=${limit}`, {
     headers: { accept: "application/json", authorization: apiKey },
   }, 15000);
   const payload = await response.json().catch(() => ({}));
@@ -111,7 +112,7 @@ const dexPaprikaOhlcv = async (pool, apiKey, limit) => {
 // Defined's chart data is supplied by Codex. Keep the integration server-side so
 // the API key never reaches the browser. Pair bars are preferred; token bars are
 // a useful fallback when a pool has migrated or is not indexed yet.
-const codexOhlcv = async (pool, token, apiKey, limit) => {
+const codexOhlcv = async (pool, token, apiKey, limit, resolution = "15") => {
   const now = Math.floor(Date.now() / 1000);
   const from = now - 12 * 60 * 60;
   const symbols = [...new Set([
@@ -127,7 +128,7 @@ const codexOhlcv = async (pool, token, apiKey, limit) => {
       const response = await withTimeout(CODEX_API, {
         method: "POST",
         headers: { accept: "application/json", "content-type": "application/json", authorization: apiKey },
-        body: JSON.stringify({ query, variables: { symbol, from, to: now, resolution: "15" } }),
+        body: JSON.stringify({ query, variables: { symbol, from, to: now, resolution } }),
       }, 15000);
       const payload = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(`codex (${response.status})`);
@@ -866,26 +867,31 @@ export default async function handler(req, res) {
       const token = String(req.query?.token ?? "");
       const dex = String(req.query?.dex ?? "").trim().toLowerCase();
       const allowCodex = String(req.query?.codex ?? "") === "1";
+      const timeframe = String(req.query?.timeframe ?? "15m").trim().toLowerCase() === "5m" ? "5m" : "15m";
+      const aggregateMinutes = timeframe === "5m" ? 5 : 15;
+      const codexResolution = timeframe === "5m" ? "5" : "15";
       if (!/^[1-9A-HJ-NP-Za-km-z]{32,50}$/.test(pool) && !/^[1-9A-HJ-NP-Za-km-z]{32,50}$/.test(token)) return res.status(400).json({ error: "invalid_pool" });
       const codexKey = String(process.env.CODEX_API_KEY ?? "").trim();
       const dexPaprikaKey = String(process.env.DEXPAPRIKA_API_KEY ?? "").trim();
       const cachePrefix = allowCodex && codexKey ? "codex" : dexPaprikaKey ? "dexpaprika" : dex.includes("meteora") ? "meteora" : "gecko";
-      const cacheKey = `${cachePrefix}:${pool || "token"}:${token}`;
+      const cacheKey = `${cachePrefix}:${timeframe}:${pool || "token"}:${token}`;
       const cacheTtl = allowCodex && codexKey ? 60_000 : dexPaprikaKey ? 90_000 : dex.includes("meteora") ? 120_000 : 180_000;
       const cached = ohlcvCache.get(cacheKey);
       if (cached && Date.now() - cached.fetchedAt < cacheTtl) {
         res.setHeader("Cache-Control", `s-maxage=${Math.round(cacheTtl / 1000)}, stale-while-revalidate=${Math.round(cacheTtl * 2 / 1000)}`);
         res.setHeader("X-OHLCV-Cache", "hit");
         res.setHeader("X-OHLCV-Source", cached.source ?? cachePrefix);
+        res.setHeader("X-OHLCV-Timeframe", timeframe);
         return res.status(200).json(cached.body);
       }
       const limit = Math.max(24, Math.min(100, Number(req.query?.limit ?? 48)));
       if (dex.includes("meteora") && pool) {
         try {
-          const result = await meteoraOhlcv(pool, limit);
+           const result = await meteoraOhlcv(pool, limit, aggregateMinutes);
           ohlcvCache.set(cacheKey, { body: result.body, fetchedAt: Date.now(), source: result.source });
           res.setHeader("Cache-Control", `s-maxage=${Math.round(cacheTtl / 1000)}, stale-while-revalidate=${Math.round(cacheTtl * 2 / 1000)}`);
-          res.setHeader("X-OHLCV-Source", result.source);
+           res.setHeader("X-OHLCV-Source", result.source);
+           res.setHeader("X-OHLCV-Timeframe", timeframe);
           return res.status(200).json(result.body);
         } catch (error) {
           console.warn("Meteora native 15m candle request failed", pool, error);
@@ -893,25 +899,33 @@ export default async function handler(req, res) {
       }
       if (allowCodex && codexKey) {
         try {
-          const result = await codexOhlcv(pool, token, codexKey, limit);
+           const result = await codexOhlcv(pool, token, codexKey, limit, codexResolution);
           ohlcvCache.set(cacheKey, { body: result.body, fetchedAt: Date.now(), source: result.source });
           res.setHeader("Cache-Control", `s-maxage=${Math.round(cacheTtl / 1000)}, stale-while-revalidate=${Math.round(cacheTtl * 2 / 1000)}`);
-          res.setHeader("X-OHLCV-Source", result.source);
+           res.setHeader("X-OHLCV-Source", result.source);
+           res.setHeader("X-OHLCV-Timeframe", timeframe);
           return res.status(200).json(result.body);
         } catch (error) {
           console.warn("Codex 15m candle request failed", pool || token, error);
         }
       }
       if (dexPaprikaKey) {
-        try {
-          if (!pool) throw new Error("dexpaprika requires a pool address");
-          const body = await dexPaprikaOhlcv(pool, dexPaprikaKey, limit);
-          ohlcvCache.set(cacheKey, { body, fetchedAt: Date.now(), source: "dexpaprika" });
-          res.setHeader("Cache-Control", `s-maxage=${Math.round(cacheTtl / 1000)}, stale-while-revalidate=${Math.round(cacheTtl * 2 / 1000)}`);
-          res.setHeader("X-OHLCV-Source", "dexpaprika");
-          return res.status(200).json(body);
-        } catch (error) {
-          console.warn("DexPaprika 15m candle request failed", pool || token, error);
+        const backoffUntil = Number(ohlcvBackoff.get(cacheKey) ?? 0);
+        if (Date.now() >= backoffUntil) {
+          try {
+            if (!pool) throw new Error("dexpaprika requires a pool address");
+             const body = await dexPaprikaOhlcv(pool, dexPaprikaKey, limit, timeframe);
+            ohlcvBackoff.delete(cacheKey);
+            ohlcvCache.set(cacheKey, { body, fetchedAt: Date.now(), source: "dexpaprika" });
+            res.setHeader("Cache-Control", `s-maxage=${Math.round(cacheTtl / 1000)}, stale-while-revalidate=${Math.round(cacheTtl * 2 / 1000)}`);
+             res.setHeader("X-OHLCV-Source", "dexpaprika");
+             res.setHeader("X-OHLCV-Timeframe", timeframe);
+            return res.status(200).json(body);
+          } catch (error) {
+            const message = String(error?.message ?? error);
+            if (/429/.test(message)) ohlcvBackoff.set(cacheKey, Date.now() + 30_000);
+            console.warn("DexPaprika 15m candle request failed", pool || token, error);
+          }
         }
       }
       let geckoPool = pool;
@@ -919,14 +933,15 @@ export default async function handler(req, res) {
         try { geckoPool = await geckoPoolForToken(token); } catch (error) { console.warn("Gecko token-to-pool lookup failed", token, error); }
       }
       if (!geckoPool) return res.status(404).json({ error: "pool_not_found_for_token" });
-      const url = `${GECKO_OHLCV}/${encodeURIComponent(geckoPool)}/ohlcv/minute?aggregate=15&limit=${limit}`;
+       const url = `${GECKO_OHLCV}/${encodeURIComponent(geckoPool)}/ohlcv/minute?aggregate=${aggregateMinutes}&limit=${limit}`;
       const upstream = await withTimeout(url, { headers: { accept: "application/json" } }, 20000);
       const body = await upstream.text();
       res.setHeader("Content-Type", "application/json; charset=utf-8");
       if (upstream.ok) {
         try { ohlcvCache.set(cacheKey, { body: JSON.parse(body), fetchedAt: Date.now(), source: "gecko" }); } catch { /* Preserve the upstream response if it is not JSON. */ }
         res.setHeader("Cache-Control", `s-maxage=${Math.round(cacheTtl / 1000)}, stale-while-revalidate=${Math.round(cacheTtl * 2 / 1000)}`);
-        res.setHeader("X-OHLCV-Source", "gecko");
+         res.setHeader("X-OHLCV-Source", "gecko");
+         res.setHeader("X-OHLCV-Timeframe", timeframe);
       }
       if (upstream.status === 429 && cached?.body) {
         res.setHeader("Cache-Control", "s-maxage=30, stale-while-revalidate=300");

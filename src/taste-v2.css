@@ -601,12 +601,18 @@ footer b { color: var(--ui-muted) !important; }
 .scan-status.scanning { color: var(--ui-accent); }
 .scan-status.ready { color: var(--ui-ok); }
 .scan-status.error { color: var(--ui-danger); }
+.provider-meter { display: grid; grid-template-columns: auto auto 1fr; align-items: center; gap: 10px; margin: 0 0 12px; padding: 9px 12px; border: 1px solid var(--ui-line); border-radius: 5px; background: color-mix(in srgb, var(--ui-surface-3) 70%, transparent); color: var(--ui-muted); font: 10px/1.35 "DM Mono", monospace; letter-spacing: .04em; }
+.provider-meter span { color: var(--ui-accent); }
+.provider-meter b { color: var(--ui-ink); font-weight: 500; }
+.provider-meter small { justify-self: end; text-align: right; color: var(--ui-muted); font-size: 10px; }
 @media (max-width: 760px) {
   .scan-bar { display: grid; gap: 12px; margin-top: 12px; padding: 12px; }
   .scan-copy { min-width: 0; }
   .ca-scan { min-width: 0; width: 100%; grid-template-columns: minmax(0, 1fr) auto; }
   .ca-scan input { width: 100%; }
   .scan-submit { padding-inline: 10px; }
+  .provider-meter { grid-template-columns: 1fr auto; gap: 4px 10px; }
+  .provider-meter small { grid-column: 1 / -1; justify-self: start; text-align: left; }
 }
 @media (max-width: 430px) {
   .ca-scan { grid-template-columns: 1fr; }

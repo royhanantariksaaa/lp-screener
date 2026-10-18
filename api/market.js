@@ -99,7 +99,11 @@ const dexPaprikaOhlcv = async (pool, apiKey, limit, interval = "15m") => {
     headers: { accept: "application/json", authorization: apiKey },
   }, 15000);
   const payload = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(`dexpaprika (${response.status})`);
+  if (!response.ok) {
+    const error = new Error(`dexpaprika (${response.status})`);
+    error.status = response.status;
+    throw error;
+  }
   const rows = Array.isArray(payload) ? payload : Array.isArray(payload?.data) ? payload.data : [];
   const ohlcvList = rows.map((row) => [
     Math.floor(Date.parse(String(row?.time_open ?? row?.timeOpen ?? "")) / 1000),
@@ -872,7 +876,7 @@ export default async function handler(req, res) {
       const codexResolution = timeframe === "5m" ? "5" : "15";
       if (!/^[1-9A-HJ-NP-Za-km-z]{32,50}$/.test(pool) && !/^[1-9A-HJ-NP-Za-km-z]{32,50}$/.test(token)) return res.status(400).json({ error: "invalid_pool" });
       const codexKey = String(process.env.CODEX_API_KEY ?? "").trim();
-      const dexPaprikaKey = String(process.env.DEXPAPRIKA_API_KEY ?? "").trim();
+      const dexPaprikaKey = String(process.env.DEXPAPRIKA_API_KEY ?? "").trim().replace(/^Bearer\s+/i, "");
       const cachePrefix = allowCodex && codexKey ? "codex" : dexPaprikaKey ? "dexpaprika" : dex.includes("meteora") ? "meteora" : "gecko";
       const cacheKey = `${cachePrefix}:${timeframe}:${pool || "token"}:${token}`;
       const cacheTtl = allowCodex && codexKey ? 60_000 : dexPaprikaKey ? 90_000 : dex.includes("meteora") ? 120_000 : 180_000;
@@ -924,6 +928,7 @@ export default async function handler(req, res) {
           } catch (error) {
             const message = String(error?.message ?? error);
             if (/429/.test(message)) ohlcvBackoff.set(cacheKey, Date.now() + 30_000);
+            res.setHeader("X-OHLCV-DexPaprika-Status", String(error?.status ?? "error"));
             console.warn("DexPaprika 15m candle request failed", pool || token, error);
           }
         }

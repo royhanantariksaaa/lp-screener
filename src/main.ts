@@ -340,11 +340,11 @@ const scoreFor = (pool: Pool) => scoreSnapshotFor(pool).lpFit;
 const poolDecision = (pool: Pool, displayedScore = scoreFor(pool)) => {
   const eligible = pool.eligibility?.status === "OPEN_NOW" || pool.eligibility?.status === "ELIGIBLE_WAIT";
   const snapshot = scoreSnapshotFor(pool);
-  if (pool.eligibility?.status === "REJECTED") return { label: "REJECTED", className: "rejected" };
   // The fast feed can nominate a pool before the selected-token deep scan
   // supplies candles, safety, wallet, and KOL evidence. Keep that distinction
   // visible in the confidence score and evidence panel.
   if (!evidenceRejected(pool) && isRunnerTier(pool.marketCap) && snapshot.runnerPotential >= runnerCandidateThreshold(snapshot)) return { label: "RUNNER CANDIDATE", className: "runner-candidate" };
+  if (pool.eligibility?.status === "REJECTED") return { label: "REJECTED", className: "rejected" };
   if (!evidenceRejected(pool) && feedLpGates(pool) && displayedScore >= 70) return { label: "LP CANDIDATE", className: "lp-candidate" };
   if (eligible && displayedScore >= 70) return { label: "LP CANDIDATE", className: "lp-candidate" };
   if (eligible && displayedScore >= 55) return { label: "LP WATCH", className: "lp-watch" };

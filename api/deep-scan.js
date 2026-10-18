@@ -1,4 +1,11 @@
 const SOLANA_ADDRESS = /^[1-9A-HJ-NP-Za-km-z]{32,50}$/;
+const EVM_ADDRESS = /^0x[0-9a-fA-F]{40}$/;
+const CHAIN_CONFIG = {
+  solana: { label: "Solana", address: SOLANA_ADDRESS, indexedWallets: true, tokenSafety: true },
+  ethereum: { label: "Ethereum", address: EVM_ADDRESS, indexedWallets: false, tokenSafety: false },
+  base: { label: "Base", address: EVM_ADDRESS, indexedWallets: false, tokenSafety: false },
+  robinhood: { label: "Robinhood", address: EVM_ADDRESS, indexedWallets: false, tokenSafety: false },
+};
 const DEEP_CACHE_TTL = 45_000;
 const deepCache = new Map();
 const deepInFlight = new Map();
@@ -73,28 +80,30 @@ const parseRows = (body) => {
   return Array.isArray(rows) ? rows : [];
 };
 
-const choosePair = (payload, requestedToken) => {
+const choosePair = (payload, requestedToken, chain) => {
   const rows = Array.isArray(payload?.pairs) ? payload.pairs : [];
-  return rows.filter((row) => String(row?.baseToken?.address ?? "").toLowerCase() === requestedToken.toLowerCase())
+  return rows.filter((row) => String(row?.baseToken?.address ?? "").toLowerCase() === requestedToken.toLowerCase() && (!chain || row?.chainId === chain))
     .sort((a, b) => Number(b?.liquidity?.usd ?? 0) - Number(a?.liquidity?.usd ?? 0) || Number(b?.volume?.h24 ?? 0) - Number(a?.volume?.h24 ?? 0))[0];
 };
 
-const performDeepScan = async (req, token, requestedPool) => {
-  const scan = await callMarket(req, "scan", { token });
+const performDeepScan = async (req, token, requestedPool, chain) => {
+  const scan = await callMarket(req, "scan", { token, chain });
   const pair = requestedPool
-    ? (scan.body?.pairs ?? []).find((row) => String(row?.pairAddress ?? "") === requestedPool) ?? choosePair(scan.body, token)
-    : choosePair(scan.body, token);
-  if (!pair) throw new Error("No indexed Solana pool was found for that token.");
+    ? (scan.body?.pairs ?? []).find((row) => String(row?.pairAddress ?? "") === requestedPool && row?.chainId === chain) ?? choosePair(scan.body, token, chain)
+    : choosePair(scan.body, token, chain);
+  if (!pair) throw new Error(`No indexed ${CHAIN_CONFIG[chain]?.label ?? chain} pool was found for that token.`);
   const pool = String(pair.pairAddress ?? "");
   const symbol = String(pair?.baseToken?.symbol ?? token).slice(0, 64);
+  const isSolana = chain === "solana";
   const [ohlcv, wallet, safety, kol] = await Promise.allSettled([
-    callMarket(req, "ohlcv", { pool, token, dex: String(pair.dexId ?? ""), codex: "0", timeframe: "15m", limit: "48" }),
-    callMarket(req, "wallets", { pool, base: token, limit: "12", scan: "50" }),
-    callMarket(req, "token", { mint: token }),
-    callMarket(req, "kol", { symbol, mint: token }),
+    callMarket(req, "ohlcv", { pool, token, chain, dex: String(pair.dexId ?? ""), codex: "0", timeframe: "15m", limit: "48" }),
+    isSolana ? callMarket(req, "wallets", { pool, base: token, chain, limit: "12", scan: "50" }) : Promise.resolve({ body: { status: "UNAVAILABLE", source: `${CHAIN_CONFIG[chain]?.label ?? chain} wallet indexing is on-demand only` }, source: "chain-indexer-unavailable" }),
+    isSolana ? callMarket(req, "token", { mint: token, chain }) : Promise.resolve({ body: { status: "UNAVAILABLE", source: `${CHAIN_CONFIG[chain]?.label ?? chain} token safety adapter is not configured` }, source: "chain-safety-unavailable" }),
+    callMarket(req, "kol", { symbol, mint: token, chain }),
   ]);
   const payload = {
     status: "LIVE",
+    chain,
     source: "Server deep scan · bounded provider fan-out",
     capturedAt: new Date().toISOString(),
     pair,
@@ -105,8 +114,8 @@ const performDeepScan = async (req, token, requestedPool) => {
     kol: kol.status === "fulfilled" ? kol.value.body : { status: "UNAVAILABLE", source: kol.reason?.message ?? "KOL scan unavailable" },
     usage: usageSnapshot(),
   };
-  const fulfilled = [payload.candles.length >= 2, payload.wallet?.status === "LIVE", payload.token?.status === "LIVE", payload.kol?.status === "LIVE"].filter(Boolean).length;
-  payload.status = fulfilled === 4 ? "LIVE" : "PARTIAL";
+  const required = isSolana ? [payload.candles.length >= 2, payload.wallet?.status === "LIVE", payload.token?.status === "LIVE", payload.kol?.status === "LIVE"] : [payload.candles.length >= 2, payload.kol?.status === "LIVE"];
+  payload.status = required.every(Boolean) ? "LIVE" : "PARTIAL";
   return payload;
 };
 
@@ -118,9 +127,13 @@ export default async function handler(req, res) {
   if (req.method !== "GET") return res.status(405).json({ error: "method_not_allowed" });
   const token = String(req.query?.token ?? "").trim();
   const requestedPool = String(req.query?.pool ?? "").trim();
-  if (!SOLANA_ADDRESS.test(token)) return res.status(400).json({ error: "invalid_solana_token" });
-  if (requestedPool && !SOLANA_ADDRESS.test(requestedPool)) return res.status(400).json({ error: "invalid_pool" });
-  const key = `${token}:${requestedPool}`;
+  const requestedChain = String(req.query?.chain ?? "").trim().toLowerCase();
+  const chain = requestedChain || (EVM_ADDRESS.test(token) ? "ethereum" : "solana");
+  const config = CHAIN_CONFIG[chain];
+  if (!config) return res.status(400).json({ error: "unsupported_chain", chain, availableChains: Object.keys(CHAIN_CONFIG) });
+  if (!config.address.test(token)) return res.status(400).json({ error: chain === "solana" ? "invalid_solana_token" : "invalid_evm_token", chain });
+  if (requestedPool && !config.address.test(requestedPool)) return res.status(400).json({ error: "invalid_pool", chain });
+  const key = `${chain}:${token}:${requestedPool}`;
   const cached = deepCache.get(key);
   if (cached && Date.now() - cached.fetchedAt < DEEP_CACHE_TTL) {
     res.setHeader("Cache-Control", "s-maxage=30, stale-while-revalidate=90");
@@ -128,7 +141,7 @@ export default async function handler(req, res) {
     return res.status(200).json(cached.body);
   }
   if (!deepInFlight.has(key)) {
-    deepInFlight.set(key, runWithLimit(() => performDeepScan(req, token, requestedPool)).then((body) => { deepCache.set(key, { body, fetchedAt: Date.now() }); return body; }).finally(() => deepInFlight.delete(key)));
+    deepInFlight.set(key, runWithLimit(() => performDeepScan(req, token, requestedPool, chain)).then((body) => { deepCache.set(key, { body, fetchedAt: Date.now() }); return body; }).finally(() => deepInFlight.delete(key)));
   }
   try {
     const body = await deepInFlight.get(key);

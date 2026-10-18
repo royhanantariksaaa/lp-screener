@@ -4,7 +4,7 @@ import evmWalletClusters from "./evm-wallet-clusters.json" with { type: "json" }
 import walletGraph from "./wallet-graph.json" with { type: "json" };
 import { readFileSync } from "node:fs";
 
-const GECKO_OHLCV = "https://api.geckoterminal.com/api/v2/networks/solana/pools";
+const GECKO_API = "https://api.geckoterminal.com/api/v2/networks";
 const METEORA_DLMM_API = "https://dlmm.datapi.meteora.ag";
 const DEXPAPRIKA_API = "https://api.dexpaprika.com";
 const CODEX_API = "https://graph.codex.io/graphql";
@@ -35,6 +35,14 @@ const ohlcvBackoff = new Map();
 const geckoPoolCache = new Map();
 const trackedWalletIndex = new Map((Array.isArray(trackedWalletMap) ? trackedWalletMap : []).map((row) => [String(row.address ?? "").toLowerCase(), Array.isArray(row.matches) ? row.matches : []]));
 const confidenceRank = (confidence) => confidence === "verified" ? 3 : confidence === "likely" ? 2 : 1;
+const EVM_ADDRESS = /^0x[0-9a-fA-F]{40}$/;
+const CHAIN_CONFIG = {
+  solana: { dexPaprika: "solana", gecko: "solana", address: /^[1-9A-HJ-NP-Za-km-z]{32,50}$/ },
+  ethereum: { dexPaprika: "ethereum", gecko: "eth", address: EVM_ADDRESS },
+  base: { dexPaprika: "base", gecko: "base", address: EVM_ADDRESS },
+  robinhood: { dexPaprika: "robinhood", gecko: "robinhood", address: EVM_ADDRESS },
+};
+const chainLabel = (chain) => ({ solana: "Solana", ethereum: "Ethereum", base: "Base", robinhood: "Robinhood" }[chain] ?? String(chain || "chain").toUpperCase());
 
 const withTimeout = async (url, init = {}, timeoutMs = 12000) => {
   const controller = new AbortController();
@@ -94,8 +102,8 @@ const meteoraOhlcv = async (pool, limit, aggregateMinutes = 15) => {
   return { body: { data: { attributes: { ohlcv_list: rows } } }, source: "meteora-dlmm" };
 };
 
-const dexPaprikaOhlcv = async (pool, apiKey, limit, interval = "15m") => {
-  const response = await withTimeout(`${DEXPAPRIKA_API}/networks/solana/pools/${encodeURIComponent(pool)}/ohlcv?start=-12h&interval=${encodeURIComponent(interval)}&limit=${limit}`, {
+const dexPaprikaOhlcv = async (pool, apiKey, limit, interval = "15m", network = "solana") => {
+  const response = await withTimeout(`${DEXPAPRIKA_API}/networks/${encodeURIComponent(network)}/pools/${encodeURIComponent(pool)}/ohlcv?start=-12h&interval=${encodeURIComponent(interval)}&limit=${limit}`, {
     headers: { accept: "application/json", authorization: apiKey },
   }, 15000);
   const payload = await response.json().catch(() => ({}));
@@ -152,10 +160,11 @@ const codexOhlcv = async (pool, token, apiKey, limit, resolution = "15") => {
   throw lastError ?? new Error("codex returned no 15m candles");
 };
 
-const geckoPoolForToken = async (token) => {
+const geckoPoolForToken = async (token, chain = "solana") => {
   const normalized = String(token ?? "").trim();
   if (!normalized) return undefined;
-  const cached = geckoPoolCache.get(normalized);
+  const network = CHAIN_CONFIG[chain]?.gecko ?? "solana";
+  const cached = geckoPoolCache.get(`${network}:${normalized}`);
   if (cached && Date.now() - cached.fetchedAt < 5 * 60_000) return cached.pool;
   let pool;
   try {
@@ -163,18 +172,20 @@ const geckoPoolForToken = async (token) => {
     if (!response.ok) throw new Error(`dexscreener token (${response.status})`);
     const payload = await response.json().catch(() => ({}));
     const rows = Array.isArray(payload?.pairs) ? payload.pairs : [];
-    pool = rows.sort((a, b) => Number(b?.liquidity?.usd ?? 0) - Number(a?.liquidity?.usd ?? 0)).map((row) => String(row?.pairAddress ?? "")).find((address) => /^[1-9A-HJ-NP-Za-km-z]{32,50}$/.test(address));
+    const addressPattern = chain === "solana" ? CHAIN_CONFIG.solana.address : EVM_ADDRESS;
+    pool = rows.filter((row) => !row?.chainId || row.chainId === chain).sort((a, b) => Number(b?.liquidity?.usd ?? 0) - Number(a?.liquidity?.usd ?? 0)).map((row) => String(row?.pairAddress ?? "")).find((address) => addressPattern.test(address));
   } catch {
     // Dexscreener is the primary public resolver; Gecko remains the secondary path.
   }
   if (!pool) {
-    const response = await withTimeout(`${GECKO_OHLCV.replace(/\/pools$/, "")}/tokens/${encodeURIComponent(normalized)}/pools?page=1`, { headers: { accept: "application/json" } }, 12000);
+    const response = await withTimeout(`${GECKO_API}/${encodeURIComponent(network)}/tokens/${encodeURIComponent(normalized)}/pools?page=1`, { headers: { accept: "application/json" } }, 12000);
     if (!response.ok) throw new Error(`gecko token pools (${response.status})`);
     const payload = await response.json().catch(() => ({}));
     const rows = Array.isArray(payload?.data) ? payload.data : [];
-    pool = rows.map((row) => String(row?.attributes?.address ?? row?.id ?? "").replace(/^solana_/, "")).find((address) => /^[1-9A-HJ-NP-Za-km-z]{32,50}$/.test(address));
+    const addressPattern = chain === "solana" ? CHAIN_CONFIG.solana.address : EVM_ADDRESS;
+    pool = rows.map((row) => String(row?.attributes?.address ?? row?.id ?? "").replace(`${network}_`, "")).find((address) => addressPattern.test(address));
   }
-  if (pool) geckoPoolCache.set(normalized, { pool, fetchedAt: Date.now() });
+  if (pool) geckoPoolCache.set(`${network}:${normalized}`, { pool, fetchedAt: Date.now() });
   return pool;
 };
 
@@ -845,7 +856,10 @@ export default async function handler(req, res) {
     }
     if (kind === "scan") {
       const token = String(req.query?.token ?? "").trim();
-      if (!/^[1-9A-HJ-NP-Za-km-z]{32,50}$/.test(token)) return res.status(400).json({ error: "invalid_solana_token" });
+      const chain = String(req.query?.chain ?? "").trim().toLowerCase() || (EVM_ADDRESS.test(token) ? "ethereum" : "solana");
+      const config = CHAIN_CONFIG[chain];
+      if (!config) return res.status(400).json({ error: "unsupported_chain", chain, availableChains: Object.keys(CHAIN_CONFIG) });
+      if (!config.address.test(token)) return res.status(400).json({ error: chain === "solana" ? "invalid_solana_token" : "invalid_evm_token", chain });
       const upstream = await withTimeout(`https://api.dexscreener.com/latest/dex/tokens/${encodeURIComponent(token)}`, { headers: { accept: "application/json" } }, 12000);
       const body = await upstream.text();
       res.setHeader("Content-Type", "application/json; charset=utf-8");
@@ -869,16 +883,19 @@ export default async function handler(req, res) {
     if (kind === "ohlcv") {
       const pool = String(req.query?.pool ?? "");
       const token = String(req.query?.token ?? "");
+      const chain = String(req.query?.chain ?? "").trim().toLowerCase() || (EVM_ADDRESS.test(pool) || EVM_ADDRESS.test(token) ? "ethereum" : "solana");
+      const chainConfig = CHAIN_CONFIG[chain];
+      if (!chainConfig) return res.status(400).json({ error: "unsupported_chain", chain, availableChains: Object.keys(CHAIN_CONFIG) });
       const dex = String(req.query?.dex ?? "").trim().toLowerCase();
       const allowCodex = String(req.query?.codex ?? "") === "1";
       const timeframe = String(req.query?.timeframe ?? "15m").trim().toLowerCase() === "5m" ? "5m" : "15m";
       const aggregateMinutes = timeframe === "5m" ? 5 : 15;
       const codexResolution = timeframe === "5m" ? "5" : "15";
-      if (!/^[1-9A-HJ-NP-Za-km-z]{32,50}$/.test(pool) && !/^[1-9A-HJ-NP-Za-km-z]{32,50}$/.test(token)) return res.status(400).json({ error: "invalid_pool" });
+      if (!chainConfig.address.test(pool) && !chainConfig.address.test(token)) return res.status(400).json({ error: "invalid_pool", chain });
       const codexKey = String(process.env.CODEX_API_KEY ?? "").trim();
       const dexPaprikaKey = String(process.env.DEXPAPRIKA_API_KEY ?? "").trim().replace(/^Bearer\s+/i, "");
       const cachePrefix = allowCodex && codexKey ? "codex" : dexPaprikaKey ? "dexpaprika" : dex.includes("meteora") ? "meteora" : "gecko";
-      const cacheKey = `${cachePrefix}:${timeframe}:${pool || "token"}:${token}`;
+      const cacheKey = `${chain}:${cachePrefix}:${timeframe}:${pool || "token"}:${token}`;
       const cacheTtl = allowCodex && codexKey ? 60_000 : dexPaprikaKey ? 90_000 : dex.includes("meteora") ? 120_000 : 180_000;
       const cached = ohlcvCache.get(cacheKey);
       if (cached && Date.now() - cached.fetchedAt < cacheTtl) {
@@ -918,7 +935,7 @@ export default async function handler(req, res) {
         if (Date.now() >= backoffUntil) {
           try {
             if (!pool) throw new Error("dexpaprika requires a pool address");
-             const body = await dexPaprikaOhlcv(pool, dexPaprikaKey, limit, timeframe);
+              const body = await dexPaprikaOhlcv(pool, dexPaprikaKey, limit, timeframe, chainConfig.dexPaprika);
             ohlcvBackoff.delete(cacheKey);
             ohlcvCache.set(cacheKey, { body, fetchedAt: Date.now(), source: "dexpaprika" });
             res.setHeader("Cache-Control", `s-maxage=${Math.round(cacheTtl / 1000)}, stale-while-revalidate=${Math.round(cacheTtl * 2 / 1000)}`);
@@ -935,10 +952,10 @@ export default async function handler(req, res) {
       }
       let geckoPool = pool;
       if (!geckoPool && token) {
-        try { geckoPool = await geckoPoolForToken(token); } catch (error) { console.warn("Gecko token-to-pool lookup failed", token, error); }
+          try { geckoPool = await geckoPoolForToken(token, chain); } catch (error) { console.warn("Gecko token-to-pool lookup failed", token, error); }
       }
       if (!geckoPool) return res.status(404).json({ error: "pool_not_found_for_token" });
-       const url = `${GECKO_OHLCV}/${encodeURIComponent(geckoPool)}/ohlcv/minute?aggregate=${aggregateMinutes}&limit=${limit}`;
+       const url = `${GECKO_API}/${encodeURIComponent(chainConfig.gecko)}/pools/${encodeURIComponent(geckoPool)}/ohlcv/minute?aggregate=${aggregateMinutes}&limit=${limit}`;
       const upstream = await withTimeout(url, { headers: { accept: "application/json" } }, 20000);
       const body = await upstream.text();
       res.setHeader("Content-Type", "application/json; charset=utf-8");
@@ -980,6 +997,8 @@ export default async function handler(req, res) {
     if (kind === "wallets") {
       const pool = String(req.query?.pool ?? "");
       const baseMint = String(req.query?.base ?? "");
+      const chain = String(req.query?.chain ?? "solana").trim().toLowerCase();
+      if (chain !== "solana") return res.status(200).json({ status: "UNAVAILABLE", source: `${chainLabel(chain)} wallet indexer not configured`, smartWallets: 0, walletFlow: "UNAVAILABLE", walletEvents: 0, walletAddresses: [], note: "EVM and Robinhood wallet evidence requires indexed transfer logs; the screener keeps this separate from market data." });
       const limit = Math.max(3, Math.min(20, Number(req.query?.limit ?? 12)));
       const scanLimit = Math.max(limit, Math.min(100, Number(req.query?.scan ?? 50)));
       if (!/^[1-9A-HJ-NP-Za-km-z]{32,50}$/.test(pool) || !/^[1-9A-HJ-NP-Za-km-z]{32,50}$/.test(baseMint)) return res.status(400).json({ error: "invalid_pool_or_mint" });
@@ -992,13 +1011,15 @@ export default async function handler(req, res) {
     }
     if (kind === "token") {
       const mint = String(req.query?.mint ?? "");
+      const chain = String(req.query?.chain ?? "solana").trim().toLowerCase();
+      if (chain !== "solana") return res.status(200).json({ status: "UNAVAILABLE", source: `${chainLabel(chain)} token safety adapter not configured`, safety: "UNAVAILABLE", note: "Use a chain-specific token safety provider before treating this as a pass." });
       if (!/^[1-9A-HJ-NP-Za-km-z]{32,50}$/.test(mint)) return res.status(400).json({ error: "invalid_mint" });
       return res.status(200).json(await tokenSignal(mint));
     }
     if (kind === "kol") {
       const symbol = String(req.query?.symbol ?? "").trim().slice(0, 64);
       const mint = String(req.query?.mint ?? "").trim();
-      if (mint && !/^[1-9A-HJ-NP-Za-km-z]{32,50}$/.test(mint)) return res.status(400).json({ error: "invalid_mint" });
+      if (mint && !/^[1-9A-HJ-NP-Za-km-z]{32,50}$/.test(mint) && !EVM_ADDRESS.test(mint)) return res.status(400).json({ error: "invalid_mint" });
       return res.status(200).json(await kolSignal(symbol, mint));
     }
     if (kind === "kolfeed") {

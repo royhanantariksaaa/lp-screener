@@ -999,6 +999,7 @@ footer b { color: var(--ui-muted) !important; }
    dense market view. The prior auto layout expanded to the widest signal
    content, leaving the right columns outside the visible viewport. */
 @media (min-width: 801px) {
+  .workspace-page .toolbar { position: static !important; }
   .workspace-page .table-scroll-viewport table {
     width: 100% !important;
     min-width: 0 !important;

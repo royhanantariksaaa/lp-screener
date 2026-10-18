@@ -83,7 +83,7 @@ const dexPaprikaPools = async (network, maxPages = 3) => {
   let cursor = "";
   let hasNextPage = false;
   for (let page = 0; page < maxPages; page += 1) {
-    const params = new URLSearchParams({ order_by: "volume_usd_24h", sort: "desc", limit: "100" });
+    const params = new URLSearchParams({ order_by: "volume_usd_24h", sort: "desc", limit: "100", detailed: "true" });
     if (cursor) params.set("cursor", cursor);
     const response = await withTimeout(`${DEXPAPRIKA_API}/networks/${encodeURIComponent(network)}/pools/search?${params.toString()}`, { headers: { accept: "application/json", authorization: apiKey } }, 20000);
     if (!response.ok) {

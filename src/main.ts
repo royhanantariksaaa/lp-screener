@@ -312,6 +312,8 @@ const runnerPotentialScore = (pool: Pool) => scoreSnapshotFor(pool).runnerPotent
 const runnerTierMax = (marketCap?: number) => marketCapTier(marketCap) === "NANO" || marketCapTier(marketCap) === "ULTRA_MICRO" ? 100 : 0;
 const isRunnerTier = (marketCap?: number) => runnerTierMax(marketCap) > 0;
 const volumeUpsideScore = (pool: Pool) => scoreSnapshotFor(pool).flowUpside;
+const feedLpGates = (pool: Pool) => pool.liquidity >= 5_000 && pool.volume24h >= 2_000 && pool.ageDays <= (pool.chain === "solana" ? 365 : 2_500) && Boolean(pool.pairAddress && pool.tokenAddress);
+const evidenceRejected = (pool: Pool) => pool.eligibility?.status === "REJECTED" && (pool.technical?.available || pool.tokenStatus === "LIVE");
 const scoreBreakdown = (pool: Pool) => {
   const snapshot = scoreSnapshotFor(pool);
   return {
@@ -338,6 +340,10 @@ const poolDecision = (pool: Pool, displayedScore = scoreFor(pool)) => {
   const eligible = pool.eligibility?.status === "OPEN_NOW" || pool.eligibility?.status === "ELIGIBLE_WAIT";
   const snapshot = scoreSnapshotFor(pool);
   if (pool.eligibility?.status === "REJECTED") return { label: "REJECTED", className: "rejected" };
+  // The fast feed can nominate a pool before the selected-token deep scan
+  // supplies candles, safety, wallet, and KOL evidence. Keep that distinction
+  // visible in the confidence score and evidence panel.
+  if (!evidenceRejected(pool) && feedLpGates(pool) && displayedScore >= 70) return { label: "LP CANDIDATE", className: "lp-candidate" };
   if (eligible && displayedScore >= 70) return { label: "LP CANDIDATE", className: "lp-candidate" };
   if (eligible && displayedScore >= 55) return { label: "LP WATCH", className: "lp-watch" };
   if (isRunnerTier(pool.marketCap) && snapshot.runnerPotential >= 60) return { label: "RUNNER CANDIDATE", className: "runner-candidate" };
@@ -1288,6 +1294,7 @@ function refreshEligibilityNow() {
         kolEvidence: Number(pool.kolMentions ?? 0) > 0,
       },
       pool.tokenStatus === "LIVE" ? { status: "LIVE", source: pool.tokenSource, mintAuthority: pool.mintAuthority, freezeAuthority: pool.freezeAuthority, holderTop10Pct: pool.holderTop10Pct } : undefined,
+      { maxAgeDays: pool.chain === "solana" ? 365 : 2_500 },
     );
     return { ...pool, eligibility, scoreSnapshot: computeScoreSnapshot(pool, snapshotId, capturedAt) };
   });

@@ -297,11 +297,15 @@ export function computeScoreSnapshot(pool: ScoringPool, snapshotId = 0, captured
   const tier = marketCapTier(pool.marketCap);
   const runnerEligible = tier === "NANO" || tier === "ULTRA_MICRO";
   const runnerItems = [
-    { value: components.acceleration, weight: 30, available: available.acceleration },
+    // Feed-only rows do not have 15m candles yet. Turnover and depth keep the
+    // runner screen useful without pretending that they are candle momentum.
+    { value: components.acceleration, weight: 20, available: available.acceleration },
     { value: components.momentum, weight: 25, available: available.momentum },
-    { value: components.range, weight: 20, available: available.range },
-    { value: components.wallet, weight: 15, available: available.wallet },
-    { value: components.attention, weight: 10, available: available.attention },
+    { value: components.turnover, weight: 20, available: available.turnover },
+    { value: components.depth, weight: 10, available: available.depth },
+    { value: components.range, weight: 15, available: available.range },
+    { value: components.wallet, weight: 5, available: available.wallet },
+    { value: components.attention, weight: 5, available: available.attention },
   ];
   const runnerCoverage = runnerItems.filter((item) => item.available).reduce((sum, item) => sum + item.weight, 0) / 100;
   const runnerPotential = runnerEligible ? clampScore(weightedAverage(runnerItems) * (0.35 + runnerCoverage * 0.65)) : 0;
@@ -485,11 +489,15 @@ export function evaluateEligibility(
   analysis: TechnicalAnalysis | undefined,
   intelligence: { walletLive: boolean; kolLive: boolean; walletEvidence?: boolean; kolEvidence?: boolean },
   safety: TokenSafetyAnalysis | undefined,
+  options: { minLiquidity?: number; minVolume?: number; maxAgeDays?: number } = {},
 ): EligibilityAnalysis {
+  const minLiquidity = options.minLiquidity ?? 5_000;
+  const minVolume = options.minVolume ?? 2_000;
+  const maxAgeDays = options.maxAgeDays ?? 365;
   const address = Boolean(pool.pairAddress && pool.tokenAddress);
-  const liquidity = pool.liquidity >= 5_000;
-  const volume = pool.volume24h >= 2_000;
-  const age = pool.ageDays <= 365;
+  const liquidity = pool.liquidity >= minLiquidity;
+  const volume = pool.volume24h >= minVolume;
+  const age = pool.ageDays <= maxAgeDays;
   const technical = Boolean(analysis?.available && analysis.fresh);
   const walletReady = intelligence.walletLive && Boolean(intelligence.walletEvidence);
   const kolReady = intelligence.kolLive && Boolean(intelligence.kolEvidence);
@@ -507,9 +515,9 @@ export function evaluateEligibility(
 
   const reasons: string[] = [];
   if (!address) reasons.push("Pool and token addresses are required.");
-  if (!liquidity) reasons.push("Liquidity is below the $5K microcap floor.");
-  if (!volume) reasons.push("24h volume is below the $2K activity floor.");
-  if (!age) reasons.push("Pool is outside the 365-day screening window.");
+  if (!liquidity) reasons.push(`Liquidity is below the $${Math.round(minLiquidity / 1000)}K microcap floor.`);
+  if (!volume) reasons.push(`24h volume is below the $${Math.round(minVolume / 1000)}K activity floor.`);
+  if (!age) reasons.push(`Pool is outside the ${maxAgeDays}-day screening window.`);
   if (!analysis?.available) reasons.push("Waiting for 15m candle history.");
   else if (!analysis.fresh) reasons.push("15m data is stale; wait for a fresh refresh.");
   else if (!bullish) reasons.push("15m trend is not bullish.");

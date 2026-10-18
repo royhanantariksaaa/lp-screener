@@ -299,13 +299,14 @@ export function computeScoreSnapshot(pool: ScoringPool, snapshotId = 0, captured
   const runnerItems = [
     // Feed-only rows do not have 15m candles yet. Turnover and depth keep the
     // runner screen useful without pretending that they are candle momentum.
-    { value: components.acceleration, weight: 20, available: available.acceleration },
+    { value: components.acceleration, weight: 15, available: available.acceleration },
     { value: components.momentum, weight: 25, available: available.momentum },
-    { value: components.turnover, weight: 20, available: available.turnover },
+    { value: components.turnover, weight: 15, available: available.turnover },
+    { value: components.volume, weight: 15, available: available.volume },
     { value: components.depth, weight: 10, available: available.depth },
     { value: components.range, weight: 15, available: available.range },
-    { value: components.wallet, weight: 5, available: available.wallet },
-    { value: components.attention, weight: 5, available: available.attention },
+    { value: components.wallet, weight: 3, available: available.wallet },
+    { value: components.attention, weight: 2, available: available.attention },
   ];
   const runnerCoverage = runnerItems.filter((item) => item.available).reduce((sum, item) => sum + item.weight, 0) / 100;
   const runnerPotential = runnerEligible ? clampScore(weightedAverage(runnerItems) * (0.35 + runnerCoverage * 0.65)) : 0;

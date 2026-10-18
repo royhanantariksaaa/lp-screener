@@ -1,5 +1,6 @@
 const SOLANA_ADDRESS = /^[1-9A-HJ-NP-Za-km-z]{32,50}$/;
 const EVM_ADDRESS = /^0x[0-9a-fA-F]{40}$/;
+const EVM_POOL = /^0x[0-9a-fA-F]{40,128}$/;
 const previewCache = new Map();
 const previewInFlight = new Map();
 const usageEvents = [];
@@ -37,13 +38,13 @@ export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   if (req.method === "OPTIONS") return res.status(204).end();
   if (req.method !== "GET") return res.status(405).json({ error: "method_not_allowed" });
-  const pools = String(req.query?.pools ?? "").split(",").map((value) => value.trim()).filter((value) => SOLANA_ADDRESS.test(value) || EVM_ADDRESS.test(value)).slice(0, 12);
+  const pools = String(req.query?.pools ?? "").split(",").map((value) => value.trim()).filter((value) => SOLANA_ADDRESS.test(value) || EVM_POOL.test(value)).slice(0, 12);
   const dexes = String(req.query?.dexes ?? "").split(",");
   const chains = String(req.query?.chains ?? "").split(",").map((value) => value.trim().toLowerCase());
   if (!pools.length) return res.status(400).json({ error: "pools_required" });
   const previews = {};
   await Promise.all(pools.map(async (pool, index) => {
-    const chain = chains[index] || (EVM_ADDRESS.test(pool) ? "ethereum" : "solana");
+    const chain = chains[index] || (EVM_POOL.test(pool) ? "ethereum" : "solana");
     const key = `${chain}:${pool}`;
     const cached = previewCache.get(key);
     if (cached && Date.now() - cached.fetchedAt < 90_000) { previews[pool] = cached.body; return; }

@@ -1,10 +1,11 @@
 const SOLANA_ADDRESS = /^[1-9A-HJ-NP-Za-km-z]{32,50}$/;
 const EVM_ADDRESS = /^0x[0-9a-fA-F]{40}$/;
+const EVM_POOL = /^0x[0-9a-fA-F]{40,128}$/;
 const CHAIN_CONFIG = {
-  solana: { label: "Solana", address: SOLANA_ADDRESS, indexedWallets: true, tokenSafety: true },
-  ethereum: { label: "Ethereum", address: EVM_ADDRESS, indexedWallets: false, tokenSafety: false },
-  base: { label: "Base", address: EVM_ADDRESS, indexedWallets: false, tokenSafety: false },
-  robinhood: { label: "Robinhood", address: EVM_ADDRESS, indexedWallets: false, tokenSafety: false },
+  solana: { label: "Solana", token: SOLANA_ADDRESS, pool: SOLANA_ADDRESS, indexedWallets: true, tokenSafety: true },
+  ethereum: { label: "Ethereum", token: EVM_ADDRESS, pool: EVM_POOL, indexedWallets: false, tokenSafety: false },
+  base: { label: "Base", token: EVM_ADDRESS, pool: EVM_POOL, indexedWallets: false, tokenSafety: false },
+  robinhood: { label: "Robinhood", token: EVM_ADDRESS, pool: EVM_POOL, indexedWallets: false, tokenSafety: false },
 };
 const DEEP_CACHE_TTL = 45_000;
 const deepCache = new Map();
@@ -131,8 +132,8 @@ export default async function handler(req, res) {
   const chain = requestedChain || (EVM_ADDRESS.test(token) ? "ethereum" : "solana");
   const config = CHAIN_CONFIG[chain];
   if (!config) return res.status(400).json({ error: "unsupported_chain", chain, availableChains: Object.keys(CHAIN_CONFIG) });
-  if (!config.address.test(token)) return res.status(400).json({ error: chain === "solana" ? "invalid_solana_token" : "invalid_evm_token", chain });
-  if (requestedPool && !config.address.test(requestedPool)) return res.status(400).json({ error: "invalid_pool", chain });
+  if (!config.token.test(token)) return res.status(400).json({ error: chain === "solana" ? "invalid_solana_token" : "invalid_evm_token", chain });
+  if (requestedPool && !config.pool.test(requestedPool)) return res.status(400).json({ error: "invalid_pool", chain });
   const key = `${chain}:${token}:${requestedPool}`;
   const cached = deepCache.get(key);
   if (cached && Date.now() - cached.fetchedAt < DEEP_CACHE_TTL) {

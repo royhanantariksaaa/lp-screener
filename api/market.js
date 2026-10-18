@@ -36,11 +36,12 @@ const geckoPoolCache = new Map();
 const trackedWalletIndex = new Map((Array.isArray(trackedWalletMap) ? trackedWalletMap : []).map((row) => [String(row.address ?? "").toLowerCase(), Array.isArray(row.matches) ? row.matches : []]));
 const confidenceRank = (confidence) => confidence === "verified" ? 3 : confidence === "likely" ? 2 : 1;
 const EVM_ADDRESS = /^0x[0-9a-fA-F]{40}$/;
+const EVM_POOL = /^0x[0-9a-fA-F]{40,128}$/;
 const CHAIN_CONFIG = {
-  solana: { dexPaprika: "solana", gecko: "solana", address: /^[1-9A-HJ-NP-Za-km-z]{32,50}$/ },
-  ethereum: { dexPaprika: "ethereum", gecko: "eth", address: EVM_ADDRESS },
-  base: { dexPaprika: "base", gecko: "base", address: EVM_ADDRESS },
-  robinhood: { dexPaprika: "robinhood", gecko: "robinhood", address: EVM_ADDRESS },
+  solana: { dexPaprika: "solana", gecko: "solana", token: /^[1-9A-HJ-NP-Za-km-z]{32,50}$/, pool: /^[1-9A-HJ-NP-Za-km-z]{32,50}$/ },
+  ethereum: { dexPaprika: "ethereum", gecko: "eth", token: EVM_ADDRESS, pool: EVM_POOL },
+  base: { dexPaprika: "base", gecko: "base", token: EVM_ADDRESS, pool: EVM_POOL },
+  robinhood: { dexPaprika: "robinhood", gecko: "robinhood", token: EVM_ADDRESS, pool: EVM_POOL },
 };
 const chainLabel = (chain) => ({ solana: "Solana", ethereum: "Ethereum", base: "Base", robinhood: "Robinhood" }[chain] ?? String(chain || "chain").toUpperCase());
 
@@ -172,7 +173,7 @@ const geckoPoolForToken = async (token, chain = "solana") => {
     if (!response.ok) throw new Error(`dexscreener token (${response.status})`);
     const payload = await response.json().catch(() => ({}));
     const rows = Array.isArray(payload?.pairs) ? payload.pairs : [];
-    const addressPattern = chain === "solana" ? CHAIN_CONFIG.solana.address : EVM_ADDRESS;
+    const addressPattern = chain === "solana" ? CHAIN_CONFIG.solana.pool : EVM_POOL;
     pool = rows.filter((row) => !row?.chainId || row.chainId === chain).sort((a, b) => Number(b?.liquidity?.usd ?? 0) - Number(a?.liquidity?.usd ?? 0)).map((row) => String(row?.pairAddress ?? "")).find((address) => addressPattern.test(address));
   } catch {
     // Dexscreener is the primary public resolver; Gecko remains the secondary path.
@@ -182,7 +183,7 @@ const geckoPoolForToken = async (token, chain = "solana") => {
     if (!response.ok) throw new Error(`gecko token pools (${response.status})`);
     const payload = await response.json().catch(() => ({}));
     const rows = Array.isArray(payload?.data) ? payload.data : [];
-    const addressPattern = chain === "solana" ? CHAIN_CONFIG.solana.address : EVM_ADDRESS;
+    const addressPattern = chain === "solana" ? CHAIN_CONFIG.solana.pool : EVM_POOL;
     pool = rows.map((row) => String(row?.attributes?.address ?? row?.id ?? "").replace(`${network}_`, "")).find((address) => addressPattern.test(address));
   }
   if (pool) geckoPoolCache.set(`${network}:${normalized}`, { pool, fetchedAt: Date.now() });
@@ -859,7 +860,7 @@ export default async function handler(req, res) {
       const chain = String(req.query?.chain ?? "").trim().toLowerCase() || (EVM_ADDRESS.test(token) ? "ethereum" : "solana");
       const config = CHAIN_CONFIG[chain];
       if (!config) return res.status(400).json({ error: "unsupported_chain", chain, availableChains: Object.keys(CHAIN_CONFIG) });
-      if (!config.address.test(token)) return res.status(400).json({ error: chain === "solana" ? "invalid_solana_token" : "invalid_evm_token", chain });
+      if (!config.token.test(token)) return res.status(400).json({ error: chain === "solana" ? "invalid_solana_token" : "invalid_evm_token", chain });
       const upstream = await withTimeout(`https://api.dexscreener.com/latest/dex/tokens/${encodeURIComponent(token)}`, { headers: { accept: "application/json" } }, 12000);
       const body = await upstream.text();
       res.setHeader("Content-Type", "application/json; charset=utf-8");
@@ -883,7 +884,7 @@ export default async function handler(req, res) {
     if (kind === "ohlcv") {
       const pool = String(req.query?.pool ?? "");
       const token = String(req.query?.token ?? "");
-      const chain = String(req.query?.chain ?? "").trim().toLowerCase() || (EVM_ADDRESS.test(pool) || EVM_ADDRESS.test(token) ? "ethereum" : "solana");
+      const chain = String(req.query?.chain ?? "").trim().toLowerCase() || (EVM_POOL.test(pool) || EVM_ADDRESS.test(token) ? "ethereum" : "solana");
       const chainConfig = CHAIN_CONFIG[chain];
       if (!chainConfig) return res.status(400).json({ error: "unsupported_chain", chain, availableChains: Object.keys(CHAIN_CONFIG) });
       const dex = String(req.query?.dex ?? "").trim().toLowerCase();
@@ -891,7 +892,7 @@ export default async function handler(req, res) {
       const timeframe = String(req.query?.timeframe ?? "15m").trim().toLowerCase() === "5m" ? "5m" : "15m";
       const aggregateMinutes = timeframe === "5m" ? 5 : 15;
       const codexResolution = timeframe === "5m" ? "5" : "15";
-      if (!chainConfig.address.test(pool) && !chainConfig.address.test(token)) return res.status(400).json({ error: "invalid_pool", chain });
+      if (!chainConfig.pool.test(pool) && !chainConfig.token.test(token)) return res.status(400).json({ error: "invalid_pool", chain });
       const codexKey = String(process.env.CODEX_API_KEY ?? "").trim();
       const dexPaprikaKey = String(process.env.DEXPAPRIKA_API_KEY ?? "").trim().replace(/^Bearer\s+/i, "");
       const cachePrefix = allowCodex && codexKey ? "codex" : dexPaprikaKey ? "dexpaprika" : dex.includes("meteora") ? "meteora" : "gecko";

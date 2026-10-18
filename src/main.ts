@@ -809,7 +809,7 @@ const applyDeepScanPayload = (key: string, payload: DeepScanPayload) => {
   if (!current) return;
   if (payload.pair) {
     const mapped = mapLivePair(payload.pair);
-    patchPool(key, { ...mapped, id: current.id, previewCandles: current.previewCandles, previewTimeframe: current.previewTimeframe, previewSource: current.previewSource });
+    patchPool(key, { id: current.id, pairAddress: mapped.pairAddress, sourceUrl: mapped.sourceUrl, name: mapped.name, symbol: mapped.symbol, dex: mapped.dex, address: mapped.address, tokenAddress: mapped.tokenAddress, imageUrl: mapped.imageUrl, quoteTokenAddress: mapped.quoteTokenAddress, price: mapped.price, marketCap: mapped.marketCap, liquidity: mapped.liquidity, volume24h: mapped.volume24h, ageDays: mapped.ageDays, createdAt: mapped.createdAt, tvl: mapped.tvl, change24h: mapped.change24h, risk: mapped.risk, discovery: mapped.discovery, oculaStatus: mapped.oculaStatus, oculaSource: mapped.oculaSource, oculaVolume1h: mapped.oculaVolume1h, oculaChange1h: mapped.oculaChange1h, oculaHolders: mapped.oculaHolders, oculaBuyCount1h: mapped.oculaBuyCount1h, oculaSellCount1h: mapped.oculaSellCount1h, oculaSocialLinks: mapped.oculaSocialLinks, oculaSocialUrls: mapped.oculaSocialUrls });
   }
   const latest = poolByKey(key) ?? current;
   if (candles.length) {

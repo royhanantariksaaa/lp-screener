@@ -1512,7 +1512,8 @@ const formatProviderUsage = (usage: ProviderUsage) => `${usage.creditsUsedEstima
 const candlesFromRows = (rows: unknown) => parseOhlcv({ data: { attributes: { ohlcv_list: Array.isArray(rows) ? rows : [] } } });
 type FeedPayload = { pairs?: Array<Record<string, unknown>>; source?: string; fetchedAt?: string; chain?: ChainId; page?: number; pageSize?: number; total?: number; totalAvailable?: number; discoveryHasMore?: boolean; hasMore?: boolean; nextPage?: number; availableChains?: ChainId[] };
 async function fetchFeed(chain: ChainId, page = 1, pageSize = 40) {
-  const payload = await fetchJson<FeedPayload>(`${feedApi}?${new URLSearchParams({ chain, page: String(page), pageSize: String(pageSize) }).toString()}`, 25_000);
+  const cacheWindow = Math.floor(Date.now() / 15_000);
+  const payload = await fetchJson<FeedPayload>(`${feedApi}?${new URLSearchParams({ chain, page: String(page), pageSize: String(pageSize), v: String(cacheWindow) }).toString()}`, 25_000);
   return payload;
 }
 

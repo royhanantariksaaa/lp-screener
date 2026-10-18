@@ -46,7 +46,9 @@ const localMarketProxy = (): Plugin => ({
         }
         const upstream = kind === "ohlcv"
           ? `https://api.geckoterminal.com/api/v2/networks/solana/pools/${encodeURIComponent(query.get("pool") ?? "")}/ohlcv/minute?aggregate=15&limit=100`
-          : `https://api.dexscreener.com/latest/dex/search?q=${encodeURIComponent(query.get("q") ?? "SOL")}`;
+          : kind === "scan"
+            ? `https://api.dexscreener.com/latest/dex/tokens/${encodeURIComponent(query.get("token") ?? "")}`
+            : `https://api.dexscreener.com/latest/dex/search?q=${encodeURIComponent(query.get("q") ?? "SOL")}`;
         const result = await fetch(upstream, { headers: { accept: "application/json" } });
         response.statusCode = result.status;
         response.setHeader("Content-Type", "application/json; charset=utf-8");

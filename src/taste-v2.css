@@ -571,6 +571,48 @@ footer b { color: var(--ui-muted) !important; }
   .lesson-card { padding: 24px !important; }
 }
 
+/* Hybrid screener: keep the broad feed light and make the expensive path explicit. */
+.scan-bar {
+  display: flex;
+  align-items: end;
+  gap: 18px;
+  margin: 18px 0 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--ui-line);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--ui-panel) 86%, transparent);
+}
+.scan-copy { flex: 1 1 auto; min-width: 220px; }
+.scan-copy .eyebrow { display: block; margin-bottom: 4px; }
+.scan-copy p { margin: 0; color: var(--ui-muted); font-size: 12px; }
+.ca-scan {
+  display: grid;
+  grid-template-columns: minmax(230px, 1fr) auto;
+  align-items: end;
+  gap: 8px;
+  min-width: min(100%, 500px);
+}
+.ca-scan label { display: grid; gap: 5px; color: var(--ui-muted); font: 10px/1.2 "DM Mono", monospace; letter-spacing: .08em; }
+.ca-scan input { min-width: 0; height: 38px; padding: 0 11px; border: 1px solid var(--ui-line); border-radius: 4px; color: var(--ui-ink); background: var(--ui-bg); font: 12px "DM Mono", monospace; }
+.ca-scan input:focus { outline: 2px solid color-mix(in srgb, var(--ui-accent) 55%, transparent); outline-offset: 1px; }
+.scan-submit { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 38px; white-space: nowrap; }
+.scan-submit:disabled { cursor: progress; opacity: .7; }
+.scan-status { grid-column: 1 / -1; min-height: 14px; color: var(--ui-muted); font-size: 11px; }
+.scan-status.scanning { color: var(--ui-accent); }
+.scan-status.ready { color: var(--ui-ok); }
+.scan-status.error { color: var(--ui-danger); }
+@media (max-width: 760px) {
+  .scan-bar { display: grid; gap: 12px; margin-top: 12px; padding: 12px; }
+  .scan-copy { min-width: 0; }
+  .ca-scan { min-width: 0; width: 100%; grid-template-columns: minmax(0, 1fr) auto; }
+  .ca-scan input { width: 100%; }
+  .scan-submit { padding-inline: 10px; }
+}
+@media (max-width: 430px) {
+  .ca-scan { grid-template-columns: 1fr; }
+  .scan-submit { width: 100%; }
+}
+
 /* Mobile workspace density pass: keep the navigation, controls, table, and
    evidence hierarchy readable without making the user wade through stacked
    chrome before reaching the pool data. */

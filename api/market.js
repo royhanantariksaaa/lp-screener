@@ -838,6 +838,15 @@ export default async function handler(req, res) {
       res.setHeader("Content-Type", "application/json; charset=utf-8");
       return res.status(upstream.status).send(body);
     }
+    if (kind === "scan") {
+      const token = String(req.query?.token ?? "").trim();
+      if (!/^[1-9A-HJ-NP-Za-km-z]{32,50}$/.test(token)) return res.status(400).json({ error: "invalid_solana_token" });
+      const upstream = await withTimeout(`https://api.dexscreener.com/latest/dex/tokens/${encodeURIComponent(token)}`, { headers: { accept: "application/json" } }, 12000);
+      const body = await upstream.text();
+      res.setHeader("Content-Type", "application/json; charset=utf-8");
+      res.setHeader("Cache-Control", "s-maxage=15, stale-while-revalidate=60");
+      return res.status(upstream.status).send(body);
+    }
     if (kind === "ocula") {
       const ageBucket = String(req.query?.ageBucket ?? "all").trim().slice(0, 16) || "all";
       const params = new URLSearchParams({ launchpad: "all", limit: "100", chain: "solana", ageBucket });

@@ -904,6 +904,11 @@ async function scanTokenAddress(rawAddress: string) {
 }
 function switchChain(next: ChainId) {
   if (state.chain === next) return;
+  // Invalidate any response still in flight for the previous chain before the
+  // new feed starts. Without this guard, a slower Ethereum/Solana response can
+  // arrive after a chain switch and overwrite the new chain's rows.
+  liveRequestId += 1;
+  refreshInFlight = false;
   state.chain = next;
   state.selectedPool = "";
   state.query = "";
@@ -1432,6 +1437,7 @@ async function loadIntelligence() {
   }
 }
 let refreshInFlight = false;
+let liveRequestId = 0;
 const CANDLE_FRESH_MS = 3 * 60_000;
 const CANDLE_PERSIST_MS = 15 * 60_000;
 type CandleCacheEntry = { candles?: Candle[]; fetchedAt: number; failedAt?: number; retryAt?: number };
@@ -1828,8 +1834,11 @@ async function enrichSelectedPool(key: string) {
 }
 
 async function loadLive(reset = true) {
+  const requestedChain = state.chain;
+  if (reset && refreshInFlight) return;
+  const requestId = ++liveRequestId;
+  const isCurrentRequest = () => requestId === liveRequestId && requestedChain === state.chain;
   if (reset) {
-    if (refreshInFlight) return;
     refreshInFlight = true;
     state.loading = true;
     state.feedPage = 1;
@@ -1842,9 +1851,10 @@ async function loadLive(reset = true) {
   }
   render("data");
   try {
-    const payload = await fetchFeed(state.chain, reset ? 1 : state.feedPage, state.feedPageSize);
+    const payload = await fetchFeed(requestedChain, reset ? 1 : state.feedPage, state.feedPageSize);
+    if (!isCurrentRequest()) return;
     const pairs = payload.pairs ?? [];
-    if (reset && !pairs.length) throw new Error(`No ${chainLabel(state.chain)} pairs returned`);
+    if (reset && !pairs.length) throw new Error(`No ${chainLabel(requestedChain)} pairs returned`);
     const priorPools = new Map(state.pools.map((pool) => [poolKey(pool), pool]));
     const incoming = recordLaunchObservations(pairs.map(mapLivePair)).map((pool) => mergeLivePool(pool, priorPools.get(poolKey(pool))));
     const merged = reset ? incoming : [...state.pools, ...incoming];
@@ -1854,7 +1864,7 @@ async function loadLive(reset = true) {
     state.feedHasMore = Boolean(payload.hasMore);
     state.feedPage = Number(payload.nextPage ?? ((payload.page ?? (reset ? 1 : state.feedPage)) + 1));
     state.liveReady = true;
-    state.source = `LIVE · ${chainLabel(state.chain)} feed · ${payload.source ?? "Dexscreener"}`;
+    state.source = `LIVE · ${chainLabel(requestedChain)} feed · ${payload.source ?? "Dexscreener"}`;
     state.lastUpdated = Date.now();
     state.liveError = "";
     refreshEligibilityNow();
@@ -1863,9 +1873,11 @@ async function loadLive(reset = true) {
     render("data");
     void loadChartPreviews(reset ? filtered() : incoming);
   } catch (error) {
+    if (!isCurrentRequest()) return;
     state.liveError = error instanceof Error ? `${error.message}. Showing the last available snapshot.` : "Live feed unavailable. Showing the last available snapshot.";
-    if (!state.liveReady) state.source = `${chainLabel(state.chain)} feed unavailable · demo snapshot`;
+    if (!state.liveReady) state.source = `${chainLabel(requestedChain)} feed unavailable · demo snapshot`;
   } finally {
+    if (!isCurrentRequest()) return;
     if (reset) {
       state.loading = false;
       refreshInFlight = false;

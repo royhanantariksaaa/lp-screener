@@ -1823,7 +1823,7 @@ async function loadLive(reset = true) {
     state.liveError = "";
     resetCandleBudget();
   } else {
-    if (refreshInFlight || state.feedLoadingMore || !state.feedHasMore) return;
+    if (state.loading || state.feedLoadingMore || !state.feedHasMore) return;
     state.feedLoadingMore = true;
   }
   render("data");

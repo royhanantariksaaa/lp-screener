@@ -311,7 +311,7 @@ const scoreSnapshotFor = (pool: Pool) => pool.scoreSnapshot ?? computeScoreSnaps
 const runnerPotentialScore = (pool: Pool) => scoreSnapshotFor(pool).runnerPotential;
 const runnerTierMax = (marketCap?: number) => marketCapTier(marketCap) === "NANO" || marketCapTier(marketCap) === "ULTRA_MICRO" ? 100 : 0;
 const isRunnerTier = (marketCap?: number) => runnerTierMax(marketCap) > 0;
-const runnerCandidateThreshold = (snapshot: ScoreSnapshot) => snapshot.evidenceConfidence < 70 ? 50 : 60;
+const runnerCandidateThreshold = (snapshot: ScoreSnapshot) => snapshot.evidenceConfidence < 70 ? 35 : 60;
 const volumeUpsideScore = (pool: Pool) => scoreSnapshotFor(pool).flowUpside;
 const feedLpGates = (pool: Pool) => pool.liquidity >= 5_000 && pool.volume24h >= 2_000 && pool.ageDays <= (pool.chain === "solana" ? 365 : 2_500) && Boolean(pool.pairAddress && pool.tokenAddress);
 const evidenceRejected = (pool: Pool) => pool.eligibility?.status === "REJECTED" && (pool.technical?.available || pool.tokenStatus === "LIVE");

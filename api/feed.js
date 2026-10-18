@@ -1,5 +1,6 @@
 const DEX_SEARCH = "https://api.dexscreener.com/latest/dex/search";
 const DEX_TOKENS = "https://api.dexscreener.com/tokens/v1";
+const DEXPAPRIKA_API = "https://api.dexpaprika.com";
 const OCULA_FEED = "https://vwpzmuprmqwqwshqiyhl.supabase.co/functions/v1/codex-brewing";
 const PAGE_SIZE_DEFAULT = 40;
 const PAGE_SIZE_MAX = 50;
@@ -56,8 +57,78 @@ const fetchTokenPairs = async (chainId, addresses) => {
   return payloads.flat();
 };
 
+const numberFrom = (...values) => {
+  for (const value of values) {
+    const number = Number(value);
+    if (Number.isFinite(number)) return number;
+  }
+  return 0;
+};
+
+const dexPaprikaPools = async (network, maxPages = 3) => {
+  const apiKey = String(process.env.DEXPAPRIKA_API_KEY ?? "").trim().replace(/^Bearer\s+/i, "");
+  if (!apiKey) return undefined;
+  const rows = [];
+  let cursor = "";
+  for (let page = 0; page < maxPages; page += 1) {
+    const params = new URLSearchParams({ order_by: "volume_usd_24h", sort: "desc", limit: "100" });
+    if (cursor) params.set("cursor", cursor);
+    const response = await withTimeout(`${DEXPAPRIKA_API}/networks/${encodeURIComponent(network)}/pools/search?${params.toString()}`, { headers: { accept: "application/json", authorization: apiKey } }, 20000);
+    if (!response.ok) throw new Error(`dexpaprika feed (${response.status})`);
+    const payload = await response.json().catch(() => ({}));
+    const pageRows = Array.isArray(payload?.results) ? payload.results : [];
+    rows.push(...pageRows);
+    if (!payload?.has_next_page || !payload?.next_cursor || !pageRows.length) break;
+    cursor = String(payload.next_cursor);
+  }
+  return rows;
+};
+
+const dexPaprikaPair = (row, chainId, metadata) => {
+  const tokens = Array.isArray(row?.tokens) ? row.tokens : [row?.token_0, row?.token_1].filter(Boolean);
+  const baseRaw = tokens[0] ?? {};
+  const quoteRaw = tokens[1] ?? {};
+  const pairAddress = String(row?.id ?? row?.pool_address ?? row?.address ?? "");
+  if (!pairAddress) return undefined;
+  const baseAddress = String(baseRaw?.id ?? baseRaw?.address ?? "");
+  const quoteAddress = String(quoteRaw?.id ?? quoteRaw?.address ?? "");
+  const match = metadata.find((pair) => String(pair?.pairAddress ?? "") === pairAddress)
+    ?? metadata.find((pair) => String(pair?.baseToken?.address ?? "").toLowerCase() === baseAddress.toLowerCase() && String(pair?.quoteToken?.address ?? "").toLowerCase() === quoteAddress.toLowerCase());
+  const createdAt = row?.created_at ?? row?.createdAt ?? row?.creation_date;
+  const createdMs = typeof createdAt === "number" ? (createdAt < 10_000_000_000 ? createdAt * 1000 : createdAt) : Date.parse(String(createdAt ?? ""));
+  return {
+    ...(match ?? {}),
+    chainId,
+    pairAddress,
+    dexId: String(row?.dex_id ?? row?.dex_name ?? row?.dex ?? match?.dexId ?? "DEX"),
+    baseToken: match?.baseToken ?? { address: baseAddress, symbol: String(baseRaw?.symbol ?? baseRaw?.ticker ?? "TOKEN"), name: String(baseRaw?.name ?? "") },
+    quoteToken: match?.quoteToken ?? { address: quoteAddress, symbol: String(quoteRaw?.symbol ?? quoteRaw?.ticker ?? "USD"), name: String(quoteRaw?.name ?? "") },
+    priceUsd: numberFrom(row?.price_usd, row?.priceUsd, match?.priceUsd),
+    marketCap: numberFrom(row?.market_cap_usd, row?.marketCap, row?.fdv_usd, match?.marketCap),
+    fdv: numberFrom(row?.fdv_usd, row?.fdv, match?.fdv),
+    liquidity: { usd: numberFrom(row?.liquidity_usd, row?.liquidity?.usd, match?.liquidity?.usd) },
+    volume: { h24: numberFrom(row?.volume_usd_24h, row?.volume?.h24, match?.volume?.h24) },
+    priceChange: { h24: numberFrom(row?.price_change_percentage_24h, row?.priceChange?.h24, match?.priceChange?.h24) },
+    pairCreatedAt: Number.isFinite(createdMs) && createdMs > 0 ? createdMs : match?.pairCreatedAt,
+    url: match?.url ?? `https://dexscreener.com/${chainId}/${pairAddress}`,
+  };
+};
+
 const buildFeed = async (chain) => {
   const config = CHAIN_CONFIG[chain] ?? CHAIN_CONFIG.solana;
+  if (!config.ocula) {
+    try {
+      const paprikaRows = await dexPaprikaPools(config.dexChain);
+      if (paprikaRows?.length) {
+        const addresses = [...new Set(paprikaRows.flatMap((row) => (Array.isArray(row?.tokens) ? row.tokens : [row?.token_0, row?.token_1].filter(Boolean)).map((token) => String(token?.id ?? token?.address ?? "")).filter(Boolean)))].slice(0, 150);
+        const metadata = await fetchTokenPairs(config.dexChain, addresses);
+        const pairs = paprikaRows.map((row) => dexPaprikaPair(row, config.dexChain, metadata)).filter(Boolean);
+        return { status: "LIVE", source: `Server feed · DexPaprika network pools + Dexscreener metadata · ${chain}`, chain, pairs, fetchedAt: new Date().toISOString(), discovery: "network-pool-search" };
+      }
+    } catch {
+      // Keep the public Dexscreener search fallback when the optional network index is unavailable.
+    }
+  }
   const [searchPairs, ocula] = await Promise.all([
     Promise.all(config.search.map((term) => fetchPairs(term, config.dexChain).catch(() => []))),
     config.ocula ? oculaRows() : Promise.resolve([]),

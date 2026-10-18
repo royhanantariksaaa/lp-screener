@@ -888,6 +888,23 @@ async function scanTokenAddress(rawAddress: string) {
     render("data");
   }
 }
+function switchChain(next: ChainId) {
+  if (state.chain === next) return;
+  state.chain = next;
+  state.selectedPool = "";
+  state.query = "";
+  state.list = "all";
+  state.pools = [];
+  state.feedPage = 1;
+  state.feedTotal = 0;
+  state.feedHasMore = false;
+  state.feedLoadingMore = false;
+  state.liveReady = false;
+  state.liveError = "";
+  state.source = `Loading ${chainLabel(next)} feed…`;
+  render();
+  void loadLive(true);
+}
 function bindWorkspaceDynamic() {
   const scanForm = document.querySelector<HTMLFormElement>("#ca-scan-form");
   if (scanForm && scanForm.dataset.bound !== "1") {
@@ -904,11 +921,7 @@ function bindWorkspaceDynamic() {
     chainSelect.addEventListener("change", () => {
       const next = chainSelect.value as ChainId;
       if (!["solana", "ethereum", "base", "robinhood"].includes(next)) return;
-      state.chain = next;
-      state.selectedPool = "";
-      state.query = "";
-      state.list = "all";
-      void loadLive(true);
+      switchChain(next);
     });
   }
   document.querySelectorAll<HTMLElement>(".chain[data-chain]").forEach((chainItem) => {
@@ -917,11 +930,7 @@ function bindWorkspaceDynamic() {
     chainItem.addEventListener("click", () => {
       const next = chainItem.dataset.chain as ChainId;
       if (!["solana", "ethereum", "base", "robinhood"].includes(next) || state.chain === next) return;
-      state.chain = next;
-      state.selectedPool = "";
-      state.query = "";
-      state.list = "all";
-      void loadLive(true);
+      switchChain(next);
     });
   });
   const loadMore = document.querySelector<HTMLButtonElement>("#loadMorePools");

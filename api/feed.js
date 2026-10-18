@@ -5,9 +5,9 @@ const PAGE_SIZE_DEFAULT = 40;
 const PAGE_SIZE_MAX = 50;
 const CHAIN_CONFIG = {
   solana: { search: ["SOL", "USDC"], dexChain: "solana", ocula: true },
-  ethereum: { search: ["ETH", "USDC", "USDT", "WETH"], dexChain: "ethereum", ocula: false },
-  base: { search: ["ETH", "USDC", "USDT", "WETH"], dexChain: "base", ocula: false },
-  robinhood: { search: ["ETH", "USDC", "USDT", "WETH"], dexChain: "robinhood", ocula: false },
+  ethereum: { search: ["ETH", "USDC", "USDT", "WETH", "DAI", "WBTC", "LINK", "UNI", "AAVE", "MKR", "TOSHI", "BRETT", "DEGEN"], dexChain: "ethereum", ocula: false },
+  base: { search: ["ETH", "USDC", "USDT", "WETH", "DAI", "AERO", "BRETT", "DEGEN"], dexChain: "base", ocula: false },
+  robinhood: { search: ["ETH", "USDC", "USDT", "WETH", "DAI", "MKR", "TOSHI", "DEGEN"], dexChain: "robinhood", ocula: false },
 };
 const AVAILABLE_CHAINS = Object.keys(CHAIN_CONFIG);
 
@@ -59,7 +59,7 @@ const fetchTokenPairs = async (chainId, addresses) => {
 const buildFeed = async (chain) => {
   const config = CHAIN_CONFIG[chain] ?? CHAIN_CONFIG.solana;
   const [searchPairs, ocula] = await Promise.all([
-    Promise.all(config.search.map((term) => fetchPairs(term, config.dexChain))),
+    Promise.all(config.search.map((term) => fetchPairs(term, config.dexChain).catch(() => []))),
     config.ocula ? oculaRows() : Promise.resolve([]),
   ]);
   const byToken = new Map();
